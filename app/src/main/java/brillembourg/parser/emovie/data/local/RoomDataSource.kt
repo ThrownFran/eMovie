@@ -1,10 +1,9 @@
 package brillembourg.parser.emovie.data.local
 
+import android.util.Log
 import brillembourg.parser.emovie.data.MovieData
 import brillembourg.parser.emovie.domain.Category
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.transform
+import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 
 class RoomDataSource @Inject constructor(
@@ -22,31 +21,27 @@ class RoomDataSource @Inject constructor(
     )
 
     override fun getMovies(category: Category): Flow<List<MovieData>> {
-
-        return crossDao.getCategoryWithMovies(category.key)
-            .transform { try {
-                emit(it.movies.map { table -> table.toData() })
-            } catch (e: Exception) {
-                emit(emptyList())
-            } }
-
-//        return movieDao.getList().map { list ->
-//            list.map { movieTable ->
-//                MovieData(
-//                    movieTable.id,
-//                    movieTable.name,
-//                    movieTable.posterImageUrl
-//                )
-//            }
-//        }
-//        return flow { emit(movies) }
+        return crossDao.getCategoriesWithMovies()
+            .transform { categories ->
+                categories.forEach {
+                    if (it.category.name == category.key) {
+                        emit(it)
+                    }
+                }
+            }.transform {
+                try {
+                    emit(it.movies.map { table -> table.toData() })
+                } catch (e: Exception) {
+                    emit(emptyList())
+                }
+            }
     }
 
     override suspend fun saveMovies(category: Category, moviesFetched: List<MovieData>) {
         val movieTableList = moviesFetched.map { it.toTable() }
         movieTableList.forEach {
             movieDao.saveMovie(it)
-            crossDao.createMovieCrossCategory(CategoryMovieCrossRef(category.key,it.id))
+            crossDao.createMovieCrossCategory(CategoryMovieCrossRef(category.key, it.id))
         }
     }
 }
