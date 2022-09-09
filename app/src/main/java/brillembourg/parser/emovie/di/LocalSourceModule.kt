@@ -1,10 +1,7 @@
 package brillembourg.parser.emovie.di
 
 import android.content.Context
-import brillembourg.parser.emovie.data.local.AppDatabase
-import brillembourg.parser.emovie.data.local.MovieDao
-import brillembourg.parser.emovie.data.local.MovieLocalDataSource
-import brillembourg.parser.emovie.data.local.RoomDataSource
+import brillembourg.parser.emovie.data.local.*
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -19,13 +16,30 @@ class LocalSourceModule {
 
     @Singleton
     @Provides
-    fun movieDao (appDatabase: AppDatabase): MovieDao {
+    fun movieDao(appDatabase: AppDatabase): MovieDao {
         return appDatabase.movieDao()
     }
 
     @Singleton
     @Provides
-    fun provideLocalDataSource(movieDao: MovieDao): MovieLocalDataSource = RoomDataSource(movieDao)
+    fun categoryDao(appDatabase: AppDatabase): CategoryDao {
+        return appDatabase.categoryDao()
+    }
+
+    @Singleton
+    @Provides
+    fun movieCategoryCrossDao(appDatabase: AppDatabase): CategoryMoviesCrossDao {
+        return appDatabase.movieCategoryCrossDao()
+    }
+
+    @Singleton
+    @Provides
+    fun provideLocalDataSource(
+        movieDao: MovieDao,
+        categoryDao: CategoryDao,
+        crossDao: CategoryMoviesCrossDao
+    ): MovieLocalDataSource =
+        RoomDataSource(movieDao, categoryDao, crossDao)
 
     @Singleton
     @Provides

@@ -20,7 +20,7 @@ class MovieRepositoryImp @Inject constructor(
             val moviesFromLocal = localDataSource.getMovies(category).first()
             val moviesFromNetwork = networkDataSource.getMovies(category)
             if (moviesFromLocal != moviesFromNetwork) {
-                localDataSource.saveMovies(moviesFromNetwork)
+                localDataSource.saveMovies(category, moviesFromNetwork)
             }
         } catch (e: Exception) {
             throw (e.toDomain())

@@ -4,15 +4,22 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.sqlite.db.SupportSQLiteDatabase
+import brillembourg.parser.emovie.domain.Category
+import java.util.concurrent.Executors
 
 @Database(
     entities = arrayOf(
-        MovieTable::class
-    ), version = 1
+        MovieTable::class,
+        CategoryTable::class,
+        CategoryMovieCrossRef::class
+    ), version = 3
 )
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun movieDao(): MovieDao
+    abstract fun categoryDao(): CategoryDao
+    abstract fun movieCategoryCrossDao(): CategoryMoviesCrossDao
 
     companion object {
         @Volatile
@@ -30,6 +37,18 @@ abstract class AppDatabase : RoomDatabase() {
             "emovie_database"
         )
             .fallbackToDestructiveMigration()
+            .addCallback(object : RoomDatabase.Callback() {
+                override fun onCreate(db: SupportSQLiteDatabase) {
+                    super.onCreate(db)
+                    //pre-populate data
+                    Executors.newSingleThreadExecutor().execute {
+                        instance?.let {
+                            it.categoryDao().saveCategory(CategoryTable(Category.Upcoming().key))
+                            it.categoryDao().saveCategory(CategoryTable(Category.TopRated().key))
+                        }
+                    }
+                }
+            })
             .build()
     }
 }

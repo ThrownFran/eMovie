@@ -3,10 +3,15 @@ package brillembourg.parser.emovie.data.local
 import brillembourg.parser.emovie.data.MovieData
 import brillembourg.parser.emovie.domain.Category
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.transform
+import javax.inject.Inject
 
-class RoomDataSource(val movieDao: MovieDao) : MovieLocalDataSource {
+class RoomDataSource @Inject constructor(
+    val movieDao: MovieDao,
+    val categoryDao: CategoryDao,
+    val crossDao: CategoryMoviesCrossDao
+) : MovieLocalDataSource {
 
     var movies: List<MovieData> = listOf(
         MovieData(1L, "Movie 1", ""),
@@ -17,21 +22,31 @@ class RoomDataSource(val movieDao: MovieDao) : MovieLocalDataSource {
     )
 
     override fun getMovies(category: Category): Flow<List<MovieData>> {
-        return movieDao.getList().map { list ->
-            list.map { movieTable ->
-                MovieData(
-                    movieTable.id,
-                    movieTable.name,
-                    movieTable.posterImageUrl
-                )
-            }
-        }
+
+        return crossDao.getCategoryWithMovies(category.key)
+            .transform { try {
+                emit(it.movies.map { table -> table.toData() })
+            } catch (e: Exception) {
+                emit(emptyList())
+            } }
+
+//        return movieDao.getList().map { list ->
+//            list.map { movieTable ->
+//                MovieData(
+//                    movieTable.id,
+//                    movieTable.name,
+//                    movieTable.posterImageUrl
+//                )
+//            }
+//        }
 //        return flow { emit(movies) }
     }
 
-    override suspend fun saveMovies(moviesFetched: List<MovieData>) {
+    override suspend fun saveMovies(category: Category, moviesFetched: List<MovieData>) {
         val movieTableList = moviesFetched.map { it.toTable() }
-        movieDao.saveMovies(ArrayList(movieTableList))
-//        movies = moviesFetched + moviesFetched
+        movieTableList.forEach {
+            movieDao.saveMovie(it)
+            crossDao.createMovieCrossCategory(CategoryMovieCrossRef(category.key,it.id))
+        }
     }
 }

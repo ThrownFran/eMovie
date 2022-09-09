@@ -15,3 +15,7 @@ data class MovieTable(
 fun MovieData.toTable () : MovieTable {
     return MovieTable(id,name, posterImageUrl)
 }
+
+fun MovieTable.toData () : MovieData {
+    return MovieData(id,name,posterImageUrl)
+}
