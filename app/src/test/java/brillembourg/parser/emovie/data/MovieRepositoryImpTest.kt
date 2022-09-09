@@ -23,6 +23,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import java.util.*
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(JUnit4::class)
@@ -100,7 +101,7 @@ class MovieRepositoryImpTest {
     fun `given refresh data, when network movies are different from local movies, then save network movies in local data source`() = runTest {
         //Arrange
         val category = Category.TopRated()
-        val networkMovies = movieDataFakes + MovieData(, "Movie 6", "")
+        val networkMovies = movieDataFakes + MovieData(1L, "Movie 6", "","", Date.from(Instant.now()))
         val localMovies = movieDataFakes
         mockNetworkDataSourceSuccess(networkMovies)
         mockLocalDataSourceSuccess(localMovies)
@@ -110,7 +111,7 @@ class MovieRepositoryImpTest {
 
         //Assert
         coVerify {
-            localDataSource.saveMovies(
+            localDataSource.saveMovies(category,
                 match { params ->
                     params == networkMovies
                 }
@@ -127,7 +128,7 @@ class MovieRepositoryImpTest {
         //Act
         SUT.refreshData(category)
         //Assert
-        coVerify(exactly = 0) { localDataSource.saveMovies(any())}
+        coVerify(exactly = 0) { localDataSource.saveMovies(any(),any())}
     }
 
     @Test
@@ -164,7 +165,7 @@ class MovieRepositoryImpTest {
 
     private fun mockLocalDataSourceSuccess(movieFakes : List<MovieData>) {
         coEvery { localDataSource.getMovies(any()) }.coAnswers { flow { emit(movieFakes) } }
-        coEvery { localDataSource.saveMovies(any()) }.returns(Unit)
+        coEvery { localDataSource.saveMovies(any(),any()) }.returns(Unit)
     }
 
     private fun mockLocalDataSourceError() {

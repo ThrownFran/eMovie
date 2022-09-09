@@ -4,7 +4,15 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 import androidx.sqlite.db.SupportSQLiteDatabase
+import brillembourg.parser.emovie.data.local.categories.CategoryDao
+import brillembourg.parser.emovie.data.local.categories.CategoryTable
+import brillembourg.parser.emovie.data.local.category_movie_cross.CategoryMovieCrossRef
+import brillembourg.parser.emovie.data.local.category_movie_cross.CategoryMoviesCrossDao
+import brillembourg.parser.emovie.data.local.movies.DateConverter
+import brillembourg.parser.emovie.data.local.movies.MovieDao
+import brillembourg.parser.emovie.data.local.movies.MovieTable
 import brillembourg.parser.emovie.domain.Category
 import java.util.concurrent.Executors
 
@@ -13,8 +21,9 @@ import java.util.concurrent.Executors
         MovieTable::class,
         CategoryTable::class,
         CategoryMovieCrossRef::class
-    ), version = 3
+    ), version = 4
 )
+@TypeConverters(DateConverter::class)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun movieDao(): MovieDao

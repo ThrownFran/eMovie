@@ -51,6 +51,7 @@ class HomeFragment : Fragment() {
             binding.homeRecyclerUpcoming.apply {
                 adapter = MovieAdapter()
                 layoutManager = LinearLayoutManager(context,RecyclerView.HORIZONTAL,false)
+                isNestedScrollingEnabled = false
             }
         }
 
@@ -62,6 +63,7 @@ class HomeFragment : Fragment() {
             binding.homeRecyclerTopRated.apply {
                 adapter = MovieAdapter()
                 layoutManager = LinearLayoutManager(context,RecyclerView.HORIZONTAL,false)
+                isNestedScrollingEnabled = false
             }
         }
 

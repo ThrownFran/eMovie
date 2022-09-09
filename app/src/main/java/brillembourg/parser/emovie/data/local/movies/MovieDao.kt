@@ -1,4 +1,4 @@
-package brillembourg.parser.emovie.data.local
+package brillembourg.parser.emovie.data.local.movies
 
 import androidx.room.*
 import kotlinx.coroutines.flow.Flow

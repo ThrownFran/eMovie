@@ -1,6 +1,8 @@
-package brillembourg.parser.emovie.data.local
+package brillembourg.parser.emovie.data.local.category_movie_cross
 
 import androidx.room.*
+import brillembourg.parser.emovie.data.local.categories.CategoryTable
+import brillembourg.parser.emovie.data.local.movies.MovieTable
 
 @Entity(
     tableName = "category_movies_cross_ref", primaryKeys = ["category_key", "id"], foreignKeys = [

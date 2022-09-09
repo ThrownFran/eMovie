@@ -2,24 +2,34 @@ package brillembourg.parser.emovie.data
 
 import brillembourg.parser.emovie.data.network.MovieResponse
 import brillembourg.parser.emovie.domain.Movie
+import brillembourg.parser.emovie.presentation.utils.extractDateFromString
 import com.google.gson.annotations.SerializedName
+import org.threeten.bp.LocalDate
 
 data class MovieData(
     val id: Long,
     val name: String,
-    val posterImageUrl: String
+    val posterImageUrl: String? = null,
+    val originalLanguage: String,
+    val releaseDate: LocalDate
 )
 
 fun MovieData.toDomain(): Movie {
-    return Movie(id, name, posterImageUrl)
+    return Movie(id, name, posterImageUrl, originalLanguage, releaseDate)
 }
 
 fun Movie.toData(): MovieData {
-    return MovieData(id, name, posterImageUrl)
+    return MovieData(id, name, posterImageUrl, originalLanguage, releaseYear)
 }
 
-fun MovieResponse.toData () : MovieData {
-    return MovieData(id, name, posterImageUrl)
+fun MovieResponse.toData(): MovieData {
+    return MovieData(
+        id,
+        name,
+        posterImageUrl,
+        originalLanguage,
+        extractDateFromString(releaseDate)
+    )
 }
 
 class MovieResponsee {

@@ -1,7 +1,6 @@
-package brillembourg.parser.emovie.data.local
+package brillembourg.parser.emovie.data.local.categories
 
 import androidx.room.*
-import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface CategoryDao {

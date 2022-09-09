@@ -2,6 +2,9 @@ package brillembourg.parser.emovie.di
 
 import android.content.Context
 import brillembourg.parser.emovie.data.local.*
+import brillembourg.parser.emovie.data.local.categories.CategoryDao
+import brillembourg.parser.emovie.data.local.category_movie_cross.CategoryMoviesCrossDao
+import brillembourg.parser.emovie.data.local.movies.MovieDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

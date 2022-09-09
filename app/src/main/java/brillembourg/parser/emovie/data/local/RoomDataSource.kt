@@ -1,8 +1,14 @@
 package brillembourg.parser.emovie.data.local
 
-import android.util.Log
 import androidx.room.withTransaction
 import brillembourg.parser.emovie.data.MovieData
+import brillembourg.parser.emovie.data.local.categories.CategoryDao
+import brillembourg.parser.emovie.data.local.category_movie_cross.CategoryMovieCrossRef
+import brillembourg.parser.emovie.data.local.category_movie_cross.CategoryMoviesCrossDao
+import brillembourg.parser.emovie.data.local.movies.MovieDao
+import brillembourg.parser.emovie.data.local.movies.MovieTable
+import brillembourg.parser.emovie.data.local.movies.toData
+import brillembourg.parser.emovie.data.local.movies.toTable
 import brillembourg.parser.emovie.domain.Category
 import kotlinx.coroutines.flow.*
 import javax.inject.Inject
@@ -25,8 +31,15 @@ class RoomDataSource @Inject constructor(
             }
     }
 
-    override suspend fun saveMovies(category: Category, moviesFetched: List<MovieData>) {
-        val movieTableList = moviesFetched.map { it.toTable() }
+    override suspend fun saveMovies(category: Category, moviesToSave: List<MovieData>) {
+        val movieTableList = moviesToSave.map { it.toTable() }
+        saveMovies(movieTableList, category)
+    }
+
+    private suspend fun saveMovies(
+        movieTableList: List<MovieTable>,
+        category: Category
+    ) {
         appDatabase.withTransaction {
             movieTableList.forEach {
                 movieDao.saveMovie(it)

@@ -58,7 +58,6 @@ class GetMoviesUseCaseTest {
         coVerify { repository.getMovies(match { category -> category == topRatedCategory }) }
     }
 
-
     private fun mockGetMoviesFromRepository() {
         coEvery { repository.getMovies(any()) }.coAnswers { flow { emit(movieDomainFakes) } }
     }

@@ -13,5 +13,9 @@ class MovieResponse(
     @SerializedName("title")
     val name: String,
     @SerializedName("poster_path")
-    var posterImageUrl: String
+    val posterImageUrl: String,
+    @SerializedName("original_language")
+    val originalLanguage: String,
+    @SerializedName("release_date")
+    val releaseDate: String
 )

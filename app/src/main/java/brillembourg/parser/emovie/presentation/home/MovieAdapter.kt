@@ -27,7 +27,7 @@ class MovieAdapter() :
     class MovieViewHolder(val binding: ItemMovieBinding) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(movie: MoviePresentationModel) {
-            binding.movieImage.setMovieDbImageUrl(movie.posterImageUrl)
+            movie.posterImageUrl?.let { binding.movieImage.setMovieDbImageUrl(it) }
         }
 
     }
