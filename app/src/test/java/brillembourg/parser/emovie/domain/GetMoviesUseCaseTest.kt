@@ -1,7 +1,8 @@
 package brillembourg.parser.emovie.domain
 
-import brillembourg.parser.emovie.CoroutineTestRule
-import brillembourg.parser.emovie.TestSchedulers
+import brillembourg.parser.emovie.utils.CoroutineTestRule
+import brillembourg.parser.emovie.utils.TestSchedulers
+import brillembourg.parser.emovie.utils.movieDomainFakes
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
@@ -18,7 +19,7 @@ import org.junit.runners.JUnit4
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(JUnit4::class)
-class GetMovieListTest {
+class GetMoviesUseCaseTest {
 
     @get:Rule
     val mockkRule = MockKRule(this)
@@ -28,19 +29,11 @@ class GetMovieListTest {
     @MockK
     lateinit var repository: MovieRepository
 
-    lateinit var SUT: GetMovieList
-
-    val movieFakes = listOf(
-        Movie(1L,"Movie 1",""),
-        Movie(1L,"Movie 2",""),
-        Movie(1L,"Movie 3",""),
-        Movie(1L,"Movie 4",""),
-        Movie(1L,"Movie 5",""),
-    )
+    lateinit var SUT: GetMoviesUseCase
 
     @Before
     fun setUp() {
-        SUT = GetMovieList(TestSchedulers(),repository)
+        SUT = GetMoviesUseCase(TestSchedulers(),repository)
     }
 
     @Test
@@ -67,7 +60,7 @@ class GetMovieListTest {
 
 
     private fun mockGetMoviesFromRepository() {
-        coEvery { repository.getMovies(any()) }.coAnswers { flow { emit(movieFakes) } }
+        coEvery { repository.getMovies(any()) }.coAnswers { flow { emit(movieDomainFakes) } }
     }
 
 }

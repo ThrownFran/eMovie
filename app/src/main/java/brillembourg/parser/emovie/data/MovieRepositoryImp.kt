@@ -1,12 +1,15 @@
 package brillembourg.parser.emovie.data
 
+import brillembourg.parser.emovie.data.local.MovieLocalDataSource
+import brillembourg.parser.emovie.data.network.MovieNetworkDataSource
 import brillembourg.parser.emovie.domain.Category
 import brillembourg.parser.emovie.domain.Movie
 import brillembourg.parser.emovie.domain.MovieRepository
 import brillembourg.parser.emovie.domain.Schedulers
 import kotlinx.coroutines.flow.*
+import javax.inject.Inject
 
-class MovieRepositoryImp(
+class MovieRepositoryImp @Inject constructor(
     private val schedulers: Schedulers,
     private val localDataSource: MovieLocalDataSource,
     private val networkDataSource: MovieNetworkDataSource

@@ -1,9 +1,12 @@
 package brillembourg.parser.emovie.data
 
-import brillembourg.parser.emovie.CoroutineTestRule
-import brillembourg.parser.emovie.TestSchedulers
+import brillembourg.parser.emovie.data.local.MovieLocalDataSource
+import brillembourg.parser.emovie.data.network.MovieNetworkDataSource
+import brillembourg.parser.emovie.utils.CoroutineTestRule
+import brillembourg.parser.emovie.utils.TestSchedulers
 import brillembourg.parser.emovie.domain.Category
 import brillembourg.parser.emovie.domain.MovieRepository
+import brillembourg.parser.emovie.utils.movieDataFakes
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
@@ -39,13 +42,6 @@ class MovieRepositoryImpTest {
 
     lateinit var SUT: MovieRepository
 
-    private val movieFakes = listOf(
-        MovieData(1L, "Movie 1", ""),
-        MovieData(2L, "Movie 1", ""),
-        MovieData(3L, "Movie 1", ""),
-        MovieData(41L, "Movie 1", "")
-    )
-
     @Before
     fun setUp() {
         SUT = MovieRepositoryImp(TestSchedulers(), localDataSource, networkDataSource)
@@ -70,7 +66,7 @@ class MovieRepositoryImpTest {
         //Act
         val result = SUT.getMovies(category).first()
         //Assert
-        Assert.assertTrue(result == movieFakes.map { it.toDomain() })
+        Assert.assertTrue(result == movieDataFakes.map { it.toDomain() })
     }
 
     @Test
@@ -104,8 +100,8 @@ class MovieRepositoryImpTest {
     fun `given refresh data, when network movies are different from local movies, then save network movies in local data source`() = runTest {
         //Arrange
         val category = Category.TopRated()
-        val networkMovies = movieFakes + MovieData(6L, "Movie 6", "")
-        val localMovies = movieFakes
+        val networkMovies = movieDataFakes + MovieData(6L, "Movie 6", "")
+        val localMovies = movieDataFakes
         mockNetworkDataSourceSuccess(networkMovies)
         mockLocalDataSourceSuccess(localMovies)
 
@@ -126,8 +122,8 @@ class MovieRepositoryImpTest {
     fun `given refresh data, when network data is same as local data, then avoid saving to local source`() = runTest{
         //Arrange
         val category = Category.TopRated()
-        mockLocalDataSourceSuccess(movieFakes)
-        mockNetworkDataSourceSuccess(movieFakes)
+        mockLocalDataSourceSuccess(movieDataFakes)
+        mockNetworkDataSourceSuccess(movieDataFakes)
         //Act
         SUT.refreshData(category)
         //Assert
@@ -139,7 +135,7 @@ class MovieRepositoryImpTest {
         //Arrange
         val category = Category.TopRated()
         mockNetworkDataSourceError()
-        mockLocalDataSourceSuccess(movieFakes)
+        mockLocalDataSourceSuccess(movieDataFakes)
         var exceptionToCatch: Exception? = null
         //Act
         try {
@@ -154,8 +150,8 @@ class MovieRepositoryImpTest {
 
 
     private fun mockSuccessDatasource() {
-        mockLocalDataSourceSuccess(movieFakes)
-        mockNetworkDataSourceSuccess(movieFakes)
+        mockLocalDataSourceSuccess(movieDataFakes)
+        mockNetworkDataSourceSuccess(movieDataFakes)
     }
 
     private fun mockNetworkDataSourceSuccess(movieFakes : List<MovieData>) {

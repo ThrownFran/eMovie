@@ -1,7 +1,7 @@
-package brillembourg.parser.emovie.data
+package brillembourg.parser.emovie.data.local
 
+import brillembourg.parser.emovie.data.MovieData
 import brillembourg.parser.emovie.domain.Category
-import brillembourg.parser.emovie.domain.Movie
 import kotlinx.coroutines.flow.Flow
 
 interface MovieLocalDataSource {

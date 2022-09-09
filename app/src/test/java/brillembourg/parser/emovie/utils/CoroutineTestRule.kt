@@ -1,4 +1,4 @@
-package brillembourg.parser.emovie
+package brillembourg.parser.emovie.utils
 
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
