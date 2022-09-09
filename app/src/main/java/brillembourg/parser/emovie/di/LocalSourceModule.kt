@@ -35,11 +35,12 @@ class LocalSourceModule {
     @Singleton
     @Provides
     fun provideLocalDataSource(
+        appDatabase: AppDatabase,
         movieDao: MovieDao,
         categoryDao: CategoryDao,
         crossDao: CategoryMoviesCrossDao
     ): MovieLocalDataSource =
-        RoomDataSource(movieDao, categoryDao, crossDao)
+        RoomDataSource(appDatabase,movieDao, categoryDao, crossDao)
 
     @Singleton
     @Provides
