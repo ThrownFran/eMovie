@@ -31,6 +31,17 @@ import org.threeten.bp.LocalDate
 @RunWith(JUnit4::class)
 class HomeViewModelTest {
 
+    private val movieFakesForRecommendedCategory: List<Movie> = listOf(
+        Movie(1L, "Movie1", null, "en", LocalDate.ofYearDay(1993, 1)),
+        Movie(2L, "Movie2", null, "es", LocalDate.ofYearDay(1993, 1)),
+        Movie(3L, "Movie3", null, "en", LocalDate.ofYearDay(1995, 1)),
+        Movie(4L, "Movie4", null, "es", LocalDate.ofYearDay(1996, 1)),
+        Movie(5L, "Movie5", null, "en", LocalDate.ofYearDay(1997, 1)),
+        Movie(6L, "Movie6", null, "en", LocalDate.ofYearDay(1993, 1)),
+        Movie(7L, "Movie7", null, "en", LocalDate.ofYearDay(1993, 1)),
+        Movie(8L, "Movie8", null, "en", LocalDate.ofYearDay(1993, 1)),
+    )
+
     @get:Rule
     val rule = MockKRule(this)
 
@@ -136,72 +147,181 @@ class HomeViewModelTest {
     }
 
     @Test
-    fun `given upcoming movies flow received, then update recommended movies state with distinct and sorted selectable years`() = runTest {
-        //Arrange
-        coEvery { getMoviesUseCase.invoke(any()) }.coAnswers {
-            flow {
-                emit(
-                    listOf(
-                        Movie(1L, "Movie1", null, "en", LocalDate.ofYearDay(1993, 1)),
-                        Movie(2L, "Movie2", null, "es", LocalDate.ofYearDay(1993, 1)),
-                        Movie(3L, "Movie3", null, "en", LocalDate.ofYearDay(1995, 1)),
-                        Movie(4L, "Movie4", null, "es", LocalDate.ofYearDay(1996, 1)),
-                        Movie(5L, "Movie5", null, "en", LocalDate.ofYearDay(1997, 1)),
-                        Movie(6L, "Movie6", null, "en", LocalDate.ofYearDay(1993, 1)),
-                    )
-                )
-            }
+    fun `given upcoming movies flow received, then recommended movies have current language and year filter null`() =
+        runTest {
+            //Arrange
+            mockGetMoviesForRecommendedTests()
+            buildSUT()
+            //Act
+            advanceUntilIdle()
+            //Assert
+            Assert.assertNull(SUT.homeState.value.recommendedMovies.languageFilter.currentLanguage)
+            Assert.assertNull(SUT.homeState.value.recommendedMovies.yearFilter.currentYear)
         }
-        buildSUT()
-        //Act
-        advanceUntilIdle()
-        //Assert
-        Assert.assertEquals("en", SUT.homeState.value.recommendedMovies.languageFilter.currentLanguage)
-        Assert.assertEquals(
-            listOf("en", "es").sorted(),
-            SUT.homeState.value.recommendedMovies.selectableLanguages.sorted()
-        )
-        Assert.assertEquals(
-            listOf(1993, 1995, 1996, 1997).sortedDescending(),
-            SUT.homeState.value.recommendedMovies.yearFilter.selectableYears
-        )
-        Assert.assertEquals(
-            listOf(
-                Movie(1L, "Movie1", null, "en", LocalDate.ofYearDay(1993, 1)).toPresentation(),
-                Movie(6L, "Movie6", null, "en", LocalDate.ofYearDay(1993, 1)).toPresentation(),
-            ), SUT.homeState.value.recommendedMovies.movies
-        )
-    }
 
+    @Test
+    fun `given upcoming movies flow received, when movies contains languages en and es, then selectable languages is a list of en,es sorted`() =
+        runTest {
+            //Arrange
+            mockGetMoviesForRecommendedTests()
+            buildSUT()
+            //Act
+            advanceUntilIdle()
+            //Assert
+            Assert.assertEquals(
+                listOf("en", "es").sorted(),
+                SUT.homeState.value.recommendedMovies.languageFilter.selectableLanguages.sorted()
+            )
+        }
+
+    @Test
+    fun `given upcoming movies flow received, when movies contains different release years, then selectable years in year filter is a list of unique years sorted by desc`() =
+        runTest {
+            //Arrange
+            mockGetMoviesForRecommendedTests()
+            buildSUT()
+            //Act
+            advanceUntilIdle()
+            //Assert
+            Assert.assertEquals(
+                listOf(1993, 1995, 1996, 1997).sortedDescending(),
+                SUT.homeState.value.recommendedMovies.yearFilter.selectableYears
+            )
+        }
+
+    @Test
+    fun `given upcoming movies flow received, when filter has null values, then don't filter`() =
+        runTest {
+            //Arrange
+            val list = movieFakesForRecommendedCategory.take(3)
+            mockGetMoviesForRecommendedTests(list)
+            buildSUT()
+            //Act
+            SUT.onSetNoYearFilter()
+            SUT.onSetNoLanguageFilter()
+            advanceUntilIdle()
+            //Assert
+            Assert.assertEquals(
+                list.map { it.toPresentation() }, SUT.homeState.value.recommendedMovies.movies
+            )
+        }
+
+    @Test
+    fun `given upcoming movies flow received, when top rated movies count is more than 6, then take first 6`() =
+        runTest {
+            mockGetMoviesForRecommendedTests(
+                movieFakesForRecommendedCategory + listOf(
+                    Movie(
+                        9L, "Movie 9", "", "en",
+                        LocalDate.ofYearDay(1992, 1)
+                    ),
+
+                    Movie(
+                        9L, "Movie 10", "", "es",
+                        LocalDate.ofYearDay(1960, 1)
+                    ),
+
+                    Movie(
+                        9L, "Movie 11", "", "en",
+                        LocalDate.ofYearDay(2022, 1)
+                    ),
+                )
+            )
+            buildSUT()
+            //Act
+            advanceUntilIdle()
+            //Assert
+            Assert.assertEquals(
+                6, SUT.homeState.value.recommendedMovies.movies.size
+            )
+        }
 
 
     @Test
-    fun `given select year in recommended movies, then update state accordingly`() = runTest {
+    fun `given select year in recommended movies, then filter movie by year`() = runTest {
         //Arrange
-        coEvery { getMoviesUseCase.invoke(any()) }.coAnswers {
-            flow {
-                emit(
-                    listOf(
-                        Movie(1L, "Movie1", null, "en", LocalDate.ofYearDay(1993, 1)),
-                        Movie(2L, "Movie2", null, "es", LocalDate.ofYearDay(1993, 1)),
-                        Movie(3L, "Movie3", null, "en", LocalDate.ofYearDay(1995, 1)),
-                        Movie(4L, "Movie4", null, "es", LocalDate.ofYearDay(1996, 1)),
-                        Movie(5L, "Movie5", null, "en", LocalDate.ofYearDay(1997, 1)),
-                        Movie(6L, "Movie6", null, "en", LocalDate.ofYearDay(1993, 1)),
-                    )
-                )
-            }
-        }
+        mockGetMoviesForRecommendedTests()
         buildSUT()
         //Act
         advanceUntilIdle()
         SUT.onYearFilterSelected(1997)
-        advanceUntilIdle()
         //Arrange
         Assert.assertEquals(1997, SUT.homeState.value.recommendedMovies.yearFilter.currentYear)
         Assert.assertEquals(
             listOf(Movie(5L, "Movie5", null, "en", LocalDate.ofYearDay(1997, 1)).toPresentation()),
             SUT.homeState.value.recommendedMovies.movies
         )
+    }
+
+    @Test
+    fun `given select language in recommended movies, then filter movie by language`() = runTest {
+        //Arrange
+        val movieInSpanish = Movie(2L, "Movie2", null, "es", LocalDate.ofYearDay(1993, 1))
+        mockGetMoviesForRecommendedTests(
+            listOf(
+                Movie(1L, "Movie1", null, "en", LocalDate.ofYearDay(1993, 1)),
+                movieInSpanish,
+                Movie(3L, "Movie3", null, "en", LocalDate.ofYearDay(1995, 1)),
+            )
+        )
+        buildSUT()
+        //Act
+        advanceUntilIdle()
+        SUT.onLanguageFilterSelected("es")
+        //Arrange
+        Assert.assertEquals(
+            "es",
+            SUT.homeState.value.recommendedMovies.languageFilter.currentLanguage
+        )
+        Assert.assertEquals(
+            listOf(movieInSpanish.toPresentation()),
+            SUT.homeState.value.recommendedMovies.movies
+        )
+    }
+
+    @Test
+    fun `given select language and select year in recommended movies ,then filter movies by language and year`() =
+        runTest {
+            //Arrange
+            mockGetMoviesForRecommendedTests(
+                listOf(
+                    Movie(1L, "Movie1", null, "en", LocalDate.ofYearDay(1993, 1)),
+                    Movie(2L, "Movie2", null, "es", LocalDate.ofYearDay(1993, 1)),
+                    Movie(3L, "Movie3", null, "ja", LocalDate.ofYearDay(1995, 1)),
+                    Movie(4L, "Movie4", null, "en", LocalDate.ofYearDay(1993, 1)),
+                    Movie(5L, "Movie5", null, "ja", LocalDate.ofYearDay(1993, 1)),
+                    Movie(6L, "Movie6", null, "ja", LocalDate.ofYearDay(1995, 1)),
+                )
+            )
+            buildSUT()
+
+            //Act
+            advanceUntilIdle()
+            SUT.onLanguageFilterSelected("ja")
+            SUT.onYearFilterSelected(1995)
+
+            //Arrange
+
+            //Check filter state
+            Assert.assertEquals(
+                "ja",
+                SUT.homeState.value.recommendedMovies.languageFilter.currentLanguage
+            )
+            Assert.assertEquals(1995, SUT.homeState.value.recommendedMovies.yearFilter.currentYear)
+
+            //Movies filtered
+            Assert.assertEquals(
+                listOf(
+                    Movie(3L, "Movie3", null, "ja", LocalDate.ofYearDay(1995, 1)).toPresentation(),
+                    Movie(6L, "Movie6", null, "ja", LocalDate.ofYearDay(1995, 1)).toPresentation()
+                ),
+                SUT.homeState.value.recommendedMovies.movies
+            )
+        }
+
+    private fun mockGetMoviesForRecommendedTests(list: List<Movie> = movieFakesForRecommendedCategory) {
+        coEvery { getMoviesUseCase.invoke(any()) }.coAnswers {
+            flow { emit(list) }
+        }
     }
 }
