@@ -3,21 +3,18 @@ package brillembourg.parser.emovie.data
 import brillembourg.parser.emovie.CoroutineTestRule
 import brillembourg.parser.emovie.TestSchedulers
 import brillembourg.parser.emovie.domain.Category
-import brillembourg.parser.emovie.domain.GetMovieList
 import brillembourg.parser.emovie.domain.MovieRepository
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit4.MockKRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
-import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import org.junit.Assert.*
+import org.junit.Assert
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -55,7 +52,7 @@ class MovieRepositoryImpTest {
     }
 
     @Test
-    fun `given get Movies, any category, then parameter is passed correctly to local data source`() = runTest {
+    fun `given get Movies, when any category, then parameter is passed correctly to local data source`() = runTest {
         //Arrange
         val category = Category.TopRated()
         mockSuccessDatasource()
@@ -66,73 +63,118 @@ class MovieRepositoryImpTest {
     }
 
     @Test
-    fun `given get Movies, any category, then save in local data source`() = runTest {
+    fun `given get Movies, when any category, then result is mapped to domain`() = runTest {
         //Arrange
         val category = Category.TopRated()
         mockSuccessDatasource()
         //Act
         val result = SUT.getMovies(category).first()
         //Assert
-        coVerify {
-            localDataSource.saveMovies(
-                match { params ->
-                    params == result.map { it.toData() }
-                }
-            )
-        }
+        Assert.assertTrue(result == movieFakes.map { it.toDomain() })
     }
 
     @Test
-    fun `given get Movies, is success, then fetch network data source`() = runTest {
+    fun `given get Movies, when error, then propagate error as domain`() = runTest {
+        //Arrange
+        val category = Category.TopRated()
+        mockLocalDataSourceError()
+        var errorToCapture : Exception ? = null
+        //Act
+        SUT.getMovies(category)
+            .catch { errorToCapture = it as Exception }
+            .collect()
+        //Assert
+        Assert.assertNotNull(errorToCapture)
+        Assert.assertTrue(errorToCapture is GenericException)
+    }
+
+    @Test
+    fun `given refresh data, then fetch network and local data source with correct params`() = runTest {
         //Arrange
         val category = Category.TopRated()
         mockSuccessDatasource()
         //Act
-        SUT.getMovies(category).collect()
+        SUT.refreshData(category)
+        //Assert
+        coVerify { networkDataSource.getMovies(match { params -> params == category }) }
+        coVerify { localDataSource.getMovies(match { params -> params == category }) }
+    }
+
+    @Test
+    fun `given refresh data, when network movies are different from local movies, then save network movies in local data source`() = runTest {
+        //Arrange
+        val category = Category.TopRated()
+        val networkMovies = movieFakes + MovieData(6L, "Movie 6", "")
+        val localMovies = movieFakes
+        mockNetworkDataSourceSuccess(networkMovies)
+        mockLocalDataSourceSuccess(localMovies)
+
+        //Act
+        SUT.refreshData(category)
+
         //Assert
         coVerify {
-            networkDataSource.getMovies(
+            localDataSource.saveMovies(
                 match { params ->
-                    params == category
+                    params == networkMovies
                 }
             )
         }
     }
 
     @Test
-    fun `given get Movies, is error, then propagate exception`() = runTest {
-//        //Arrange
-//        val category = Category.TopRated()
-//        mockSuccessDatasource()
-//        //Act
-//        SUT.getMovies(category)
-//        //Assert
-//        coVerify {
-//            networkDataSource.getMovies(
-//                match { params ->
-//                    params == category
-//                }
-//            )
-//        }
+    fun `given refresh data, when network data is same as local data, then avoid saving to local source`() = runTest{
+        //Arrange
+        val category = Category.TopRated()
+        mockLocalDataSourceSuccess(movieFakes)
+        mockNetworkDataSourceSuccess(movieFakes)
+        //Act
+        SUT.refreshData(category)
+        //Assert
+        coVerify(exactly = 0) { localDataSource.saveMovies(any())}
+    }
+
+    @Test
+    fun `given refresh data, when network source has error, rethrow error as domain`() = runTest {
+        //Arrange
+        val category = Category.TopRated()
+        mockNetworkDataSourceError()
+        mockLocalDataSourceSuccess(movieFakes)
+        var exceptionToCatch: Exception? = null
+        //Act
+        try {
+            SUT.refreshData(category)
+        } catch (e: Exception) {
+            exceptionToCatch = e
+        }
+        //Assert
+        Assert.assertNotNull(exceptionToCatch)
+        Assert.assertTrue(exceptionToCatch is GenericException)
     }
 
 
     private fun mockSuccessDatasource() {
-        coEvery { localDataSource.getMovies(any()) }.coAnswers { flow { emit(movieFakes) } }
-        coEvery { localDataSource.saveMovies(any()) }.returns(Unit)
+        mockLocalDataSourceSuccess(movieFakes)
+        mockNetworkDataSourceSuccess(movieFakes)
+    }
+
+    private fun mockNetworkDataSourceSuccess(movieFakes : List<MovieData>) {
         coEvery { networkDataSource.getMovies(any()) }.returns(movieFakes)
     }
 
-//    @Test
-//    fun `given get Movies, then parameter is passed correctly`() = runTest {
-//        //Arrange
-//        val category = Category.TopRated()
-//        coEvery { networkDataSource.getMovies(any()) }.coAnswers { movieFakes }
-//        //Act
-//        SUT.getMovies(category)
-//        //Assert
-//        coVerify { networkDataSource.getMovies(match { params -> params == category }) }
-//    }
+    private fun mockNetworkDataSourceError() {
+        coEvery { networkDataSource.getMovies(any()) }.throws(Exception("Error"))
+    }
+
+    private fun mockLocalDataSourceSuccess(movieFakes : List<MovieData>) {
+        coEvery { localDataSource.getMovies(any()) }.coAnswers { flow { emit(movieFakes) } }
+        coEvery { localDataSource.saveMovies(any()) }.returns(Unit)
+    }
+
+    private fun mockLocalDataSourceError() {
+        coEvery { localDataSource.getMovies(any()) }.coAnswers { flow { throw Exception("Error") } }
+    }
+
 
 
 }

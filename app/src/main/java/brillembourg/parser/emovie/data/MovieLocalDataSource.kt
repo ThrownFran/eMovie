@@ -5,6 +5,6 @@ import brillembourg.parser.emovie.domain.Movie
 import kotlinx.coroutines.flow.Flow
 
 interface MovieLocalDataSource {
-    suspend fun getMovies(category: Category): Flow<List<MovieData>>
+    fun getMovies(category: Category): Flow<List<MovieData>>
     suspend fun saveMovies(moviesFetched: List<MovieData>)
 }

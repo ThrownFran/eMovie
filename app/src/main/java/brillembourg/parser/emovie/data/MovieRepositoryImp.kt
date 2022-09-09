@@ -4,11 +4,7 @@ import brillembourg.parser.emovie.domain.Category
 import brillembourg.parser.emovie.domain.Movie
 import brillembourg.parser.emovie.domain.MovieRepository
 import brillembourg.parser.emovie.domain.Schedulers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.*
 
 class MovieRepositoryImp(
     private val schedulers: Schedulers,
@@ -16,13 +12,23 @@ class MovieRepositoryImp(
     private val networkDataSource: MovieNetworkDataSource
 ) : MovieRepository {
 
-    override suspend fun getMovies(category: Category): Flow<List<Movie>> {
+    override suspend fun refreshData(category: Category) {
+        try {
+            val moviesFromLocal = localDataSource.getMovies(category).first()
+            val moviesFromNetwork = networkDataSource.getMovies(category)
+            if (moviesFromLocal != moviesFromNetwork) {
+                localDataSource.saveMovies(moviesFromNetwork)
+            }
+        } catch (e: Exception) {
+            throw (e.toDomain())
+        }
+    }
+
+    override fun getMovies(category: Category): Flow<List<Movie>> {
         return localDataSource.getMovies(category)
+            .catch { if(it is Exception) throw it.toDomain() else throw GenericException("Throwable: ${it.message}") }
             .flowOn(schedulers.ioDispatcher())
             .map { list -> list.map { movieData -> movieData.toDomain() } }
-            .onEach {
-                val moviesFetched = networkDataSource.getMovies(category)
-                localDataSource.saveMovies(moviesFetched)
-            }
     }
+
 }
