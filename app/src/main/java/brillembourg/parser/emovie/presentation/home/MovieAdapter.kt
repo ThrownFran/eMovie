@@ -28,6 +28,7 @@ class MovieAdapter() :
 
         fun bind(movie: MoviePresentationModel) {
             movie.posterImageUrl?.let { binding.movieImage.setMovieDbImageUrl(it) }
+            binding.movieYear.text = movie.getReleaseYear().toString()
         }
 
     }

@@ -5,7 +5,7 @@ import brillembourg.parser.emovie.domain.Movie
 import org.threeten.bp.LocalDate
 import java.util.*
 
-val date = LocalDate.now()
+val date = LocalDate.ofYearDay(1993,1)
 
 val movieDataFakes = listOf(
     MovieData(1L, "Movie 1", "","en", date,),

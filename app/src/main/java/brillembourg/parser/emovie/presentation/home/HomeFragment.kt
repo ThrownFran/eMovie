@@ -5,8 +5,10 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -42,7 +44,34 @@ class HomeFragment : Fragment() {
             viewModel.homeState.collect { state ->
                 renderTopRatedMovies(state.topRatedMovies)
                 renderUpcomingMovies(state.upcomingMovies)
+                renderRecommendedMovies(state.recommendedMovies)
             }
+        }
+    }
+
+    private fun renderRecommendedMovies(recommendedMovies: RecommendedMovies) {
+        if(binding.homeRecyclerRecommended.adapter == null) {
+            binding.homeRecyclerRecommended.apply {
+                adapter = MovieAdapter()
+                layoutManager = GridLayoutManager(context,3)
+                isNestedScrollingEnabled = false
+            }
+        }
+
+        (binding.homeRecyclerRecommended.adapter as? MovieAdapter?)?.submitList(recommendedMovies.movies)
+
+        val yearAdapter = ArrayAdapter(requireContext(),android.R.layout.simple_spinner_dropdown_item,recommendedMovies.selectableYears)
+        binding.homeAutotextYear.setText(recommendedMovies.currentYear.toString())
+        binding.homeAutotextYear.setAdapter(yearAdapter)
+        binding.homeAutotextYear.setOnItemClickListener { adapterView, view, i, l ->
+
+        }
+
+        val languageAdapter = ArrayAdapter(requireContext(),android.R.layout.simple_spinner_dropdown_item,recommendedMovies.selectableLanguages)
+        binding.homeAutotextLanguage.setText(recommendedMovies.currentLanguage.toString())
+        binding.homeAutotextLanguage.setAdapter(languageAdapter)
+        binding.homeAutotextLanguage.setOnItemClickListener { adapterView, view, i, l ->
+
         }
     }
 

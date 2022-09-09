@@ -6,12 +6,14 @@ import brillembourg.parser.emovie.presentation.MoviePresentationModel
 data class HomeUiState(
     val topRatedMovies: List<MoviePresentationModel> = emptyList(),
     val upcomingMovies: List<MoviePresentationModel> = emptyList(),
-    val recommendedMovies: RecommendedMovies = RecommendedMovies()
+    val recommendedMovies: RecommendedMovies = RecommendedMovies(),
 )
 
 data class RecommendedMovies(
-    val currentYear: String = "2022",
-    val currentLanguage: String = "en",
+    val currentYear: Int? = null,
+    val currentLanguage: String? = null,
+    val selectableYears : List<Int> = emptyList(),
+    val selectableLanguages: List<String> = emptyList(),
     val movies: List<MoviePresentationModel> = emptyList()
 )
 
