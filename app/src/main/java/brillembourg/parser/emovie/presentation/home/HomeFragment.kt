@@ -7,16 +7,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import brillembourg.parser.emovie.R
 import brillembourg.parser.emovie.databinding.FragmentHomeBinding
 import brillembourg.parser.emovie.presentation.MoviePresentationModel
 import brillembourg.parser.emovie.presentation.safeUiLaunch
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class HomeFragment : Fragment() {
@@ -24,7 +22,7 @@ class HomeFragment : Fragment() {
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
 
-    private val viewModel : HomeViewModel by viewModels()
+    private val viewModel: HomeViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -50,36 +48,64 @@ class HomeFragment : Fragment() {
     }
 
     private fun renderRecommendedMovies(recommendedMovies: RecommendedMovies) {
-        if(binding.homeRecyclerRecommended.adapter == null) {
+        renderRecommendedMovieRecycler(recommendedMovies)
+        renderYearFilter(recommendedMovies)
+
+        val allLanguagesText = getString(R.string.all_languages)
+        binding.homeAutotextLanguage.apply {
+            setText(recommendedMovies.languageFilter.currentLanguage ?: allLanguagesText)
+            setAdapter(ArrayAdapter(
+                requireContext(),
+                android.R.layout.simple_spinner_dropdown_item,
+                listOf(allLanguagesText) + recommendedMovies.languageFilter.selectableLanguages
+            ))
+            binding.homeAutotextLanguage.setOnItemClickListener { adapterView, view, i, l ->
+                val itemSelected = adapterView.getItemAtPosition(i) as String
+                if (itemSelected == allLanguagesText) viewModel.onSetNoLanguageFilter()
+                else viewModel.onLanguageFilterSelected(itemSelected)
+            }
+        }
+
+    }
+
+    private fun renderRecommendedMovieRecycler(recommendedMovies: RecommendedMovies) {
+        if (binding.homeRecyclerRecommended.adapter == null) {
             binding.homeRecyclerRecommended.apply {
                 adapter = MovieAdapter()
-                layoutManager = GridLayoutManager(context,3)
+                layoutManager = GridLayoutManager(context, 3)
                 isNestedScrollingEnabled = false
             }
         }
 
         (binding.homeRecyclerRecommended.adapter as? MovieAdapter?)?.submitList(recommendedMovies.movies)
+    }
 
-        val yearAdapter = ArrayAdapter(requireContext(),android.R.layout.simple_spinner_dropdown_item,recommendedMovies.selectableYears)
-        binding.homeAutotextYear.setText(recommendedMovies.currentYear.toString())
-        binding.homeAutotextYear.setAdapter(yearAdapter)
-        binding.homeAutotextYear.setOnItemClickListener { adapterView, view, i, l ->
+    private fun renderYearFilter(recommendedMovies: RecommendedMovies) {
+        val allYears = getString(R.string.all_years)
 
-        }
+        val yearAdapter = ArrayAdapter(
+            requireContext(),
+            android.R.layout.simple_spinner_dropdown_item,
+            listOf(allYears) + recommendedMovies.yearFilter.selectableYears.map { it.toString() }
+        )
 
-        val languageAdapter = ArrayAdapter(requireContext(),android.R.layout.simple_spinner_dropdown_item,recommendedMovies.selectableLanguages)
-        binding.homeAutotextLanguage.setText(recommendedMovies.currentLanguage.toString())
-        binding.homeAutotextLanguage.setAdapter(languageAdapter)
-        binding.homeAutotextLanguage.setOnItemClickListener { adapterView, view, i, l ->
+        binding.homeAutotextYear.apply {
+            setText(recommendedMovies.yearFilter.currentYear?.toString() ?: allYears)
+            setAdapter(yearAdapter)
+            setOnItemClickListener { adapterView, view, i, l ->
+                val itemSelected = adapterView.getItemAtPosition(i) as String
 
+                if (itemSelected == allYears) viewModel.onSetNoYearFilter()
+                else viewModel.onYearFilterSelected(itemSelected.toInt())
+            }
         }
     }
 
     private fun renderUpcomingMovies(upcomingMovies: List<MoviePresentationModel>) {
-        if(binding.homeRecyclerUpcoming.adapter == null) {
+        if (binding.homeRecyclerUpcoming.adapter == null) {
             binding.homeRecyclerUpcoming.apply {
                 adapter = MovieAdapter()
-                layoutManager = LinearLayoutManager(context,RecyclerView.HORIZONTAL,false)
+                layoutManager = LinearLayoutManager(context, RecyclerView.HORIZONTAL, false)
                 isNestedScrollingEnabled = false
             }
         }
@@ -88,10 +114,10 @@ class HomeFragment : Fragment() {
     }
 
     private fun renderTopRatedMovies(topRatedMovies: List<MoviePresentationModel>) {
-        if(binding.homeRecyclerTopRated.adapter == null) {
+        if (binding.homeRecyclerTopRated.adapter == null) {
             binding.homeRecyclerTopRated.apply {
                 adapter = MovieAdapter()
-                layoutManager = LinearLayoutManager(context,RecyclerView.HORIZONTAL,false)
+                layoutManager = LinearLayoutManager(context, RecyclerView.HORIZONTAL, false)
                 isNestedScrollingEnabled = false
             }
         }

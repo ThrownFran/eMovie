@@ -33,17 +33,20 @@ class HomeViewModelTest {
 
     @get:Rule
     val rule = MockKRule(this)
+
     @get:Rule
     val coroutineTestRule = CoroutineTestRule(StandardTestDispatcher())
 
     @MockK
     private lateinit var getMoviesUseCase: GetMoviesUseCase
+
     @MockK
     private lateinit var refreshMoviesUseCase: RefreshMoviesUseCase
+
     @MockK
     private lateinit var savedStateHandle: SavedStateHandle
 
-    private lateinit var SUT : HomeViewModel
+    private lateinit var SUT: HomeViewModel
 
     @Before
     fun setUp() {
@@ -112,7 +115,10 @@ class HomeViewModelTest {
         //Act
         advanceUntilIdle()
         //Assert
-        Assert.assertEquals(movieDomainFakes.map { it.toPresentation() }, SUT.homeState.value.topRatedMovies)
+        Assert.assertEquals(
+            movieDomainFakes.map { it.toPresentation() },
+            SUT.homeState.value.topRatedMovies
+        )
     }
 
     @Test
@@ -123,35 +129,79 @@ class HomeViewModelTest {
         //Act
         advanceUntilIdle()
         //Assert
-        Assert.assertEquals(movieDomainFakes.map { it.toPresentation() }, SUT.homeState.value.upcomingMovies)
+        Assert.assertEquals(
+            movieDomainFakes.map { it.toPresentation() },
+            SUT.homeState.value.upcomingMovies
+        )
     }
 
     @Test
-    fun `given upcoming movies flow received, then update recommended movies state`() = runTest {
+    fun `given upcoming movies flow received, then update recommended movies state with distinct and sorted selectable years`() = runTest {
         //Arrange
-        coEvery { getMoviesUseCase.invoke(any()) }.coAnswers { flow { emit(listOf(
-            Movie(1L,"Movie1",null,"en",LocalDate.ofYearDay(1993,1)),
-            Movie(2L,"Movie2",null,"es",LocalDate.ofYearDay(1993,1)),
-            Movie(3L,"Movie3",null,"en",LocalDate.ofYearDay(1995,1)),
-            Movie(4L,"Movie4",null,"es",LocalDate.ofYearDay(1996,1)),
-            Movie(5L,"Movie5",null,"en",LocalDate.ofYearDay(1997,1)),
-            Movie(6L,"Movie6",null,"en",LocalDate.ofYearDay(1993,1)),
-        )) } }
+        coEvery { getMoviesUseCase.invoke(any()) }.coAnswers {
+            flow {
+                emit(
+                    listOf(
+                        Movie(1L, "Movie1", null, "en", LocalDate.ofYearDay(1993, 1)),
+                        Movie(2L, "Movie2", null, "es", LocalDate.ofYearDay(1993, 1)),
+                        Movie(3L, "Movie3", null, "en", LocalDate.ofYearDay(1995, 1)),
+                        Movie(4L, "Movie4", null, "es", LocalDate.ofYearDay(1996, 1)),
+                        Movie(5L, "Movie5", null, "en", LocalDate.ofYearDay(1997, 1)),
+                        Movie(6L, "Movie6", null, "en", LocalDate.ofYearDay(1993, 1)),
+                    )
+                )
+            }
+        }
         buildSUT()
         //Act
         advanceUntilIdle()
         //Assert
-        Assert.assertEquals(1993,SUT.homeState.value.recommendedMovies.currentYear)
-        Assert.assertEquals("en",SUT.homeState.value.recommendedMovies.currentLanguage)
-        Assert.assertEquals(listOf("en","es").sorted(),SUT.homeState.value.recommendedMovies.selectableLanguages.sorted())
-        Assert.assertEquals(listOf(1993,1995,1996,1997),SUT.homeState.value.recommendedMovies.selectableYears)
-        Assert.assertEquals(listOf(
-            Movie(1L,"Movie1",null,"en",LocalDate.ofYearDay(1993,1)).toPresentation(),
-            Movie(6L,"Movie6",null,"en",LocalDate.ofYearDay(1993,1)).toPresentation(),
-        ),SUT.homeState.value.recommendedMovies.movies)
+        Assert.assertEquals("en", SUT.homeState.value.recommendedMovies.languageFilter.currentLanguage)
+        Assert.assertEquals(
+            listOf("en", "es").sorted(),
+            SUT.homeState.value.recommendedMovies.selectableLanguages.sorted()
+        )
+        Assert.assertEquals(
+            listOf(1993, 1995, 1996, 1997).sortedDescending(),
+            SUT.homeState.value.recommendedMovies.yearFilter.selectableYears
+        )
+        Assert.assertEquals(
+            listOf(
+                Movie(1L, "Movie1", null, "en", LocalDate.ofYearDay(1993, 1)).toPresentation(),
+                Movie(6L, "Movie6", null, "en", LocalDate.ofYearDay(1993, 1)).toPresentation(),
+            ), SUT.homeState.value.recommendedMovies.movies
+        )
     }
 
 
 
-
+    @Test
+    fun `given select year in recommended movies, then update state accordingly`() = runTest {
+        //Arrange
+        coEvery { getMoviesUseCase.invoke(any()) }.coAnswers {
+            flow {
+                emit(
+                    listOf(
+                        Movie(1L, "Movie1", null, "en", LocalDate.ofYearDay(1993, 1)),
+                        Movie(2L, "Movie2", null, "es", LocalDate.ofYearDay(1993, 1)),
+                        Movie(3L, "Movie3", null, "en", LocalDate.ofYearDay(1995, 1)),
+                        Movie(4L, "Movie4", null, "es", LocalDate.ofYearDay(1996, 1)),
+                        Movie(5L, "Movie5", null, "en", LocalDate.ofYearDay(1997, 1)),
+                        Movie(6L, "Movie6", null, "en", LocalDate.ofYearDay(1993, 1)),
+                    )
+                )
+            }
+        }
+        buildSUT()
+        //Act
+        advanceUntilIdle()
+        SUT.onYearFilterSelected(1997)
+        advanceUntilIdle()
+        //Arrange
+        Assert.assertEquals(1997, SUT.homeState.value.recommendedMovies.yearFilter.currentYear)
+        Assert.assertEquals(
+            listOf(Movie(5L, "Movie5", null, "en", LocalDate.ofYearDay(1997, 1)).toPresentation()),
+            SUT.homeState.value.recommendedMovies.movies
+        )
+    }
 }

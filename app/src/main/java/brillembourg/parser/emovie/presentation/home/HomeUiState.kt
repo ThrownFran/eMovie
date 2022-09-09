@@ -1,6 +1,5 @@
 package brillembourg.parser.emovie.presentation.home
 
-import brillembourg.parser.emovie.domain.Movie
 import brillembourg.parser.emovie.presentation.MoviePresentationModel
 
 data class HomeUiState(
@@ -10,10 +9,33 @@ data class HomeUiState(
 )
 
 data class RecommendedMovies(
-    val currentYear: Int? = null,
-    val currentLanguage: String? = null,
-    val selectableYears : List<Int> = emptyList(),
-    val selectableLanguages: List<String> = emptyList(),
-    val movies: List<MoviePresentationModel> = emptyList()
+    val yearFilter: YearFilter = YearFilter(),
+    val languageFilter: LanguageFilter = LanguageFilter(),
+    val movies: List<MoviePresentationModel> = emptyList(),
 )
+
+data class YearFilter(
+    val currentYear: Int? = null,
+    val selectableYears: List<Int> = emptyList(),
+)
+
+data class LanguageFilter(
+    val currentLanguage: String? = null,
+    val selectableLanguages: List<String> = emptyList()
+)
+
+//sealed class YearSelection () {
+//    abstract fun toDisplayString(): String
+//
+//    class AllYears: YearSelection() {
+//        override fun toDisplayString(): String {
+//            return "All years"
+//        }
+//    }
+//    class Year(val int: Int): YearSelection() {
+//        override fun toDisplayString(): String {
+//            return int.toString()
+//        }
+//    }
+//}
 
