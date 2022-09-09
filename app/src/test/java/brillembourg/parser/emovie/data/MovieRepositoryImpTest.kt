@@ -100,7 +100,7 @@ class MovieRepositoryImpTest {
     fun `given refresh data, when network movies are different from local movies, then save network movies in local data source`() = runTest {
         //Arrange
         val category = Category.TopRated()
-        val networkMovies = movieDataFakes + MovieData(6L, "Movie 6", "")
+        val networkMovies = movieDataFakes + MovieData(, "Movie 6", "")
         val localMovies = movieDataFakes
         mockNetworkDataSourceSuccess(networkMovies)
         mockLocalDataSourceSuccess(localMovies)

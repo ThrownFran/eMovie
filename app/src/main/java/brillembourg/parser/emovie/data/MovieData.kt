@@ -7,11 +7,11 @@ import com.google.gson.annotations.SerializedName
 data class MovieData(
     val id: Long,
     val name: String,
-    val backdropImageUrl: String
+    val posterImageUrl: String
 )
 
 fun MovieData.toDomain(): Movie {
-    return Movie(id, name, backdropImageUrl)
+    return Movie(id, name, posterImageUrl)
 }
 
 fun Movie.toData(): MovieData {
@@ -19,7 +19,7 @@ fun Movie.toData(): MovieData {
 }
 
 fun MovieResponse.toData () : MovieData {
-    return MovieData(id,name, posterImageUrl)
+    return MovieData(id, name, posterImageUrl)
 }
 
 class MovieResponsee {
