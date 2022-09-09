@@ -8,5 +8,8 @@
     <string name="previous">Previous</string>
     <string name="all_years">All years</string>
     <string name="all_languages">All languages</string>
+    <string name="year">Year</string>
+    <string name="language">Language</string>
+    <string name="recommended_movies">Recommended Movies</string>
 
 </resources>
