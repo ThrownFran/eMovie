@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import brillembourg.parser.emovie.R
 import brillembourg.parser.emovie.databinding.FragmentHomeBinding
+import brillembourg.parser.emovie.presentation.detail.DetailFragmentArgs
 import brillembourg.parser.emovie.presentation.models.MoviePresentationModel
 import brillembourg.parser.emovie.presentation.safeUiLaunch
 import dagger.hilt.android.AndroidEntryPoint
@@ -51,7 +52,10 @@ class HomeFragment : Fragment() {
 
     private fun handleNavigation(navigateToThisMovie: MoviePresentationModel?) {
         navigateToThisMovie?.let {
-            findNavController().navigate(R.id.DetailFragment)
+            findNavController().navigate(
+                resId = R.id.DetailFragment,
+                args = Bundle().apply { putParcelable("movie", navigateToThisMovie) }
+            )
             viewModel.onNavigateToMovieCompleted()
         }
     }

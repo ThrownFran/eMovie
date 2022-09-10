@@ -37,7 +37,9 @@ class MovieRepositoryImp @Inject constructor(
     override fun getMovie(id: Long): Flow<Movie> {
         return localDataSource.getMovie(id)
             .catch { if(it is Exception) throw it.toDomain() else throw GenericException("Throwable: ${it.message}") }
-            .map { it.toDomain() }
+            .map {
+                it.toDomain()
+            }
             .flowOn(schedulers.ioDispatcher())
     }
 }

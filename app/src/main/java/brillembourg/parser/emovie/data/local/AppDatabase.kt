@@ -21,7 +21,7 @@ import java.util.concurrent.Executors
         MovieTable::class,
         CategoryTable::class,
         CategoryMovieCrossRef::class
-    ), version = 4
+    ), version = 5
 )
 @TypeConverters(DateConverter::class)
 abstract class AppDatabase : RoomDatabase() {

@@ -1,34 +1,159 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".presentation.detail.DetailFragment">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/detail_appbar"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="16dp">
+        android:layout_height="wrap_content"
+        android:fitsSystemWindows="true">
 
-        <Button
-            android:id="@+id/button_second"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/previous"
-            app:layout_constraintBottom_toTopOf="@id/textview_second"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+        <com.google.android.material.appbar.CollapsingToolbarLayout
+            android:id="@+id/detail_collapsing_toolbar"
+            style="?attr/collapsingToolbarLayoutLargeStyle"
+            android:layout_width="match_parent"
+            android:layout_height="500dp"
+            app:contentScrim="@color/grey_transparent"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed|snap">
 
-        <TextView
-            android:id="@+id/textview_second"
-            android:layout_width="wrap_content"
+            <ImageView
+                android:id="@+id/detail_image_backdrop"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:fitsSystemWindows="true"
+                android:scaleType="centerCrop"
+                tools:ignore="ContentDescription"
+                app:layout_collapseMode="parallax"
+                tools:src="@color/black" />
+
+            <FrameLayout
+                android:id="@+id/collapsing_content_frame_toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:layout_gravity="bottom"
+                android:background="@color/grey_transparent">
+            </FrameLayout>
+
+
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/detail_toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                style="@style/Widget.Material3.Toolbar.OnSurface"
+                app:navigationIcon="@drawable/ic_baseline_arrow_back_24"
+                app:layout_collapseMode="pin" />
+
+        </com.google.android.material.appbar.CollapsingToolbarLayout>
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="800dp"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/button_second" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
-</androidx.core.widget.NestedScrollView>
+            android:layout_gravity="top"
+            android:padding="16dp">
+
+<!--            <com.google.android.material.textview.MaterialTextView-->
+<!--                android:id="@+id/detail_text_name"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:textAppearance="@style/TextAppearance.Material3.TitleLarge"-->
+<!--                android:textStyle="bold"-->
+<!--                app:layout_constraintEnd_toEndOf="parent"-->
+<!--                app:layout_constraintStart_toStartOf="parent"-->
+<!--                app:layout_constraintTop_toTopOf="parent"-->
+<!--                tools:text="Movie title" />-->
+
+            <LinearLayout
+                android:id="@+id/detail_linear_tags"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:orientation="horizontal"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/detail_chip_year"
+                    style="@style/Widget.Material3.Chip.Assist"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:elevation="0dp"
+                    app:chipBackgroundColor="@android:color/transparent"
+                    app:chipSurfaceColor="@android:color/transparent"
+                    tools:text="2013" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/detail_chip_language"
+                    style="@style/Widget.Material3.Chip.Assist"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    app:chipBackgroundColor="@android:color/transparent"
+                    app:chipSurfaceColor="@android:color/transparent"
+                    tools:text="en" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/detail_chip_vote_average"
+                    style="@style/Widget.Material3.Chip.Assist"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    app:chipBackgroundColor="@android:color/transparent"
+                    app:chipIcon="@mipmap/ic_launcher"
+                    app:chipSurfaceColor="@android:color/transparent"
+                    tools:text="8.5" />
+
+
+            </LinearLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/detail_button_watch_trailer"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/watch_trailer"
+                app:layout_constraintTop_toBottomOf="@id/detail_linear_tags" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                app:layout_constraintTop_toBottomOf="@id/detail_button_watch_trailer"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/movie_plot"
+                    android:textAppearance="@style/TextAppearance.Material3.TitleSmall"/>
+
+                <TextView
+                    android:id="@+id/detail_text_plot"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin vitae diam nisl. Quisque semper ornare sapien, quis auctor risus dapibus ac. Aliquam sapien est, volutpat a nibh quis, feugiat porta felis. Nam nec volutpat orci. Maecenas quis quam in libero tincidunt egestas ut eu risus. Pellentesque bibendum erat et risus vehicula aliquet. Nam scelerisque tellus vehicula dui bibendum rhoncus. In imperdiet elit elit, sit amet sodales quam fermentum sit amet. In ut justo est. Duis non ante ac turpis aliquet volutpat."
+                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium"/>
+
+
+            </LinearLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    </androidx.core.widget.NestedScrollView>
+
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -11,7 +11,11 @@ data class MoviePresentationModel(
     val name: String,
     val posterImageUrl: String? = null,
     val originalLanguage: String,
-    val releaseDate: LocalDate
+    val releaseDate: LocalDate,
+    val backdropImageUrl: String?,
+    val plot: String,
+    val voteCount: Int,
+    val voteAverage: Float
 ) : Parcelable {
 
     fun getReleaseYear (): Int {
@@ -21,9 +25,9 @@ data class MoviePresentationModel(
 }
 
 fun MoviePresentationModel.toDomain(): Movie {
-    return Movie(id, name, posterImageUrl, originalLanguage, releaseDate)
+    return Movie(id, name, posterImageUrl, originalLanguage, releaseDate,backdropImageUrl,plot,voteCount,voteAverage)
 }
 
 fun Movie.toPresentation(): MoviePresentationModel {
-    return MoviePresentationModel(id, name, posterImageUrl, originalLanguage, releaseYear)
+    return MoviePresentationModel(id, name, posterImageUrl, originalLanguage, releaseYear,backdropImageUrl,plot,voteCount,voteAverage)
 }

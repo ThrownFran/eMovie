@@ -1,6 +1,7 @@
 package brillembourg.parser.emovie.data.network
 
 import com.google.gson.annotations.SerializedName
+import kotlinx.coroutines.flow.Flow
 
 class MovieListResponse {
     @SerializedName("results")
@@ -14,6 +15,14 @@ class MovieResponse(
     val name: String,
     @SerializedName("poster_path")
     val posterImageUrl: String,
+    @SerializedName("backdrop_path")
+    val backDropImageUrl: String,
+    @SerializedName("overview")
+    val plot: String,
+    @SerializedName("vote_average")
+    val voteAverage: Float,
+    @SerializedName("vote_count")
+    val voteCount: Int,
     @SerializedName("original_language")
     val originalLanguage: String,
     @SerializedName("release_date")

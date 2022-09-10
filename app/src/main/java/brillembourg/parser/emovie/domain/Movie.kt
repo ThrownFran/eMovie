@@ -7,5 +7,9 @@ data class Movie(
     val name: String,
     val posterImageUrl: String? = null,
     val originalLanguage: String,
-    val releaseYear: LocalDate
+    val releaseYear: LocalDate,
+    val backdropImageUrl: String?,
+    val plot: String,
+    val voteCount: Int,
+    val voteAverage: Float
 )

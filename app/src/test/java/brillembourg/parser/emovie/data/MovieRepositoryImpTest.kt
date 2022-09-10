@@ -24,7 +24,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import org.threeten.bp.LocalDate
-import java.util.*
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(JUnit4::class)
@@ -53,7 +52,7 @@ class MovieRepositoryImpTest {
     fun `given get Movie detail, then parameter is passed correctly to local data source`() = runTest {
         //Arrange
         val id = 5L
-        val movie = MovieData(id,"Movie test","","es", LocalDate.ofYearDay(1999,1))
+        val movie = MovieData(id, "Movie test", "", "es", LocalDate.ofYearDay(1999,1), null,,,)
         coEvery { localDataSource.getMovie(any()) }.coAnswers { flow { emit(movie) } }
         //Act
         val result = SUT.getMovie(id).first()
@@ -139,8 +138,11 @@ class MovieRepositoryImpTest {
     fun `given refresh data, when network movies are different from local movies, then save network movies in local data source`() = runTest {
         //Arrange
         val category = Category.TopRated()
-        val networkMovies = movieDataFakes + MovieData(1L, "Movie 6", "","",
-            LocalDate.ofYearDay(2000,1))
+        val networkMovies = movieDataFakes + MovieData(
+            1L, "Movie 6", "", "",
+            LocalDate.ofYearDay(2000,1),
+            null,,,
+        )
         val localMovies = movieDataFakes
         mockNetworkDataSourceSuccess(networkMovies)
         mockLocalDataSourceSuccess(localMovies)
