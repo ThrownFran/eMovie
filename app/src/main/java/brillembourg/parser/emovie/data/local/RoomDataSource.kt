@@ -20,6 +20,10 @@ class RoomDataSource @Inject constructor(
     val crossDao: CategoryMoviesCrossDao
 ) : MovieLocalDataSource {
 
+    override fun getMovie(id: Long): Flow<MovieData> {
+        return movieDao.getMovie(id).map { it.toData() }
+    }
+
     override fun getMovies(category: Category): Flow<List<MovieData>> {
         return crossDao.getCategoriesWithMovies()
             .transform { categories ->

@@ -1,5 +1,6 @@
 package brillembourg.parser.emovie.domain
 
+import brillembourg.parser.emovie.domain.use_cases.GetMovieDetailUseCase
 import brillembourg.parser.emovie.domain.use_cases.GetMoviesUseCase
 import brillembourg.parser.emovie.utils.CoroutineTestRule
 import brillembourg.parser.emovie.utils.TestSchedulers
@@ -20,7 +21,7 @@ import org.junit.runners.JUnit4
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(JUnit4::class)
-class GetMoviesUseCaseTest {
+class GetMovieDetailUseCaseTest {
 
     @get:Rule
     val mockkRule = MockKRule(this)
@@ -30,37 +31,26 @@ class GetMoviesUseCaseTest {
     @MockK
     lateinit var repository: MovieRepository
 
-    lateinit var SUT: GetMoviesUseCase
+    lateinit var SUT: GetMovieDetailUseCase
 
     @Before
     fun setUp() {
-        SUT = GetMoviesUseCase(TestSchedulers(),repository)
+        SUT = GetMovieDetailUseCase(TestSchedulers(),repository)
     }
 
     @Test
-    fun `given invoke, when category is upcoming, then correct parameters are passed`() = runTest {
+    fun `given invoke, then correct parameters are passed`() = runTest {
         //Arrange
+        val id = 4L
         mockGetMoviesFromRepository()
-        val upcomingCategory = Category.Upcoming()
         //Act
-        SUT.invoke(upcomingCategory)
+        SUT.invoke(id)
         //Assert
-        coVerify { repository.getMovies(match { category -> category == upcomingCategory }) }
-    }
-
-    @Test
-    fun `given invoke, when category is top rated, then correct parameters are passed`() = runTest {
-        //Arrange
-        mockGetMoviesFromRepository()
-        val topRatedCategory = Category.TopRated()
-        //Act
-        SUT.invoke(topRatedCategory)
-        //Assert
-        coVerify { repository.getMovies(match { category -> category == topRatedCategory }) }
+        coVerify { SUT.invoke(match { params -> params == id }) }
     }
 
     private fun mockGetMoviesFromRepository() {
-        coEvery { repository.getMovies(any()) }.coAnswers { flow { emit(movieDomainFakes) } }
+        coEvery { repository.getMovie(any()) }.coAnswers { flow { emit(movieDomainFakes[0]) } }
     }
 
 }

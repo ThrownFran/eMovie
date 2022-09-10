@@ -7,12 +7,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import brillembourg.parser.emovie.R
 import brillembourg.parser.emovie.databinding.FragmentHomeBinding
-import brillembourg.parser.emovie.presentation.MoviePresentationModel
+import brillembourg.parser.emovie.presentation.models.MoviePresentationModel
 import brillembourg.parser.emovie.presentation.safeUiLaunch
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -39,72 +40,42 @@ class HomeFragment : Fragment() {
 
     private fun renderState() {
         safeUiLaunch {
-            viewModel.homeState.collect { state ->
+            viewModel.homeUiState.collect { state ->
                 renderTopRatedMovies(state.topRatedMovies)
                 renderUpcomingMovies(state.upcomingMovies)
                 renderRecommendedMovies(state.recommendedMovies)
+                handleNavigation(state.navigateToThisMovie)
             }
         }
     }
 
-    private fun renderRecommendedMovies(recommendedMovies: RecommendedMovies) {
-        renderRecommendedMovieRecycler(recommendedMovies)
-        renderYearFilter(recommendedMovies)
-
-        val allLanguagesText = getString(R.string.all_languages)
-        binding.homeAutotextLanguage.apply {
-            setText(recommendedMovies.languageFilter.currentLanguage ?: allLanguagesText)
-            setAdapter(ArrayAdapter(
-                requireContext(),
-                android.R.layout.simple_spinner_dropdown_item,
-                listOf(allLanguagesText) + recommendedMovies.languageFilter.selectableLanguages
-            ))
-            binding.homeAutotextLanguage.setOnItemClickListener { adapterView, view, i, l ->
-                val itemSelected = adapterView.getItemAtPosition(i) as String
-                if (itemSelected == allLanguagesText) viewModel.onSetNoLanguageFilter()
-                else viewModel.onLanguageFilterSelected(itemSelected)
-            }
+    private fun handleNavigation(navigateToThisMovie: MoviePresentationModel?) {
+        navigateToThisMovie?.let {
+            findNavController().navigate(R.id.DetailFragment)
+            viewModel.onNavigateToMovieCompleted()
         }
-
     }
 
-    private fun renderRecommendedMovieRecycler(recommendedMovies: RecommendedMovies) {
-        if (binding.homeRecyclerRecommended.adapter == null) {
-            binding.homeRecyclerRecommended.apply {
-                adapter = MovieAdapter()
-                layoutManager = GridLayoutManager(context, 3)
+    private fun renderTopRatedMovies(topRatedMovies: List<MoviePresentationModel>) {
+        if (binding.homeRecyclerTopRated.adapter == null) {
+            binding.homeRecyclerTopRated.apply {
+                adapter = MovieAdapter {
+                    viewModel.onMovieClick(it)
+                }
+                layoutManager = LinearLayoutManager(context, RecyclerView.HORIZONTAL, false)
                 isNestedScrollingEnabled = false
             }
         }
 
-        (binding.homeRecyclerRecommended.adapter as? MovieAdapter?)?.submitList(recommendedMovies.movies)
-    }
-
-    private fun renderYearFilter(recommendedMovies: RecommendedMovies) {
-        val allYears = getString(R.string.all_years)
-
-        val yearAdapter = ArrayAdapter(
-            requireContext(),
-            android.R.layout.simple_spinner_dropdown_item,
-            listOf(allYears) + recommendedMovies.yearFilter.selectableYears.map { it.toString() }
-        )
-
-        binding.homeAutotextYear.apply {
-            setText(recommendedMovies.yearFilter.currentYear?.toString() ?: allYears)
-            setAdapter(yearAdapter)
-            setOnItemClickListener { adapterView, view, i, l ->
-                val itemSelected = adapterView.getItemAtPosition(i) as String
-
-                if (itemSelected == allYears) viewModel.onSetNoYearFilter()
-                else viewModel.onYearFilterSelected(itemSelected.toInt())
-            }
-        }
+        (binding.homeRecyclerTopRated.adapter as? MovieAdapter?)?.submitList(topRatedMovies)
     }
 
     private fun renderUpcomingMovies(upcomingMovies: List<MoviePresentationModel>) {
         if (binding.homeRecyclerUpcoming.adapter == null) {
             binding.homeRecyclerUpcoming.apply {
-                adapter = MovieAdapter()
+                adapter = MovieAdapter {
+                    viewModel.onMovieClick(it)
+                }
                 layoutManager = LinearLayoutManager(context, RecyclerView.HORIZONTAL, false)
                 isNestedScrollingEnabled = false
             }
@@ -113,17 +84,74 @@ class HomeFragment : Fragment() {
         (binding.homeRecyclerUpcoming.adapter as? MovieAdapter?)?.submitList(upcomingMovies)
     }
 
-    private fun renderTopRatedMovies(topRatedMovies: List<MoviePresentationModel>) {
-        if (binding.homeRecyclerTopRated.adapter == null) {
-            binding.homeRecyclerTopRated.apply {
-                adapter = MovieAdapter()
-                layoutManager = LinearLayoutManager(context, RecyclerView.HORIZONTAL, false)
+    private fun renderRecommendedMovies(recommendedMovies: RecommendedMovies) {
+        renderRecommendedMovieRecycler(recommendedMovies.movies)
+        renderYearFilter(recommendedMovies.yearFilter)
+        renderLanguageFilter(recommendedMovies.languageFilter)
+    }
+
+    private fun renderRecommendedMovieRecycler(movies: List<MoviePresentationModel>) {
+        if (binding.homeRecyclerRecommended.adapter == null) {
+            binding.homeRecyclerRecommended.apply {
+                adapter = MovieAdapter {
+                    viewModel.onMovieClick(it)
+                }
+                layoutManager = GridLayoutManager(context, 3)
                 isNestedScrollingEnabled = false
             }
         }
 
-        (binding.homeRecyclerTopRated.adapter as? MovieAdapter?)?.submitList(topRatedMovies)
+        (binding.homeRecyclerRecommended.adapter as? MovieAdapter?)?.submitList(movies)
     }
+
+    private fun renderLanguageFilter(filter: LanguageFilter) {
+        val allLanguagesText = getString(R.string.all_languages)
+        binding.homeAutotextLanguage.apply {
+            setText(filter.currentLanguage ?: allLanguagesText)
+            setAdapter(
+                buildSpinnerAdapter(
+                    allOptionsStringValue = allLanguagesText,
+                    optionList = filter.selectableLanguages
+                )
+            )
+            binding.homeAutotextLanguage.setOnItemClickListener { adapterView, _, i, _ ->
+                val itemSelected = adapterView.getItemAtPosition(i) as String
+                if (itemSelected == allLanguagesText) viewModel.onSetNoLanguageFilter()
+                else viewModel.onLanguageFilterSelected(itemSelected)
+            }
+        }
+    }
+
+
+    private fun renderYearFilter(yearFilter: YearFilter) {
+        val allYears = getString(R.string.all_years)
+
+        binding.homeAutotextYear.apply {
+            setText(yearFilter.currentYear?.toString() ?: allYears)
+
+            setAdapter(buildSpinnerAdapter(
+                allOptionsStringValue = allYears,
+                optionList = yearFilter.selectableYears.map { it.toString() }
+            ))
+
+            setOnItemClickListener { adapterView, _, i, _ ->
+                val itemSelected = adapterView.getItemAtPosition(i) as String
+
+                if (itemSelected == allYears) viewModel.onSetNoYearFilter()
+                else viewModel.onYearFilterSelected(itemSelected.toInt())
+            }
+        }
+    }
+
+    private fun buildSpinnerAdapter(
+        allOptionsStringValue: String,
+        optionList: List<String>
+    ) = ArrayAdapter(
+        requireContext(),
+        android.R.layout.simple_spinner_dropdown_item,
+        listOf(allOptionsStringValue) + optionList
+    )
+
 
     override fun onDestroyView() {
         super.onDestroyView()

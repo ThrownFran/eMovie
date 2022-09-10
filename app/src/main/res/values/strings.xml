@@ -11,5 +11,7 @@
     <string name="year">Year</string>
     <string name="language">Language</string>
     <string name="recommended_movies">Recommended Movies</string>
+    <string name="upcoming">Upcoming</string>
+    <string name="toprated">Top rated</string>
 
 </resources>

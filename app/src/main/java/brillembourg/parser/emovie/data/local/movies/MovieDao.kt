@@ -15,4 +15,7 @@ interface MovieDao {
     @Query("SELECT * FROM movietable")
     fun getList(): Flow<List<MovieTable>>
 
+    @Query("SELECT * FROM movietable WHERE id = :id")
+    fun getMovie(id: Long): Flow<MovieTable>
+
 }

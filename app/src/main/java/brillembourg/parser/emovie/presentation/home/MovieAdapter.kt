@@ -6,10 +6,10 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import brillembourg.parser.emovie.databinding.ItemMovieBinding
-import brillembourg.parser.emovie.presentation.MoviePresentationModel
+import brillembourg.parser.emovie.presentation.models.MoviePresentationModel
 import brillembourg.parser.emovie.presentation.setMovieDbImageUrl
 
-class MovieAdapter() :
+class MovieAdapter(val onClicked: (MoviePresentationModel) -> Unit) :
     ListAdapter<MoviePresentationModel, MovieAdapter.MovieViewHolder>(diffUtilCallback) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MovieViewHolder {
@@ -24,7 +24,15 @@ class MovieAdapter() :
         holder.bind(currentList[position])
     }
 
-    class MovieViewHolder(val binding: ItemMovieBinding) : RecyclerView.ViewHolder(binding.root) {
+    inner class MovieViewHolder(val binding: ItemMovieBinding) : RecyclerView.ViewHolder(binding.root) {
+
+        init {
+            setupClickListener()
+        }
+
+        private fun setupClickListener() {
+            itemView.setOnClickListener { onClicked.invoke(currentList[bindingAdapterPosition]) }
+        }
 
         fun bind(movie: MoviePresentationModel) {
             movie.posterImageUrl?.let { binding.movieImage.setMovieDbImageUrl(it) }

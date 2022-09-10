@@ -8,7 +8,7 @@
     <fragment
         android:id="@+id/HomeFragment"
         android:name="brillembourg.parser.emovie.presentation.home.HomeFragment"
-        android:label="@string/first_fragment_label"
+        android:label="@string/app_name"
         tools:layout="@layout/fragment_home">
 
         <action
@@ -17,7 +17,10 @@
     </fragment>
     <fragment
         android:id="@+id/DetailFragment"
-        android:name="brillembourg.parser.emovie.presentation.DetailFragment"
+        android:name="brillembourg.parser.emovie.presentation.detail.DetailFragment"
         android:label="@string/second_fragment_label">
+        <argument
+            android:name="movie"
+            app:argType="brillembourg.parser.emovie.presentation.models.MoviePresentationModel" />
     </fragment>
 </navigation>

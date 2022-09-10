@@ -1,5 +1,6 @@
 package brillembourg.parser.emovie.domain
 
+import brillembourg.parser.emovie.domain.use_cases.RefreshMoviesUseCase
 import brillembourg.parser.emovie.utils.CoroutineTestRule
 import brillembourg.parser.emovie.utils.TestSchedulers
 import io.mockk.coEvery
@@ -8,7 +9,6 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.junit4.MockKRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
-import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test

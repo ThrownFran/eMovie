@@ -1,4 +1,4 @@
-package brillembourg.parser.emovie.presentation
+package brillembourg.parser.emovie.presentation.detail
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -8,10 +8,12 @@ import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
 import brillembourg.parser.emovie.R
 import brillembourg.parser.emovie.databinding.FragmentDetailBinding
+import dagger.hilt.android.AndroidEntryPoint
 
 /**
  * A simple [Fragment] subclass as the second destination in the navigation.
  */
+@AndroidEntryPoint
 class DetailFragment : Fragment() {
 
     private var _binding: FragmentDetailBinding? = null

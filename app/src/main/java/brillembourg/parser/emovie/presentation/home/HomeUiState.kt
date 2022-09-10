@@ -1,11 +1,12 @@
 package brillembourg.parser.emovie.presentation.home
 
-import brillembourg.parser.emovie.presentation.MoviePresentationModel
+import brillembourg.parser.emovie.presentation.models.MoviePresentationModel
 
 data class HomeUiState(
     val topRatedMovies: List<MoviePresentationModel> = emptyList(),
     val upcomingMovies: List<MoviePresentationModel> = emptyList(),
     val recommendedMovies: RecommendedMovies = RecommendedMovies(),
+    val navigateToThisMovie: MoviePresentationModel? = null
 )
 
 data class RecommendedMovies(

@@ -31,11 +31,14 @@ class UtilsKtTest {
     @Test
     fun `given yy-mm-dd, then return Date object`() {
         //Arrange
-        val releaseDate = "1993-11-05"
+        val releaseDate = "2000-11-05"
         //Act
         val date = extractDateFromString(releaseDate)
         //Assert
         assertNotNull(date)
+        assertEquals(2000,date.year)
+        assertEquals(11,date.monthValue)
+        assertEquals(5,date.dayOfMonth)
     }
 
     @Test

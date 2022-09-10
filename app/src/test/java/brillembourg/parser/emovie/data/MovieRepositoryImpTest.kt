@@ -50,6 +50,43 @@ class MovieRepositoryImpTest {
     }
 
     @Test
+    fun `given get Movie detail, then parameter is passed correctly to local data source`() = runTest {
+        //Arrange
+        val id = 5L
+        val movie = MovieData(id,"Movie test","","es", LocalDate.ofYearDay(1999,1))
+        coEvery { localDataSource.getMovie(any()) }.coAnswers { flow { emit(movie) } }
+        //Act
+        val result = SUT.getMovie(id).first()
+        //Assert
+        Assert.assertEquals(movie.toDomain(),result)
+    }
+
+    @Test
+    fun `given get Movie, when success ,then map result to domain`() = runTest {
+        //Arrange
+        val id = 5L
+        mockSuccessDatasource()
+        //Act
+        SUT.getMovie(id)
+        //Assert
+        coVerify { localDataSource.getMovie(match { params -> params == id }) }
+    }
+
+    @Test
+    fun `given get Movie, when error, then propagate error as domain`() = runTest {
+        //Arrange
+        mockLocalDataSourceError()
+        var errorToCapture : Exception ? = null
+        //Act
+        SUT.getMovie(7L)
+            .catch { errorToCapture = it as Exception }
+            .collect()
+        //Assert
+        Assert.assertNotNull(errorToCapture)
+        Assert.assertTrue(errorToCapture is GenericException)
+    }
+
+    @Test
     fun `given get Movies, when any category, then parameter is passed correctly to local data source`() = runTest {
         //Arrange
         val category = Category.TopRated()
@@ -61,7 +98,7 @@ class MovieRepositoryImpTest {
     }
 
     @Test
-    fun `given get Movies, when any category, then result is mapped to domain`() = runTest {
+    fun `given get Movies, when success, then result is mapped to domain`() = runTest {
         //Arrange
         val category = Category.TopRated()
         mockSuccessDatasource()
@@ -103,7 +140,7 @@ class MovieRepositoryImpTest {
         //Arrange
         val category = Category.TopRated()
         val networkMovies = movieDataFakes + MovieData(1L, "Movie 6", "","",
-            LocalDate.now())
+            LocalDate.ofYearDay(2000,1))
         val localMovies = movieDataFakes
         mockNetworkDataSourceSuccess(networkMovies)
         mockLocalDataSourceSuccess(localMovies)
@@ -168,10 +205,12 @@ class MovieRepositoryImpTest {
     private fun mockLocalDataSourceSuccess(movieFakes : List<MovieData>) {
         coEvery { localDataSource.getMovies(any()) }.coAnswers { flow { emit(movieFakes) } }
         coEvery { localDataSource.saveMovies(any(),any()) }.returns(Unit)
+        coEvery { localDataSource.getMovie(any()) }.coAnswers { flow { emit(movieFakes[0]) } }
     }
 
     private fun mockLocalDataSourceError() {
         coEvery { localDataSource.getMovies(any()) }.coAnswers { flow { throw Exception("Error") } }
+        coEvery { localDataSource.getMovie(any()) }.coAnswers { flow { throw Exception("Error") } }
     }
 
 

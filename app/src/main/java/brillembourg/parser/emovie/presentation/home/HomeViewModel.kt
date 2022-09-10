@@ -4,10 +4,11 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import brillembourg.parser.emovie.domain.Category
-import brillembourg.parser.emovie.domain.GetMoviesUseCase
-import brillembourg.parser.emovie.domain.RefreshMoviesUseCase
+import brillembourg.parser.emovie.domain.use_cases.GetMoviesUseCase
+import brillembourg.parser.emovie.domain.use_cases.RefreshMoviesUseCase
 import brillembourg.parser.emovie.domain.Schedulers
-import brillembourg.parser.emovie.presentation.toPresentation
+import brillembourg.parser.emovie.presentation.models.MoviePresentationModel
+import brillembourg.parser.emovie.presentation.models.toPresentation
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.*
@@ -22,11 +23,13 @@ class HomeViewModel @Inject constructor(
     private val refreshMoviesUseCase: RefreshMoviesUseCase
 ) : ViewModel() {
 
-    private val _homeState = MutableStateFlow(HomeUiState()).also {
+    private val recommendedMovieCount = 6
+
+    private val _homeUiState = MutableStateFlow(HomeUiState()).also {
         observeTopRatedMovies()
         observeUpcomingMovies()
     }
-    val homeState = _homeState.asStateFlow()
+    val homeUiState = _homeUiState.asStateFlow()
     private val coroutineExceptionHandler = CoroutineExceptionHandler { context, throwable -> }
 
     init {
@@ -50,7 +53,7 @@ class HomeViewModel @Inject constructor(
         getMoviesUseCase.invoke(Category.Upcoming())
             .map { list -> list.map { movie -> movie.toPresentation() } }
             .onEach { movies ->
-                _homeState.update { it.copy(upcomingMovies = movies) }
+                _homeUiState.update { it.copy(upcomingMovies = movies) }
             }
             .launchIn(viewModelScope)
     }
@@ -59,21 +62,20 @@ class HomeViewModel @Inject constructor(
         getMoviesUseCase.invoke(Category.TopRated())
             .map { list -> list.map { movie -> movie.toPresentation() } }
             .onEach { movies ->
-                _homeState.update { it.copy(topRatedMovies = movies) }
+                _homeUiState.update { it.copy(topRatedMovies = movies) }
                 filterRecommendedMovies()
             }
             .launchIn(viewModelScope)
     }
 
     private fun filterRecommendedMovies() {
-        val movies = homeState.value.topRatedMovies
-        val languages: List<String> =
-            homeState.value.topRatedMovies.map { it.originalLanguage }
-        val yearList: List<Int> = homeState.value.topRatedMovies.map { it.getReleaseYear() }
+        val movies = homeUiState.value.topRatedMovies
 
+        val languages: List<String> = homeUiState.value.topRatedMovies.map { it.originalLanguage }
+        val yearList: List<Int> = homeUiState.value.topRatedMovies.map { it.getReleaseYear() }
 
-        val currentYear = _homeState.value.recommendedMovies.yearFilter.currentYear
-        val currentLanguage = homeState.value.recommendedMovies.languageFilter.currentLanguage
+        val currentYear = _homeUiState.value.recommendedMovies.yearFilter.currentYear
+        val currentLanguage = homeUiState.value.recommendedMovies.languageFilter.currentLanguage
 
         val filteredList = movies
             .filter {
@@ -88,11 +90,11 @@ class HomeViewModel @Inject constructor(
                 }
 
                 (it.getReleaseYear() == currentYear) && it.originalLanguage == currentLanguage
-        }.take(6)
+        }.take(recommendedMovieCount)
 
         val selectableYears: List<Int> = yearList.distinct().sortedByDescending { it }
 
-        _homeState.update {
+        _homeUiState.update {
             it.copy(
                 recommendedMovies = it.recommendedMovies.copy(
                     yearFilter = it.recommendedMovies.yearFilter.copy(selectableYears = selectableYears),
@@ -106,7 +108,7 @@ class HomeViewModel @Inject constructor(
     }
 
     fun onLanguageFilterSelected(language: String?) {
-        _homeState.update {
+        _homeUiState.update {
             it.copy(
                 recommendedMovies = it.recommendedMovies.copy(
                         languageFilter = it.recommendedMovies.languageFilter.copy(
@@ -123,7 +125,7 @@ class HomeViewModel @Inject constructor(
     }
 
     fun onYearFilterSelected(year: Int?) {
-        _homeState.update {
+        _homeUiState.update {
             it.copy(
                 recommendedMovies = it.recommendedMovies.copy(
                     yearFilter = it.recommendedMovies.yearFilter.copy(currentYear = year)
@@ -138,7 +140,13 @@ class HomeViewModel @Inject constructor(
         onYearFilterSelected(null)
     }
 
+    fun onMovieClick(movieClicked: MoviePresentationModel) {
+        _homeUiState.update { it.copy(navigateToThisMovie = movieClicked) }
+    }
 
+    fun onNavigateToMovieCompleted() {
+        _homeUiState.update { it.copy(navigateToThisMovie = null) }
+    }
 
 
 }

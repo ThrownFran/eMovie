@@ -2,10 +2,11 @@ package brillembourg.parser.emovie.presentation
 
 import androidx.lifecycle.SavedStateHandle
 import brillembourg.parser.emovie.domain.Category
-import brillembourg.parser.emovie.domain.GetMoviesUseCase
+import brillembourg.parser.emovie.domain.use_cases.GetMoviesUseCase
 import brillembourg.parser.emovie.domain.Movie
-import brillembourg.parser.emovie.domain.RefreshMoviesUseCase
+import brillembourg.parser.emovie.domain.use_cases.RefreshMoviesUseCase
 import brillembourg.parser.emovie.presentation.home.HomeViewModel
+import brillembourg.parser.emovie.presentation.models.toPresentation
 import brillembourg.parser.emovie.utils.CoroutineTestRule
 import brillembourg.parser.emovie.utils.TestSchedulers
 import brillembourg.parser.emovie.utils.movieDomainFakes
@@ -128,7 +129,7 @@ class HomeViewModelTest {
         //Assert
         Assert.assertEquals(
             movieDomainFakes.map { it.toPresentation() },
-            SUT.homeState.value.topRatedMovies
+            SUT.homeUiState.value.topRatedMovies
         )
     }
 
@@ -142,7 +143,7 @@ class HomeViewModelTest {
         //Assert
         Assert.assertEquals(
             movieDomainFakes.map { it.toPresentation() },
-            SUT.homeState.value.upcomingMovies
+            SUT.homeUiState.value.upcomingMovies
         )
     }
 
@@ -155,8 +156,8 @@ class HomeViewModelTest {
             //Act
             advanceUntilIdle()
             //Assert
-            Assert.assertNull(SUT.homeState.value.recommendedMovies.languageFilter.currentLanguage)
-            Assert.assertNull(SUT.homeState.value.recommendedMovies.yearFilter.currentYear)
+            Assert.assertNull(SUT.homeUiState.value.recommendedMovies.languageFilter.currentLanguage)
+            Assert.assertNull(SUT.homeUiState.value.recommendedMovies.yearFilter.currentYear)
         }
 
     @Test
@@ -170,7 +171,7 @@ class HomeViewModelTest {
             //Assert
             Assert.assertEquals(
                 listOf("en", "es").sorted(),
-                SUT.homeState.value.recommendedMovies.languageFilter.selectableLanguages.sorted()
+                SUT.homeUiState.value.recommendedMovies.languageFilter.selectableLanguages.sorted()
             )
         }
 
@@ -185,7 +186,7 @@ class HomeViewModelTest {
             //Assert
             Assert.assertEquals(
                 listOf(1993, 1995, 1996, 1997).sortedDescending(),
-                SUT.homeState.value.recommendedMovies.yearFilter.selectableYears
+                SUT.homeUiState.value.recommendedMovies.yearFilter.selectableYears
             )
         }
 
@@ -202,7 +203,7 @@ class HomeViewModelTest {
             advanceUntilIdle()
             //Assert
             Assert.assertEquals(
-                list.map { it.toPresentation() }, SUT.homeState.value.recommendedMovies.movies
+                list.map { it.toPresentation() }, SUT.homeUiState.value.recommendedMovies.movies
             )
         }
 
@@ -232,7 +233,7 @@ class HomeViewModelTest {
             advanceUntilIdle()
             //Assert
             Assert.assertEquals(
-                6, SUT.homeState.value.recommendedMovies.movies.size
+                6, SUT.homeUiState.value.recommendedMovies.movies.size
             )
         }
 
@@ -246,10 +247,10 @@ class HomeViewModelTest {
         advanceUntilIdle()
         SUT.onYearFilterSelected(1997)
         //Arrange
-        Assert.assertEquals(1997, SUT.homeState.value.recommendedMovies.yearFilter.currentYear)
+        Assert.assertEquals(1997, SUT.homeUiState.value.recommendedMovies.yearFilter.currentYear)
         Assert.assertEquals(
             listOf(Movie(5L, "Movie5", null, "en", LocalDate.ofYearDay(1997, 1)).toPresentation()),
-            SUT.homeState.value.recommendedMovies.movies
+            SUT.homeUiState.value.recommendedMovies.movies
         )
     }
 
@@ -271,11 +272,11 @@ class HomeViewModelTest {
         //Arrange
         Assert.assertEquals(
             "es",
-            SUT.homeState.value.recommendedMovies.languageFilter.currentLanguage
+            SUT.homeUiState.value.recommendedMovies.languageFilter.currentLanguage
         )
         Assert.assertEquals(
             listOf(movieInSpanish.toPresentation()),
-            SUT.homeState.value.recommendedMovies.movies
+            SUT.homeUiState.value.recommendedMovies.movies
         )
     }
 
@@ -305,9 +306,9 @@ class HomeViewModelTest {
             //Check filter state
             Assert.assertEquals(
                 "ja",
-                SUT.homeState.value.recommendedMovies.languageFilter.currentLanguage
+                SUT.homeUiState.value.recommendedMovies.languageFilter.currentLanguage
             )
-            Assert.assertEquals(1995, SUT.homeState.value.recommendedMovies.yearFilter.currentYear)
+            Assert.assertEquals(1995, SUT.homeUiState.value.recommendedMovies.yearFilter.currentYear)
 
             //Movies filtered
             Assert.assertEquals(
@@ -315,9 +316,34 @@ class HomeViewModelTest {
                     Movie(3L, "Movie3", null, "ja", LocalDate.ofYearDay(1995, 1)).toPresentation(),
                     Movie(6L, "Movie6", null, "ja", LocalDate.ofYearDay(1995, 1)).toPresentation()
                 ),
-                SUT.homeState.value.recommendedMovies.movies
+                SUT.homeUiState.value.recommendedMovies.movies
             )
         }
+
+    @Test
+    fun `given click in movie, then navigate to movie`() {
+        //Arrange
+        val movieClicked = movieDomainFakes[0].toPresentation()
+        mockGetMoviesSuccess()
+        buildSUT()
+        //Act
+        SUT.onMovieClick(movieClicked)
+        //Assert
+        Assert.assertEquals(SUT.homeUiState.value.navigateToThisMovie,movieClicked)
+    }
+
+    @Test
+    fun `given navigation completed, then update navigate state to null`() {
+        //Arrange
+        val movieClicked = movieDomainFakes[0].toPresentation()
+        mockGetMoviesSuccess()
+        buildSUT()
+        //Act
+        SUT.onMovieClick(movieClicked)
+        SUT.onNavigateToMovieCompleted()
+        //Assert
+        Assert.assertNull(SUT.homeUiState.value.navigateToThisMovie)
+    }
 
     private fun mockGetMoviesForRecommendedTests(list: List<Movie> = movieFakesForRecommendedCategory) {
         coEvery { getMoviesUseCase.invoke(any()) }.coAnswers {
