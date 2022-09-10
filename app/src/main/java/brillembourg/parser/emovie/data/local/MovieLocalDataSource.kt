@@ -9,6 +9,6 @@ interface MovieLocalDataSource {
     fun getMovies(category: Category): Flow<List<MovieData>>
     fun getMovie(id: Long): Flow<MovieData>
     fun getTrailers(movieId: Long): Flow<List<Trailer>>
+    suspend fun saveTrailers(trailers: List<Trailer>)
     suspend fun saveMovies(category: Category, moviesFetched: List<MovieData>)
-    fun saveTrailers(trailersFromNetwork: List<Trailer>)
 }

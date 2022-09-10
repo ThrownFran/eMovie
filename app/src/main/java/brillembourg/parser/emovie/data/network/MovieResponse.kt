@@ -3,7 +3,7 @@ package brillembourg.parser.emovie.data.network
 import com.google.gson.annotations.SerializedName
 import kotlinx.coroutines.flow.Flow
 
-class MovieListResponse {
+class GetMoviesResponse {
     @SerializedName("results")
     var results : List<MovieResponse>? = null
 }

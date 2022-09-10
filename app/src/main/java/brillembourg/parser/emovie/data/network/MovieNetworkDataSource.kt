@@ -6,5 +6,5 @@ import brillembourg.parser.emovie.domain.models.Trailer
 
 interface MovieNetworkDataSource {
     suspend fun getMovies(category: Category): List<MovieData>
-    suspend fun getTrailers(id: Long): List<Trailer>
+    suspend fun getTrailers(movieId: Long): List<Trailer>
 }

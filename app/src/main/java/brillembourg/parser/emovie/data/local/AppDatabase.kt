@@ -13,6 +13,7 @@ import brillembourg.parser.emovie.data.local.category_movie_cross.CategoryMovies
 import brillembourg.parser.emovie.data.local.movies.DateConverter
 import brillembourg.parser.emovie.data.local.movies.MovieDao
 import brillembourg.parser.emovie.data.local.movies.MovieTable
+import brillembourg.parser.emovie.data.local.trailers.TrailerDao
 import brillembourg.parser.emovie.domain.models.Category
 import java.util.concurrent.Executors
 
@@ -21,13 +22,14 @@ import java.util.concurrent.Executors
         MovieTable::class,
         CategoryTable::class,
         CategoryMovieCrossRef::class
-    ), version = 5
+    ), version = 6
 )
 @TypeConverters(DateConverter::class)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun movieDao(): MovieDao
     abstract fun categoryDao(): CategoryDao
+    abstract fun trailerDao(): TrailerDao
     abstract fun movieCategoryCrossDao(): CategoryMoviesCrossDao
 
     companion object {

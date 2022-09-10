@@ -9,6 +9,8 @@ import brillembourg.parser.emovie.data.local.movies.MovieDao
 import brillembourg.parser.emovie.data.local.movies.MovieTable
 import brillembourg.parser.emovie.data.local.movies.toData
 import brillembourg.parser.emovie.data.local.movies.toTable
+import brillembourg.parser.emovie.data.local.trailers.TrailerDao
+import brillembourg.parser.emovie.data.local.trailers.TrailerTable
 import brillembourg.parser.emovie.domain.models.Category
 import brillembourg.parser.emovie.domain.models.Trailer
 import kotlinx.coroutines.flow.*
@@ -18,6 +20,7 @@ class RoomDataSource @Inject constructor(
     val appDatabase: AppDatabase,
     val movieDao: MovieDao,
     val categoryDao: CategoryDao,
+    val trailerDao: TrailerDao,
     val crossDao: CategoryMoviesCrossDao
 ) : MovieLocalDataSource {
 
@@ -26,11 +29,29 @@ class RoomDataSource @Inject constructor(
     }
 
     override fun getTrailers(movieId: Long): Flow<List<Trailer>> {
-        TODO("Not yet implemented")
+        return trailerDao.getMovieWithTrailers(movieId).map {
+            it.trailers.map { trailerTable ->
+                Trailer(
+                    trailerTable.id,
+                    trailerTable.key,
+                    trailerTable.name,
+                    trailerTable.site,
+                    movieId
+                )
+            }
+        }
     }
 
-    override fun saveTrailers(trailersFromNetwork: List<Trailer>) {
-        TODO("Not yet implemented")
+    override suspend fun saveTrailers(trailers: List<Trailer>) {
+        trailerDao.saveTrailers(ArrayList(trailers.map {
+            TrailerTable(
+                it.id.,
+                it.name,
+                it.key,
+                it.site,
+                it.movieId
+            )
+        }))
     }
 
     override fun getMovies(category: Category): Flow<List<MovieData>> {

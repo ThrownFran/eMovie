@@ -20,7 +20,16 @@ class RetrofitNetworkDataSource @Inject constructor(
             ?: emptyList<MovieData>().also { Logger.error(IllegalStateException("Api results are null")) }
     }
 
-    override suspend fun getTrailers(id: Long): List<Trailer> {
-        TODO("Not yet implemented")
+    override suspend fun getTrailers(movieId: Long): List<Trailer> {
+        val response = movieApi.getTrailers(movieId, API_KEY)
+        return response.results.map { trailerResponse ->
+            Trailer(
+                trailerResponse.id,
+                trailerResponse.key,
+                trailerResponse.name,
+                trailerResponse.site,
+                movieId
+            )
+        }
     }
 }
