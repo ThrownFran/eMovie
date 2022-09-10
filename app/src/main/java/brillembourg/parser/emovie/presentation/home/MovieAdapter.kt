@@ -7,7 +7,8 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import brillembourg.parser.emovie.databinding.ItemMovieBinding
 import brillembourg.parser.emovie.presentation.models.MoviePresentationModel
-import brillembourg.parser.emovie.presentation.setMovieDbImageUrl
+import brillembourg.parser.emovie.presentation.utils.ImageType
+import brillembourg.parser.emovie.presentation.utils.setMovieDbImageUrl
 
 class MovieAdapter(val onClicked: (MoviePresentationModel) -> Unit) :
     ListAdapter<MoviePresentationModel, MovieAdapter.MovieViewHolder>(diffUtilCallback) {
@@ -35,7 +36,7 @@ class MovieAdapter(val onClicked: (MoviePresentationModel) -> Unit) :
         }
 
         fun bind(movie: MoviePresentationModel) {
-            movie.posterImageUrl?.let { binding.movieImage.setMovieDbImageUrl(it) }
+            movie.posterImageUrl?.let { binding.movieImage.setMovieDbImageUrl(it, ImageType.Poster) }
             binding.movieYear.text = buildString {
                 append(movie.getReleaseYear())
                 append(" (")

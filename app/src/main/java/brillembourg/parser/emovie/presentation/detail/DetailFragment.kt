@@ -10,7 +10,8 @@ import androidx.navigation.fragment.findNavController
 import brillembourg.parser.emovie.R
 import brillembourg.parser.emovie.databinding.FragmentDetailBinding
 import brillembourg.parser.emovie.presentation.safeUiLaunch
-import brillembourg.parser.emovie.presentation.setMovieDbImageUrl
+import brillembourg.parser.emovie.presentation.utils.ImageType
+import brillembourg.parser.emovie.presentation.utils.setMovieDbImageUrl
 import dagger.hilt.android.AndroidEntryPoint
 import kotlin.math.pow
 import kotlin.math.roundToInt
@@ -45,7 +46,7 @@ class DetailFragment : Fragment() {
             viewModel.detailUiState.collect { state ->
 
                 state.movie.backdropImageUrl?.let {
-                    binding.detailImageBackdrop.setMovieDbImageUrl(it)
+                    binding.detailImageBackdrop.setMovieDbImageUrl(it, ImageType.Backdrop)
                 }
 
                 binding.detailCollapsingToolbar.title = state.movie.name
