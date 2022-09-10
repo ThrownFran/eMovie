@@ -12,15 +12,18 @@ import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.PlayerConstan
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.YouTubePlayerListener
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.options.IFramePlayerOptions
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.utils.YouTubePlayerTracker
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
 
 
-class TrailerAdapter(val lifecycleOwner: LifecycleOwner,
-                     val onPlayerReady: () -> Unit,
-                     val onPlaying: () -> Unit,
-                     val onPause: () -> Unit,
-                     val onWatchTrailer : (() -> Unit) -> Unit) :
+class TrailerAdapter(
+    val lifecycleOwner: LifecycleOwner,
+    val onPlayerReady: () -> Unit,
+    val onPlaying: () -> Unit,
+    val onPause: () -> Unit,
+    val onWatchTrailer: (() -> Unit) -> Unit
+) :
     ListAdapter<Trailer, TrailerAdapter.TrailerViewHolder>(diffUtilCallback) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TrailerViewHolder {
@@ -33,7 +36,8 @@ class TrailerAdapter(val lifecycleOwner: LifecycleOwner,
         holder.bind(currentList[position])
     }
 
-    inner class TrailerViewHolder(val binding: ItemTrailerBinding) : RecyclerView.ViewHolder(binding.root) {
+    inner class TrailerViewHolder(val binding: ItemTrailerBinding) :
+        RecyclerView.ViewHolder(binding.root) {
 
         private var youTubePlayerView: YouTubePlayerView? = null
         private var youTubePlayer: YouTubePlayer? = null
@@ -42,7 +46,7 @@ class TrailerAdapter(val lifecycleOwner: LifecycleOwner,
 
         init {
             onWatchTrailer.invoke {
-                if(tracker.state == PlayerConstants.PlayerState.PLAYING) {
+                if (tracker.state == PlayerConstants.PlayerState.PLAYING) {
                     youTubePlayer?.pause()
                 } else {
                     youTubePlayer?.play()
@@ -52,18 +56,25 @@ class TrailerAdapter(val lifecycleOwner: LifecycleOwner,
             youTubePlayerView = binding.itemTrailerPagerYoutubeview
             lifecycleOwner.lifecycle.addObserver(binding.itemTrailerPagerYoutubeview)
 
-            youTubePlayerView?.addYouTubePlayerListener(object : AbstractYouTubePlayerListener() {
-                override fun onReady(youTubePlayer: YouTubePlayer) {
-                    this@TrailerViewHolder.youTubePlayer = youTubePlayer
-                    this@TrailerViewHolder.youTubePlayer?.cueVideo(currentVideoId!!, 0f)
-                    youTubePlayer.addListener(tracker)
+            val iFramePlayerOptions: IFramePlayerOptions = IFramePlayerOptions.Builder()
+                .controls(0)
+                .rel(0)
+                .ivLoadPolicy(0)
+                .ccLoadPolicy(0)
+                .build()
 
+            youTubePlayerView?.initialize(object : AbstractYouTubePlayerListener() {
+                override fun onReady(youTubePlayer: YouTubePlayer) {
+                    super.onReady(youTubePlayer)
+                    this@TrailerViewHolder.youTubePlayer = youTubePlayer
+                    onPause.invoke()
+                    youTubePlayer.addListener(tracker)
                     youTubePlayer.addListener(object : YouTubePlayerListener {
                         override fun onStateChange(
                             youTubePlayer: YouTubePlayer,
                             state: PlayerConstants.PlayerState
                         ) {
-                            if(tracker.state == PlayerConstants.PlayerState.PLAYING) {
+                            if (tracker.state == PlayerConstants.PlayerState.PLAYING) {
                                 onPlaying.invoke()
                             } else {
                                 onPause.invoke()
@@ -109,7 +120,10 @@ class TrailerAdapter(val lifecycleOwner: LifecycleOwner,
 
                         }
 
-                        override fun onVideoDuration(youTubePlayer: YouTubePlayer, duration: Float) {
+                        override fun onVideoDuration(
+                            youTubePlayer: YouTubePlayer,
+                            duration: Float
+                        ) {
 
                         }
 
@@ -124,11 +138,15 @@ class TrailerAdapter(val lifecycleOwner: LifecycleOwner,
 
                         }
                     });
-
+                    this@TrailerViewHolder.youTubePlayer?.cueVideo(currentVideoId!!, 0f)
                     onPlayerReady.invoke()
                 }
-            })
+            }, iFramePlayerOptions)
 
+            youTubePlayerView?.addYouTubePlayerListener(object : AbstractYouTubePlayerListener() {
+                override fun onReady(youTubePlayer: YouTubePlayer) {
+                }
+            })
 
 
         }
@@ -136,7 +154,7 @@ class TrailerAdapter(val lifecycleOwner: LifecycleOwner,
         fun bind(trailer: Trailer) {
             currentVideoId = trailer.key;
 
-            if(youTubePlayer == null)
+            if (youTubePlayer == null)
                 return;
 
             currentVideoId?.let { youTubePlayer?.cueVideo(it, 0f); }
