@@ -2,6 +2,7 @@ package brillembourg.parser.emovie.presentation.detail
 
 import androidx.lifecycle.SavedStateHandle
 import brillembourg.parser.emovie.domain.use_cases.GetMovieDetailUseCase
+import brillembourg.parser.emovie.domain.use_cases.RefreshMovieDetailUseCase
 import brillembourg.parser.emovie.presentation.models.toDomain
 import brillembourg.parser.emovie.presentation.models.toPresentation
 import brillembourg.parser.emovie.utils.CoroutineTestRule
@@ -38,6 +39,9 @@ class DetailViewModelTest {
     @MockK
     lateinit var getMovieDetailUseCase: GetMovieDetailUseCase
 
+    @MockK
+    lateinit var refreshMovieDetailUseCase: RefreshMovieDetailUseCase
+
     private lateinit var SUT: DetailViewModel
 
     private val movieFake = movieDomainFakes[0].toPresentation()
@@ -49,7 +53,13 @@ class DetailViewModelTest {
     @Before
     fun setUp() {
         coEvery { getMovieDetailUseCase.invoke(any()) }.coAnswers { flow { emit(movieDetailFake) } }
-        SUT = DetailViewModel(savedStateHandle, TestSchedulers(coroutineTestRule.testDispatcher), getMovieDetailUseCase)
+        coEvery { refreshMovieDetailUseCase.invoke(any()) }.returns(Unit)
+        SUT = DetailViewModel(
+            savedStateHandle = savedStateHandle,
+            schedulers = TestSchedulers(coroutineTestRule.testDispatcher),
+            getMovieDetailUseCase = getMovieDetailUseCase,
+            refreshMovieDetailUseCase = refreshMovieDetailUseCase
+        )
     }
 
     @Test
@@ -67,5 +77,23 @@ class DetailViewModelTest {
         advanceUntilIdle()
         //Assert
         coVerify { getMovieDetailUseCase.invoke(movieFake.id) }
+    }
+
+    @Test
+    fun `give init, when flow is received, update detail state`() = runTest {
+        //Arrange
+        //Act
+        advanceUntilIdle()
+        //Assert
+        Assert.assertEquals(movieDetailFake.movie.toPresentation(), SUT.detailUiState.value.movie)
+    }
+
+    @Test
+    fun `give init, then request refresh movie details use case`() = runTest {
+        //Arrange
+        //Act
+        advanceUntilIdle()
+        //Assert
+        coVerify { refreshMovieDetailUseCase.invoke(movieFake.id) }
     }
 }

@@ -14,6 +14,7 @@ import brillembourg.parser.emovie.data.local.movies.DateConverter
 import brillembourg.parser.emovie.data.local.movies.MovieDao
 import brillembourg.parser.emovie.data.local.movies.MovieTable
 import brillembourg.parser.emovie.data.local.trailers.TrailerDao
+import brillembourg.parser.emovie.data.local.trailers.TrailerTable
 import brillembourg.parser.emovie.domain.models.Category
 import java.util.concurrent.Executors
 
@@ -21,7 +22,8 @@ import java.util.concurrent.Executors
     entities = arrayOf(
         MovieTable::class,
         CategoryTable::class,
-        CategoryMovieCrossRef::class
+        CategoryMovieCrossRef::class,
+        TrailerTable::class
     ), version = 6
 )
 @TypeConverters(DateConverter::class)

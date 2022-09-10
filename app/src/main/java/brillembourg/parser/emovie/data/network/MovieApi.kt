@@ -18,8 +18,8 @@ interface MovieApi {
         @Query("page") page: Int
     ): GetMoviesResponse
 
-    @GET("movie/{movie_id}/videos/")
-    fun getTrailers(
+    @GET("movie/{movie_id}/videos")
+    suspend fun getTrailers(
         @Path("movie_id") movieId: Long,
         @Query("api_key") apiKey: String?
     ): GetTrailersResponse

@@ -45,7 +45,7 @@ class RoomDataSource @Inject constructor(
     override suspend fun saveTrailers(trailers: List<Trailer>) {
         trailerDao.saveTrailers(ArrayList(trailers.map {
             TrailerTable(
-                it.id.,
+                it.id,
                 it.name,
                 it.key,
                 it.site,

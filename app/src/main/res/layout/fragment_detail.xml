@@ -25,8 +25,8 @@
                 android:layout_height="match_parent"
                 android:fitsSystemWindows="true"
                 android:scaleType="centerCrop"
-                tools:ignore="ContentDescription"
                 app:layout_collapseMode="parallax"
+                tools:ignore="ContentDescription"
                 tools:src="@color/black" />
 
             <FrameLayout
@@ -34,17 +34,16 @@
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
                 android:layout_gravity="bottom"
-                android:background="@color/grey_transparent">
-            </FrameLayout>
+                android:background="@color/grey_transparent"/>
 
 
             <com.google.android.material.appbar.MaterialToolbar
                 android:id="@+id/detail_toolbar"
+                style="@style/Widget.Material3.Toolbar.OnSurface"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
-                style="@style/Widget.Material3.Toolbar.OnSurface"
-                app:navigationIcon="@drawable/ic_baseline_arrow_back_24"
-                app:layout_collapseMode="pin" />
+                app:layout_collapseMode="pin"
+                app:navigationIcon="@drawable/ic_baseline_arrow_back_24" />
 
         </com.google.android.material.appbar.CollapsingToolbarLayout>
 
@@ -53,25 +52,24 @@
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="800dp"
+        android:layout_height="wrap_content"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="top"
-            android:padding="16dp">
+            android:layout_gravity="top">
 
-<!--            <com.google.android.material.textview.MaterialTextView-->
-<!--                android:id="@+id/detail_text_name"-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:textAppearance="@style/TextAppearance.Material3.TitleLarge"-->
-<!--                android:textStyle="bold"-->
-<!--                app:layout_constraintEnd_toEndOf="parent"-->
-<!--                app:layout_constraintStart_toStartOf="parent"-->
-<!--                app:layout_constraintTop_toTopOf="parent"-->
-<!--                tools:text="Movie title" />-->
+            <!--            <com.google.android.material.textview.MaterialTextView-->
+            <!--                android:id="@+id/detail_text_name"-->
+            <!--                android:layout_width="wrap_content"-->
+            <!--                android:layout_height="wrap_content"-->
+            <!--                android:textAppearance="@style/TextAppearance.Material3.TitleLarge"-->
+            <!--                android:textStyle="bold"-->
+            <!--                app:layout_constraintEnd_toEndOf="parent"-->
+            <!--                app:layout_constraintStart_toStartOf="parent"-->
+            <!--                app:layout_constraintTop_toTopOf="parent"-->
+            <!--                tools:text="Movie title" />-->
 
             <LinearLayout
                 android:id="@+id/detail_linear_tags"
@@ -79,6 +77,9 @@
                 android:layout_height="match_parent"
                 android:gravity="center"
                 android:orientation="horizontal"
+                android:paddingStart="16dp"
+                android:paddingTop="8dp"
+                android:paddingEnd="16dp"
                 app:layout_constraintTop_toTopOf="parent">
 
                 <com.google.android.material.chip.Chip
@@ -118,37 +119,72 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/detail_button_watch_trailer"
+
                 style="@style/Widget.Material3.Button.OutlinedButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_margin="8dp"
                 android:text="@string/watch_trailer"
                 app:layout_constraintTop_toBottomOf="@id/detail_linear_tags" />
 
             <LinearLayout
+                android:id="@+id/detail_linear_plot"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                app:layout_constraintTop_toBottomOf="@id/detail_button_watch_trailer"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                app:layout_constraintTop_toBottomOf="@id/detail_button_watch_trailer">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:text="@string/movie_plot"
-                    android:textAppearance="@style/TextAppearance.Material3.TitleSmall"/>
+                    android:textAppearance="@style/TextAppearance.Material3.TitleMedium" />
 
                 <TextView
                     android:id="@+id/detail_text_plot"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin vitae diam nisl. Quisque semper ornare sapien, quis auctor risus dapibus ac. Aliquam sapien est, volutpat a nibh quis, feugiat porta felis. Nam nec volutpat orci. Maecenas quis quam in libero tincidunt egestas ut eu risus. Pellentesque bibendum erat et risus vehicula aliquet. Nam scelerisque tellus vehicula dui bibendum rhoncus. In imperdiet elit elit, sit amet sodales quam fermentum sit amet. In ut justo est. Duis non ante ac turpis aliquet volutpat."
-                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium"/>
+                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                    tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin vitae diam nisl. Quisque semper ornare sapien, quis auctor risus dapibus ac. Aliquam sapien est, volutpat a nibh quis, feugiat porta felis. Nam nec volutpat orci. Maecenas quis quam in libero tincidunt egestas ut eu risus. Pellentesque bibendum erat et risus vehicula aliquet. Nam scelerisque tellus vehicula dui bibendum rhoncus. In imperdiet elit elit, sit amet sodales quam fermentum sit amet. In ut justo est. Duis non ante ac turpis aliquet volutpat." />
 
 
             </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="visible"
+                android:layout_marginTop="8dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/detail_linear_plot">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    android:layout_marginTop="16dp"
+                    android:text="@string/movie_trailers"
+                    android:textAppearance="@style/TextAppearance.Material3.TitleMedium" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/detail_viewpager2_trailers"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+
+                    tools:background="@color/grey_transparent"
+                    tools:layout_height="200dp" />
+
+            </LinearLayout>
+
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
