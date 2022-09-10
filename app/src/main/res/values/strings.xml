@@ -16,5 +16,6 @@
     <string name="watch_trailer">Watch trailer</string>
     <string name="movie_plot">Movie plot</string>
     <string name="movie_trailers">Trailers</string>
+    <string name="stop_trailer">Stop trailer</string>
 
 </resources>

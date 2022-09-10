@@ -8,15 +8,19 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import brillembourg.parser.emovie.databinding.ItemTrailerBinding
 import brillembourg.parser.emovie.domain.models.Trailer
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.PlayerConstants
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.YouTubePlayerCallback
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.utils.loadOrCueVideo
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.YouTubePlayerListener
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.utils.YouTubePlayerTracker
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
 
 
 class TrailerAdapter(val lifecycleOwner: LifecycleOwner,
-                     val onClicked: (Trailer) -> Unit) :
+                     val onPlayerReady: () -> Unit,
+                     val onPlaying: () -> Unit,
+                     val onPause: () -> Unit,
+                     val onWatchTrailer : (() -> Unit) -> Unit) :
     ListAdapter<Trailer, TrailerAdapter.TrailerViewHolder>(diffUtilCallback) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TrailerViewHolder {
@@ -34,22 +38,99 @@ class TrailerAdapter(val lifecycleOwner: LifecycleOwner,
         private var youTubePlayerView: YouTubePlayerView? = null
         private var youTubePlayer: YouTubePlayer? = null
         private var currentVideoId: String? = null
+        private val tracker by lazy { YouTubePlayerTracker() }
 
         init {
-            setupClickListener()
+            onWatchTrailer.invoke {
+                if(tracker.state == PlayerConstants.PlayerState.PLAYING) {
+                    youTubePlayer?.pause()
+                } else {
+                    youTubePlayer?.play()
+                }
+            }
 
             youTubePlayerView = binding.itemTrailerPagerYoutubeview
+            lifecycleOwner.lifecycle.addObserver(binding.itemTrailerPagerYoutubeview)
 
             youTubePlayerView?.addYouTubePlayerListener(object : AbstractYouTubePlayerListener() {
                 override fun onReady(youTubePlayer: YouTubePlayer) {
                     this@TrailerViewHolder.youTubePlayer = youTubePlayer
                     this@TrailerViewHolder.youTubePlayer?.cueVideo(currentVideoId!!, 0f)
+                    youTubePlayer.addListener(tracker)
+
+                    youTubePlayer.addListener(object : YouTubePlayerListener {
+                        override fun onStateChange(
+                            youTubePlayer: YouTubePlayer,
+                            state: PlayerConstants.PlayerState
+                        ) {
+                            if(tracker.state == PlayerConstants.PlayerState.PLAYING) {
+                                onPlaying.invoke()
+                            } else {
+                                onPause.invoke()
+                            }
+                        }
+
+                        override fun onApiChange(youTubePlayer: YouTubePlayer) {
+
+
+                        }
+
+                        override fun onCurrentSecond(youTubePlayer: YouTubePlayer, second: Float) {
+
+
+                        }
+
+                        override fun onError(
+                            youTubePlayer: YouTubePlayer,
+                            error: PlayerConstants.PlayerError
+                        ) {
+
+
+                        }
+
+                        override fun onPlaybackQualityChange(
+                            youTubePlayer: YouTubePlayer,
+                            playbackQuality: PlayerConstants.PlaybackQuality
+                        ) {
+
+
+                        }
+
+                        override fun onPlaybackRateChange(
+                            youTubePlayer: YouTubePlayer,
+                            playbackRate: PlayerConstants.PlaybackRate
+                        ) {
+
+
+                        }
+
+                        override fun onReady(youTubePlayer: YouTubePlayer) {
+
+
+                        }
+
+                        override fun onVideoDuration(youTubePlayer: YouTubePlayer, duration: Float) {
+
+                        }
+
+                        override fun onVideoId(youTubePlayer: YouTubePlayer, videoId: String) {
+
+                        }
+
+                        override fun onVideoLoadedFraction(
+                            youTubePlayer: YouTubePlayer,
+                            loadedFraction: Float
+                        ) {
+
+                        }
+                    });
+
+                    onPlayerReady.invoke()
                 }
             })
-        }
 
-        private fun setupClickListener() {
-            itemView.setOnClickListener { onClicked.invoke(currentList[bindingAdapterPosition]) }
+
+
         }
 
         fun bind(trailer: Trailer) {
@@ -58,7 +139,7 @@ class TrailerAdapter(val lifecycleOwner: LifecycleOwner,
             if(youTubePlayer == null)
                 return;
 
-            currentVideoId?.let { youTubePlayer?.cueVideo("S0Q4gqBUs7c", 0f); }
+            currentVideoId?.let { youTubePlayer?.cueVideo(it, 0f); }
         }
 
     }

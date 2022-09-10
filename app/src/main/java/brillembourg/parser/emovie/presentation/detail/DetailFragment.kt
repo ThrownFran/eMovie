@@ -4,6 +4,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.get
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
@@ -11,9 +13,11 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.LinearSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SnapHelper
+import brillembourg.parser.emovie.R
 import brillembourg.parser.emovie.databinding.FragmentDetailBinding
 import brillembourg.parser.emovie.domain.models.Trailer
 import brillembourg.parser.emovie.presentation.safeUiLaunch
+import brillembourg.parser.emovie.presentation.utils.CircleDotsDecorator
 import brillembourg.parser.emovie.presentation.utils.ImageType
 import brillembourg.parser.emovie.presentation.utils.setMovieDbImageUrl
 import dagger.hilt.android.AndroidEntryPoint
@@ -62,57 +66,36 @@ class DetailFragment : Fragment() {
 
     private fun renderTrailers(trailers: List<Trailer>) {
 
-//        if(trailers.isEmpty()) return
+        if (trailers.isEmpty()) return
 
-//        lifecycle.addObserver(binding.detailPlayer)
 
-//        lifecycle.addObserver(binding.detailPlayer)
-
-//        binding.detailPlayer.addYouTubePlayerListener(object : AbstractYouTubePlayerListener() {
-//            override fun onReady(youTubePlayer: YouTubePlayer) {
-////                setPlayNextVideoButtonClickListener(youTubePlayer)
-//                youTubePlayer.loadOrCueVideo(
-//                    lifecycle,
-//                    "aaSck7jBDbw", 0f
-//                )
-//            }
-//        })
-
-//        binding.detailPlayer.getYouTubePlayerWhenReady(object : YouTubePlayerCallback {
-//            override fun onYouTubePlayer(youTubePlayer: YouTubePlayer) {
-//                val videoId = trailers[0].key
-////                youTubePlayer.loadVideo("S0Q4gqBUs7c", 0f)
-//                youTubePlayer.loadOrCueVideo(lifecycle,"S0Q4gqBUs7c", 0f)
-//            }
-//        })
-
-//        binding.detailPlayer.addYouTubePlayerListener(object : AbstractYouTubePlayerListener() {
-//            override fun onReady(youTubePlayer: YouTubePlayer) {
-//                val videoId = trailers[0].key
-//                youTubePlayer.loadVideo(videoId, 0f)
-//                youTubePlayer.play()
-//            }
-//        })
-
-//        binding.detailPlayer.initialize(object : AbstractYouTubePlayerListener() {
-//            override fun onReady(youTubePlayer: YouTubePlayer) {
-//                val videoId = trailers[0].key
-//                youTubePlayer.loadVideo("S0Q4gqBUs7c", 0f)
-////                youTubePlayer.play()
-//            }
-//        })
-
-        if (binding.detailViewpager2Trailers.adapter == null) {
-            binding.detailViewpager2Trailers.apply {
-                adapter = TrailerAdapter(viewLifecycleOwner) { //On click }
-                }
-                layoutManager = LinearLayoutManager(context,RecyclerView.HORIZONTAL,false)
-                val helper: SnapHelper = LinearSnapHelper()
-                helper.attachToRecyclerView(this)
+        if (binding.detailRecyclerTrailers.adapter == null) {
+            binding.detailRecyclerTrailers.apply {
+                adapter = TrailerAdapter(
+                    viewLifecycleOwner,
+                    onPlayerReady = {
+//                        binding.detailRecyclerTrailers.bac
+                    },
+                    onWatchTrailer = { event ->
+                        binding.detailButtonWatchTrailer.setOnClickListener {
+                            event.invoke()
+                        }
+                    },
+                    onPlaying = {
+                        binding.detailButtonWatchTrailer.text =
+                            getString(R.string.stop_trailer)
+                    },
+                    onPause = {
+                        binding.detailButtonWatchTrailer.text =
+                            getString(R.string.watch_trailer)
+                    }
+                )
+                layoutManager = LinearLayoutManager(context, RecyclerView.HORIZONTAL, false)
+                isNestedScrollingEnabled = false
             }
         }
 
-        (binding.detailViewpager2Trailers.adapter as TrailerAdapter).submitList(trailers)
+        (binding.detailRecyclerTrailers.adapter as TrailerAdapter).submitList(trailers.take(1))
     }
 
     private fun renderPlot(plot: String) {
