@@ -3,7 +3,6 @@ package brillembourg.parser.emovie.data.local.categories
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import brillembourg.parser.emovie.domain.Category
 
 @Entity(tableName = "categorytable")
 data class CategoryTable(

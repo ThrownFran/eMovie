@@ -9,7 +9,8 @@ import brillembourg.parser.emovie.data.local.movies.MovieDao
 import brillembourg.parser.emovie.data.local.movies.MovieTable
 import brillembourg.parser.emovie.data.local.movies.toData
 import brillembourg.parser.emovie.data.local.movies.toTable
-import brillembourg.parser.emovie.domain.Category
+import brillembourg.parser.emovie.domain.models.Category
+import brillembourg.parser.emovie.domain.models.Trailer
 import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 
@@ -22,6 +23,14 @@ class RoomDataSource @Inject constructor(
 
     override fun getMovie(id: Long): Flow<MovieData> {
         return movieDao.getMovie(id).map { it.toData() }
+    }
+
+    override fun getTrailers(movieId: Long): Flow<List<Trailer>> {
+        TODO("Not yet implemented")
+    }
+
+    override fun saveTrailers(trailersFromNetwork: List<Trailer>) {
+        TODO("Not yet implemented")
     }
 
     override fun getMovies(category: Category): Flow<List<MovieData>> {

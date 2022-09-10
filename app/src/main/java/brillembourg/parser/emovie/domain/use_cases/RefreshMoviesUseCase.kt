@@ -1,6 +1,6 @@
 package brillembourg.parser.emovie.domain.use_cases
 
-import brillembourg.parser.emovie.domain.Category
+import brillembourg.parser.emovie.domain.models.Category
 import brillembourg.parser.emovie.domain.MovieRepository
 import brillembourg.parser.emovie.domain.Schedulers
 import kotlinx.coroutines.withContext
@@ -12,7 +12,7 @@ class RefreshMoviesUseCase @Inject constructor(
 ) {
 
     suspend operator fun invoke(category: Category) = withContext(schedulers.ioDispatcher()) {
-        repository.refreshData(category)
+        repository.refreshMovies(category)
     }
 
 }

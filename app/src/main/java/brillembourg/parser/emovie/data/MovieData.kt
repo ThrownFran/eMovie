@@ -1,7 +1,7 @@
 package brillembourg.parser.emovie.data
 
 import brillembourg.parser.emovie.data.network.MovieResponse
-import brillembourg.parser.emovie.domain.Movie
+import brillembourg.parser.emovie.domain.models.Movie
 import brillembourg.parser.emovie.presentation.utils.extractDateFromString
 import com.google.gson.annotations.SerializedName
 import org.threeten.bp.LocalDate

@@ -1,7 +1,7 @@
 package brillembourg.parser.emovie.presentation.models
 
 import android.os.Parcelable
-import brillembourg.parser.emovie.domain.Movie
+import brillembourg.parser.emovie.domain.models.Movie
 import kotlinx.parcelize.Parcelize
 import org.threeten.bp.LocalDate
 

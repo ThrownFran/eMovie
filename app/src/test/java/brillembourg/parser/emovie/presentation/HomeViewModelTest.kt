@@ -1,15 +1,13 @@
 package brillembourg.parser.emovie.presentation
 
 import androidx.lifecycle.SavedStateHandle
-import brillembourg.parser.emovie.domain.Category
+import brillembourg.parser.emovie.domain.models.Category
 import brillembourg.parser.emovie.domain.use_cases.GetMoviesUseCase
-import brillembourg.parser.emovie.domain.Movie
+import brillembourg.parser.emovie.domain.models.Movie
 import brillembourg.parser.emovie.domain.use_cases.RefreshMoviesUseCase
 import brillembourg.parser.emovie.presentation.home.HomeViewModel
 import brillembourg.parser.emovie.presentation.models.toPresentation
-import brillembourg.parser.emovie.utils.CoroutineTestRule
-import brillembourg.parser.emovie.utils.TestSchedulers
-import brillembourg.parser.emovie.utils.movieDomainFakes
+import brillembourg.parser.emovie.utils.*
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
@@ -33,14 +31,14 @@ import org.threeten.bp.LocalDate
 class HomeViewModelTest {
 
     private val movieFakesForRecommendedCategory: List<Movie> = listOf(
-        Movie(1L, "Movie1", null, "en", LocalDate.ofYearDay(1993, 1)),
-        Movie(2L, "Movie2", null, "es", LocalDate.ofYearDay(1993, 1)),
-        Movie(3L, "Movie3", null, "en", LocalDate.ofYearDay(1995, 1)),
-        Movie(4L, "Movie4", null, "es", LocalDate.ofYearDay(1996, 1)),
-        Movie(5L, "Movie5", null, "en", LocalDate.ofYearDay(1997, 1)),
-        Movie(6L, "Movie6", null, "en", LocalDate.ofYearDay(1993, 1)),
-        Movie(7L, "Movie7", null, "en", LocalDate.ofYearDay(1993, 1)),
-        Movie(8L, "Movie8", null, "en", LocalDate.ofYearDay(1993, 1)),
+        Movie(1L, "Movie1", null, "en", LocalDate.ofYearDay(1993, 1), "", "plot", 12, 4f),
+        Movie(2L, "Movie2", null, "es", LocalDate.ofYearDay(1993, 1), "", "plot", 12, 4f),
+        Movie(3L, "Movie3", null, "en", LocalDate.ofYearDay(1995, 1), "", "plot", 12, 4f),
+        Movie(4L, "Movie4", null, "es", LocalDate.ofYearDay(1996, 1), "", "plot", 12, 4f),
+        Movie(5L, "Movie5", null, "en", LocalDate.ofYearDay(1997, 1), "", "plot", 12, 4f),
+        Movie(6L, "Movie6", null, "en", LocalDate.ofYearDay(1993, 1), "", "plot", 12, 4f),
+        Movie(7L, "Movie7", null, "en", LocalDate.ofYearDay(1993, 1), "", "plot", 12, 4f),
+        Movie(8L, "Movie8", null, "en", LocalDate.ofYearDay(1993, 1), "", "plot", 12, 4f),
     )
 
     @get:Rule
@@ -211,21 +209,11 @@ class HomeViewModelTest {
     fun `given upcoming movies flow received, when top rated movies count is more than 6, then take first 6`() =
         runTest {
             mockGetMoviesForRecommendedTests(
-                movieFakesForRecommendedCategory + listOf(
-                    Movie(
-                        9L, "Movie 9", "", "en",
-                        LocalDate.ofYearDay(1992, 1)
-                    ),
-
-                    Movie(
-                        9L, "Movie 10", "", "es",
-                        LocalDate.ofYearDay(1960, 1)
-                    ),
-
-                    Movie(
-                        9L, "Movie 11", "", "en",
-                        LocalDate.ofYearDay(2022, 1)
-                    ),
+                movieFakesForRecommendedCategory
+                        + listOf(
+                    MovieFake(9L).toDomain(),
+                    MovieFake(10L).toDomain(),
+                    MovieFake(11L).toDomain()
                 )
             )
             buildSUT()
@@ -241,15 +229,24 @@ class HomeViewModelTest {
     @Test
     fun `given select year in recommended movies, then filter movie by year`() = runTest {
         //Arrange
-        mockGetMoviesForRecommendedTests()
+        val movieToBeFiltered = MovieFake(3L, LocalDate.ofYearDay(1993, 1)).toDomain()
+        mockGetMoviesForRecommendedTests(
+            listOf(
+                MovieFake(1L, LocalDate.ofYearDay(2000,1)).toDomain(),
+                MovieFake(2L, LocalDate.ofYearDay(1990,1)).toDomain(),
+                movieToBeFiltered,
+                MovieFake(4L, LocalDate.ofYearDay(2020,1)).toDomain(),
+                MovieFake(5L, LocalDate.ofYearDay(2001,1)).toDomain(),
+            )
+        )
         buildSUT()
         //Act
         advanceUntilIdle()
-        SUT.onYearFilterSelected(1997)
+        SUT.onYearFilterSelected(1993)
         //Arrange
         Assert.assertEquals(1997, SUT.homeUiState.value.recommendedMovies.yearFilter.currentYear)
         Assert.assertEquals(
-            listOf(Movie(5L, "Movie5", null, "en", LocalDate.ofYearDay(1997, 1)).toPresentation()),
+            listOf(movieToBeFiltered.toPresentation()),
             SUT.homeUiState.value.recommendedMovies.movies
         )
     }
@@ -257,12 +254,12 @@ class HomeViewModelTest {
     @Test
     fun `given select language in recommended movies, then filter movie by language`() = runTest {
         //Arrange
-        val movieInSpanish = Movie(2L, "Movie2", null, "es", LocalDate.ofYearDay(1993, 1))
+        val movieInSpanish = MovieFake(id = 2L, language = "es").toDomain()
         mockGetMoviesForRecommendedTests(
             listOf(
-                Movie(1L, "Movie1", null, "en", LocalDate.ofYearDay(1993, 1)),
+                MovieFake(id = 1L, language = "en").toDomain(),
                 movieInSpanish,
-                Movie(3L, "Movie3", null, "en", LocalDate.ofYearDay(1995, 1)),
+                MovieFake(id = 3L, language = "en").toDomain(),
             )
         )
         buildSUT()
@@ -286,12 +283,12 @@ class HomeViewModelTest {
             //Arrange
             mockGetMoviesForRecommendedTests(
                 listOf(
-                    Movie(1L, "Movie1", null, "en", LocalDate.ofYearDay(1993, 1)),
-                    Movie(2L, "Movie2", null, "es", LocalDate.ofYearDay(1993, 1)),
-                    Movie(3L, "Movie3", null, "ja", LocalDate.ofYearDay(1995, 1)),
-                    Movie(4L, "Movie4", null, "en", LocalDate.ofYearDay(1993, 1)),
-                    Movie(5L, "Movie5", null, "ja", LocalDate.ofYearDay(1993, 1)),
-                    Movie(6L, "Movie6", null, "ja", LocalDate.ofYearDay(1995, 1)),
+                    MovieFake(id = 1L, language = "en", date = LocalDate.ofYearDay(2010, 1)).toDomain(),
+                    MovieFake(id = 2L, language = "es", date = LocalDate.ofYearDay(2003, 1)).toDomain(),
+                    MovieFake(id = 3L, language = "ja", date = LocalDate.ofYearDay(1995, 1)).toDomain(),
+                    MovieFake(id = 4L, language = "ja", date = LocalDate.ofYearDay(2000, 1)).toDomain(),
+                    MovieFake(id = 5L, language = "ja", date = LocalDate.ofYearDay(1910, 1)).toDomain(),
+                    MovieFake(id = 6L, language = "ja", date = LocalDate.ofYearDay(1995, 1)).toDomain(),
                 )
             )
             buildSUT()
@@ -308,13 +305,16 @@ class HomeViewModelTest {
                 "ja",
                 SUT.homeUiState.value.recommendedMovies.languageFilter.currentLanguage
             )
-            Assert.assertEquals(1995, SUT.homeUiState.value.recommendedMovies.yearFilter.currentYear)
+            Assert.assertEquals(
+                1995,
+                SUT.homeUiState.value.recommendedMovies.yearFilter.currentYear
+            )
 
             //Movies filtered
             Assert.assertEquals(
                 listOf(
-                    Movie(3L, "Movie3", null, "ja", LocalDate.ofYearDay(1995, 1)).toPresentation(),
-                    Movie(6L, "Movie6", null, "ja", LocalDate.ofYearDay(1995, 1)).toPresentation()
+                    MovieFake(id = 3L, language = "ja", date = LocalDate.ofYearDay(1995, 1)).toDomain().toPresentation(),
+                    MovieFake(id = 6L, language = "ja", date = LocalDate.ofYearDay(1995, 1)).toDomain().toPresentation()
                 ),
                 SUT.homeUiState.value.recommendedMovies.movies
             )
@@ -329,7 +329,7 @@ class HomeViewModelTest {
         //Act
         SUT.onMovieClick(movieClicked)
         //Assert
-        Assert.assertEquals(SUT.homeUiState.value.navigateToThisMovie,movieClicked)
+        Assert.assertEquals(SUT.homeUiState.value.navigateToThisMovie, movieClicked)
     }
 
     @Test

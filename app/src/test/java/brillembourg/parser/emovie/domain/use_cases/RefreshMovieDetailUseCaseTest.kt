@@ -1,7 +1,7 @@
-package brillembourg.parser.emovie.domain
+package brillembourg.parser.emovie.domain.use_cases
 
+import brillembourg.parser.emovie.domain.MovieRepository
 import brillembourg.parser.emovie.domain.models.Category
-import brillembourg.parser.emovie.domain.use_cases.RefreshMoviesUseCase
 import brillembourg.parser.emovie.utils.CoroutineTestRule
 import brillembourg.parser.emovie.utils.TestSchedulers
 import io.mockk.coEvery
@@ -18,7 +18,7 @@ import org.junit.runners.JUnit4
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(JUnit4::class)
-class RefreshMoviesUseCaseTest {
+class RefreshMovieDetailUseCaseTest {
 
     @get:Rule
     val mockkRule = MockKRule(this)
@@ -28,23 +28,22 @@ class RefreshMoviesUseCaseTest {
     @MockK
     lateinit var repository: MovieRepository
 
-    lateinit var SUT: RefreshMoviesUseCase
+    lateinit var SUT: RefreshMovieDetailUseCase
 
     @Before
     fun setUp() {
-        coEvery { repository.refreshMovies(any()) }returns(Unit)
-        SUT = RefreshMoviesUseCase(TestSchedulers(),repository)
+        coEvery { repository.refreshMovieDetail(any()) } returns(Unit)
+        SUT = RefreshMovieDetailUseCase(TestSchedulers(),repository)
     }
 
     @Test
     fun `given invoke, then refresh with correct params`() = runTest {
         //Arrange
-        val category = Category.TopRated()
+        val movieId = 10L
         //Act
-        SUT.invoke(category)
+        SUT.invoke(movieId)
         //Assert
-        coVerify { repository.refreshMovies(match { params -> params == category }) }
+        coVerify { repository.refreshMovieDetail(match { params -> params == movieId }) }
     }
-
 
 }

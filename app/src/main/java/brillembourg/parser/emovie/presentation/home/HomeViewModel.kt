@@ -3,7 +3,7 @@ package brillembourg.parser.emovie.presentation.home
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import brillembourg.parser.emovie.domain.Category
+import brillembourg.parser.emovie.domain.models.Category
 import brillembourg.parser.emovie.domain.use_cases.GetMoviesUseCase
 import brillembourg.parser.emovie.domain.use_cases.RefreshMoviesUseCase
 import brillembourg.parser.emovie.domain.Schedulers

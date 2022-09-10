@@ -6,6 +6,7 @@ import brillembourg.parser.emovie.presentation.models.toDomain
 import brillembourg.parser.emovie.presentation.models.toPresentation
 import brillembourg.parser.emovie.utils.CoroutineTestRule
 import brillembourg.parser.emovie.utils.TestSchedulers
+import brillembourg.parser.emovie.utils.movieDetailFake
 import brillembourg.parser.emovie.utils.movieDomainFakes
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -47,7 +48,7 @@ class DetailViewModelTest {
 
     @Before
     fun setUp() {
-        coEvery { getMovieDetailUseCase.invoke(any()) }.coAnswers { flow { emit(movieFake.toDomain()) } }
+        coEvery { getMovieDetailUseCase.invoke(any()) }.coAnswers { flow { emit(movieDetailFake) } }
         SUT = DetailViewModel(savedStateHandle, TestSchedulers(coroutineTestRule.testDispatcher), getMovieDetailUseCase)
     }
 

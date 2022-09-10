@@ -29,7 +29,7 @@ class DetailViewModel @Inject constructor(
     private fun observeMovie(id: Long) {
         getMovieDetailUseCase.invoke(id)
             .onEach { movie ->
-                _detailUiState.update { it.copy(movie = movie.toPresentation()) }
+//                _detailUiState.update { it.copy(movie = movie.toPresentation()) }
             }
             .launchIn(viewModelScope)
     }

@@ -1,5 +1,6 @@
 package brillembourg.parser.emovie.domain
 
+import brillembourg.parser.emovie.domain.models.Category
 import brillembourg.parser.emovie.domain.use_cases.GetMoviesUseCase
 import brillembourg.parser.emovie.utils.CoroutineTestRule
 import brillembourg.parser.emovie.utils.TestSchedulers

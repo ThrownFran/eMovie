@@ -13,7 +13,7 @@ import brillembourg.parser.emovie.data.local.category_movie_cross.CategoryMovies
 import brillembourg.parser.emovie.data.local.movies.DateConverter
 import brillembourg.parser.emovie.data.local.movies.MovieDao
 import brillembourg.parser.emovie.data.local.movies.MovieTable
-import brillembourg.parser.emovie.domain.Category
+import brillembourg.parser.emovie.domain.models.Category
 import java.util.concurrent.Executors
 
 @Database(

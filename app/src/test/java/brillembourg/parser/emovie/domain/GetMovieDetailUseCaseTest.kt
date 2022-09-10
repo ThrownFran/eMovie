@@ -4,6 +4,7 @@ import brillembourg.parser.emovie.domain.use_cases.GetMovieDetailUseCase
 import brillembourg.parser.emovie.domain.use_cases.GetMoviesUseCase
 import brillembourg.parser.emovie.utils.CoroutineTestRule
 import brillembourg.parser.emovie.utils.TestSchedulers
+import brillembourg.parser.emovie.utils.movieDetailFake
 import brillembourg.parser.emovie.utils.movieDomainFakes
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -50,7 +51,7 @@ class GetMovieDetailUseCaseTest {
     }
 
     private fun mockGetMoviesFromRepository() {
-        coEvery { repository.getMovie(any()) }.coAnswers { flow { emit(movieDomainFakes[0]) } }
+        coEvery { repository.getMovie(any()) }.coAnswers { flow { emit(movieDetailFake) } }
     }
 
 }
