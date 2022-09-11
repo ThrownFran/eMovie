@@ -35,7 +35,7 @@ class DetailFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setMovieEnteringTransition()
+        setDestinationSharedAxisTransition()
     }
 
     override fun onCreateView(
@@ -50,7 +50,7 @@ class DetailFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         prepareTransition(view)
         renderState()
-        setNavigationListener()
+        setNavigationUpListener()
         setupSwipeRefreshListener()
         disableSwipeToRefreshIfExpanded()
     }
@@ -160,7 +160,7 @@ class DetailFragment : Fragment() {
         }
     }
 
-    private fun setNavigationListener() {
+    private fun setNavigationUpListener() {
         binding.detailToolbar.setNavigationOnClickListener { findNavController().navigateUp() }
     }
 

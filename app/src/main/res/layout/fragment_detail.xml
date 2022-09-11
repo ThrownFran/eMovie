@@ -147,7 +147,6 @@
                             android:scaleType="centerCrop"
                             app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.eMovie.CornerSize10Percent"
                             tools:srcCompat="@mipmap/ic_launcher"
-                            android:transitionName="@{@string/home_shared_detail_container}"
                             style="@style/ShapeAppearanceOverlay.eMovie.CornerSize10Percent"/>
 
                         <TextView

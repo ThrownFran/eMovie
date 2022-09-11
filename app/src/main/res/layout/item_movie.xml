@@ -16,7 +16,6 @@
         android:layout_height="204dp"
         android:layout_margin="10dp"
         android:scaleType="fitXY"
-        android:transitionName="@{@string/home_shared_item_container(movie.id)}"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
