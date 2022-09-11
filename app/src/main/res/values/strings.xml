@@ -19,5 +19,7 @@
     <string name="stop_trailer">Stop trailer</string>
     <string name="no_internet">Sorry, please check your Internet connection</string>
     <string name="unexpected_error">Sorry! We got an unexpected error</string>
+    <string name="no_movies_found">No movies found</string>
+    <string name="no_movies_for_filter">No movies match this filter</string>
 
 </resources>

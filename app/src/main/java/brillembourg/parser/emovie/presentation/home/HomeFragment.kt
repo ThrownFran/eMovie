@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
@@ -16,6 +17,9 @@ import brillembourg.parser.emovie.databinding.FragmentHomeBinding
 import brillembourg.parser.emovie.presentation.detail.DetailFragmentArgs
 import brillembourg.parser.emovie.presentation.models.MoviePresentationModel
 import brillembourg.parser.emovie.presentation.safeUiLaunch
+import brillembourg.parser.emovie.presentation.showMessage
+import brillembourg.parser.emovie.presentation.utils.UiText
+import brillembourg.parser.emovie.presentation.utils.asString
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -39,15 +43,38 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         renderState()
+        setupRefreshListener()
+    }
+
+    private fun setupRefreshListener() {
+        binding.homeSwipeRefresh.setOnRefreshListener {
+            viewModel.onRefresh()
+        }
     }
 
     private fun renderState() {
         safeUiLaunch {
             viewModel.homeUiState.collect { state ->
+
                 renderTopRatedMovies(state.topRatedMovies)
                 renderUpcomingMovies(state.upcomingMovies)
                 renderRecommendedMovies(state.recommendedMovies)
+                renderLoading(state.isLoading)
+
                 handleNavigation(state.navigateToThisMovie)
+                handleMessages(state.messageToShow)
+            }
+        }
+    }
+
+    private fun renderLoading(isLoading: Boolean) {
+        binding.homeSwipeRefresh.isRefreshing = isLoading
+    }
+
+    private fun handleMessages(messageToShow: UiText?) {
+        messageToShow?.let {
+            showMessage(binding.homeCoordinator, messageToShow.asString(requireContext())) {
+                viewModel.onMessageShown()
             }
         }
     }
@@ -63,6 +90,8 @@ class HomeFragment : Fragment() {
     }
 
     private fun renderTopRatedMovies(topRatedMovies: List<MoviePresentationModel>) {
+        binding.homeTextNoTopRated.isVisible = topRatedMovies.isEmpty()
+
         if (binding.homeRecyclerTopRated.adapter == null) {
             binding.homeRecyclerTopRated.apply {
                 adapter = MovieAdapter {
@@ -77,11 +106,11 @@ class HomeFragment : Fragment() {
     }
 
     private fun renderUpcomingMovies(upcomingMovies: List<MoviePresentationModel>) {
+        binding.homeTextNoUpcoming.isVisible = upcomingMovies.isEmpty()
+
         if (binding.homeRecyclerUpcoming.adapter == null) {
             binding.homeRecyclerUpcoming.apply {
-                adapter = MovieAdapter {
-                    viewModel.onMovieClick(it)
-                }
+                adapter = MovieAdapter { viewModel.onMovieClick(it) }
                 layoutManager = LinearLayoutManager(context, RecyclerView.HORIZONTAL, false)
                 isNestedScrollingEnabled = false
             }
@@ -91,6 +120,7 @@ class HomeFragment : Fragment() {
     }
 
     private fun renderRecommendedMovies(recommendedMovies: RecommendedMovies) {
+        binding.homeTextNoRecommended.isVisible = recommendedMovies.movies.isEmpty()
         renderRecommendedMovieRecycler(recommendedMovies.movies)
         renderYearFilter(recommendedMovies.yearFilter)
         renderLanguageFilter(recommendedMovies.languageFilter)

@@ -35,8 +35,17 @@ class DetailViewModel @Inject constructor(
     val detailUiState = _detailUiState.asStateFlow()
 
     private val coroutineExceptionHandler = CoroutineExceptionHandler { context, throwable ->
+        onError(throwable)
+    }
+
+    private fun onError(throwable: Throwable) {
         Logger.error(throwable)
-        _detailUiState.update { it.copy(messageToShow = getMessageFromException(throwable)) }
+        _detailUiState.update {
+            it.copy(
+                messageToShow = getMessageFromException(throwable),
+                isLoading = false
+            )
+        }
     }
 
     init {

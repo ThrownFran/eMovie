@@ -1,7 +1,7 @@
-package brillembourg.parser.emovie.domain
+package brillembourg.parser.emovie.domain.use_cases
 
+import brillembourg.parser.emovie.domain.MovieRepository
 import brillembourg.parser.emovie.domain.models.Category
-import brillembourg.parser.emovie.domain.use_cases.RefreshMoviesUseCase
 import brillembourg.parser.emovie.utils.CoroutineTestRule
 import brillembourg.parser.emovie.utils.TestSchedulers
 import io.mockk.coEvery

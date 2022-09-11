@@ -1,11 +1,9 @@
-package brillembourg.parser.emovie.domain
+package brillembourg.parser.emovie.domain.use_cases
 
-import brillembourg.parser.emovie.domain.use_cases.GetMovieDetailUseCase
-import brillembourg.parser.emovie.domain.use_cases.GetMoviesUseCase
+import brillembourg.parser.emovie.domain.MovieRepository
 import brillembourg.parser.emovie.utils.CoroutineTestRule
 import brillembourg.parser.emovie.utils.TestSchedulers
 import brillembourg.parser.emovie.utils.movieDetailFake
-import brillembourg.parser.emovie.utils.movieDomainFakes
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK

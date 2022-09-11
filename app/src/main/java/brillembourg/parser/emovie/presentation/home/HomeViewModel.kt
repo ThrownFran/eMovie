@@ -9,10 +9,10 @@ import brillembourg.parser.emovie.domain.use_cases.RefreshMoviesUseCase
 import brillembourg.parser.emovie.domain.Schedulers
 import brillembourg.parser.emovie.presentation.models.MoviePresentationModel
 import brillembourg.parser.emovie.presentation.models.toPresentation
+import brillembourg.parser.emovie.presentation.utils.getMessageFromException
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -30,24 +30,49 @@ class HomeViewModel @Inject constructor(
         observeUpcomingMovies()
     }
     val homeUiState = _homeUiState.asStateFlow()
-    private val coroutineExceptionHandler = CoroutineExceptionHandler { context, throwable -> }
 
-    init {
-        refreshUpcomingMovies()
-        refreshTopRatedMovies()
+    private val coroutineExceptionHandler = CoroutineExceptionHandler { context, throwable ->
+        _homeUiState.update { it.copy(messageToShow = getMessageFromException(throwable)) }
     }
 
-    private fun refreshUpcomingMovies() {
+    init { refreshMovieData() }
+
+    private fun refreshMovieData() {
         viewModelScope.launch(coroutineExceptionHandler) {
-            refreshMoviesUseCase.invoke(Category.Upcoming())
+            showLoading()
+
+            listOf(
+                launch { refreshMoviesUseCase.invoke(Category.Upcoming()) },
+                launch { refreshMoviesUseCase.invoke(Category.TopRated()) }
+            ).joinAll()
+
+            hideLoading()
         }
     }
 
-    private fun refreshTopRatedMovies() {
-        viewModelScope.launch(coroutineExceptionHandler) {
-            refreshMoviesUseCase.invoke(Category.TopRated())
-        }
+    private fun hideLoading() {
+        _homeUiState.update { it.copy(isLoading = false) }
     }
+
+    private fun showLoading() {
+        _homeUiState.update { it.copy(isLoading = true) }
+    }
+
+    fun onMessageShown () {
+        _homeUiState.update { it.copy(messageToShow = null) }
+    }
+
+//    private fun refreshUpcomingMovies() {
+//        viewModelScope.launch(coroutineExceptionHandler) {
+//            refreshMoviesUseCase.invoke(Category.Upcoming())
+//        }
+//    }
+//
+//    private fun refreshTopRatedMovies() {
+//        viewModelScope.launch(coroutineExceptionHandler) {
+//            refreshMoviesUseCase.invoke(Category.TopRated())
+//        }
+//    }
 
     private fun observeUpcomingMovies() {
         getMoviesUseCase.invoke(Category.Upcoming())
@@ -80,17 +105,17 @@ class HomeViewModel @Inject constructor(
         val filteredList = movies
             .filter {
 
-                if(currentLanguage == null && currentYear == null) return@filter true
+                if (currentLanguage == null && currentYear == null) return@filter true
 
                 if (currentYear == null) {
                     return@filter it.originalLanguage == currentLanguage
                 }
-                if(currentLanguage == null) {
+                if (currentLanguage == null) {
                     return@filter it.getReleaseYear() == currentYear
                 }
 
                 (it.getReleaseYear() == currentYear) && it.originalLanguage == currentLanguage
-        }.take(recommendedMovieCount)
+            }.take(recommendedMovieCount)
 
         val selectableYears: List<Int> = yearList.distinct().sortedByDescending { it }
 
@@ -111,10 +136,10 @@ class HomeViewModel @Inject constructor(
         _homeUiState.update {
             it.copy(
                 recommendedMovies = it.recommendedMovies.copy(
-                        languageFilter = it.recommendedMovies.languageFilter.copy(
-                                currentLanguage = language
-                            )
+                    languageFilter = it.recommendedMovies.languageFilter.copy(
+                        currentLanguage = language
                     )
+                )
             )
         }
         filterRecommendedMovies()
@@ -146,6 +171,10 @@ class HomeViewModel @Inject constructor(
 
     fun onNavigateToMovieCompleted() {
         _homeUiState.update { it.copy(navigateToThisMovie = null) }
+    }
+
+    fun onRefresh() {
+        refreshMovieData()
     }
 
 

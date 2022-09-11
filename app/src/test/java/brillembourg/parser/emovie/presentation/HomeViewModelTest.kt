@@ -1,20 +1,26 @@
 package brillembourg.parser.emovie.presentation
 
 import androidx.lifecycle.SavedStateHandle
+import brillembourg.parser.emovie.data.NetworkException
 import brillembourg.parser.emovie.domain.models.Category
 import brillembourg.parser.emovie.domain.use_cases.GetMoviesUseCase
 import brillembourg.parser.emovie.domain.models.Movie
 import brillembourg.parser.emovie.domain.use_cases.RefreshMoviesUseCase
 import brillembourg.parser.emovie.presentation.home.HomeViewModel
 import brillembourg.parser.emovie.presentation.models.toPresentation
+import brillembourg.parser.emovie.presentation.utils.UiText
 import brillembourg.parser.emovie.utils.*
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.coVerifyAll
+import io.mockk.coVerifySequence
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit4.MockKRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
@@ -73,48 +79,87 @@ class HomeViewModelTest {
 
     private fun mockGetMoviesSuccess() {
         coEvery { getMoviesUseCase.invoke(any()) }.coAnswers { flow { emit(movieDomainFakes) } }
-    }
-
-    @Test
-    fun `given init, then refresh top rated movies`() = runTest {
-        //Arrange
-        mockGetMoviesSuccess()
-        buildSUT()
-        //Act
-        advanceUntilIdle()
-        //Assert
-        coVerify { refreshMoviesUseCase.invoke(match { params -> params is Category.TopRated }) }
-    }
-
-    @Test
-    fun `given init, then refresh upcoming movies`() = runTest {
-        //Arrange
-        mockGetMoviesSuccess()
-        buildSUT()
-        //Act
-        advanceUntilIdle()
-        //Assert
-        coVerify { refreshMoviesUseCase.invoke(match { params -> params is Category.Upcoming }) }
-    }
-
-    @Test
-    fun `given init, then observe top rated movies`() = runTest {
-        //Arrange
-        mockGetMoviesSuccess()
-        buildSUT()
-        //Act
-        //Assert
-        coVerify { getMoviesUseCase.invoke(match { params -> params is Category.TopRated }) }
+        coEvery { refreshMoviesUseCase.invoke(any()) }.coAnswers {
+            movieDomainFakes
+        }
     }
 
     @Test
     fun `given init, then observe upcoming movies`() = runTest {
         //Arrange
-        mockGetMoviesSuccess()
+        coEvery { getMoviesUseCase.invoke(any()) }.coAnswers { flow { emit(movieDomainFakes) } }
         buildSUT()
         //Act
         //Assert
         coVerify { getMoviesUseCase.invoke(match { params -> params is Category.Upcoming }) }
+    }
+
+    @Test
+    fun `given init, then invoke refresh movie categories top rated and upcoming`() = runTest {
+        //Arrange
+        mockGetMoviesSuccess()
+        buildSUT()
+        //Act
+        advanceUntilIdle()
+        //Assert
+        coVerify(exactly = 1) { refreshMoviesUseCase.invoke(match { params -> params is Category.TopRated }) }
+        coVerify(exactly = 1) { refreshMoviesUseCase.invoke(match { params -> params is Category.Upcoming }) }
+    }
+
+    @Test
+    fun `given refresh movies data, when success, then show and hide loading state accordingly`() =
+        runTest {
+            //Arrange
+            mockGetMoviesSuccess()
+            coEvery { refreshMoviesUseCase.invoke(any()) }.coAnswers {
+                delay(500)
+                movieDomainFakes
+            }
+            buildSUT()
+            //Assert
+            advanceTimeBy(100)
+            Assert.assertTrue(SUT.homeUiState.value.isLoading)
+            advanceTimeBy(600)
+            Assert.assertFalse(SUT.homeUiState.value.isLoading)
+        }
+
+    @Test
+    fun `given refresh movies data, when error, then show user error and hide loading state`() = runTest {
+        //Arrange
+        mockGetMoviesSuccess()
+        coEvery { refreshMoviesUseCase.invoke(any()) }.throws(NetworkException())
+        buildSUT()
+        //Act
+        advanceUntilIdle()
+        //Arrange
+        Assert.assertEquals(UiText.NoInternet,SUT.homeUiState.value.messageToShow)
+    }
+
+    @Test
+    fun `given on swipe to refresh, then invoke refresh all movies categories`() = runTest {
+        //Arrange
+        mockGetMoviesSuccess()
+        buildSUT()
+        //Act
+        advanceUntilIdle()
+        SUT.onRefresh()
+        advanceUntilIdle()
+        //Assert
+        coVerify { refreshMoviesUseCase.invoke(ofType(Category.TopRated::class)) }
+        coVerify { refreshMoviesUseCase.invoke(ofType(Category.Upcoming::class)) }
+    }
+
+    @Test
+    fun `given on Message shown, then update message state to null`() = runTest {
+        //Arrange
+        mockGetMoviesSuccess()
+        coEvery { refreshMoviesUseCase.invoke(any()) }.throws(NetworkException())
+        buildSUT()
+        //Act
+        advanceUntilIdle()
+        SUT.onMessageShown()
+        //Arrange
+        Assert.assertNull(SUT.homeUiState.value.messageToShow)
     }
 
     @Test
@@ -232,11 +277,11 @@ class HomeViewModelTest {
         val movieToBeFiltered = MovieFake(3L, LocalDate.ofYearDay(1993, 1)).toDomain()
         mockGetMoviesForRecommendedTests(
             listOf(
-                MovieFake(1L, LocalDate.ofYearDay(2000,1)).toDomain(),
-                MovieFake(2L, LocalDate.ofYearDay(1990,1)).toDomain(),
+                MovieFake(1L, LocalDate.ofYearDay(2000, 1)).toDomain(),
+                MovieFake(2L, LocalDate.ofYearDay(1990, 1)).toDomain(),
                 movieToBeFiltered,
-                MovieFake(4L, LocalDate.ofYearDay(2020,1)).toDomain(),
-                MovieFake(5L, LocalDate.ofYearDay(2001,1)).toDomain(),
+                MovieFake(4L, LocalDate.ofYearDay(2020, 1)).toDomain(),
+                MovieFake(5L, LocalDate.ofYearDay(2001, 1)).toDomain(),
             )
         )
         buildSUT()
@@ -244,7 +289,7 @@ class HomeViewModelTest {
         advanceUntilIdle()
         SUT.onYearFilterSelected(1993)
         //Arrange
-        Assert.assertEquals(1997, SUT.homeUiState.value.recommendedMovies.yearFilter.currentYear)
+        Assert.assertEquals(movieToBeFiltered.toPresentation().getReleaseYear(), SUT.homeUiState.value.recommendedMovies.yearFilter.currentYear)
         Assert.assertEquals(
             listOf(movieToBeFiltered.toPresentation()),
             SUT.homeUiState.value.recommendedMovies.movies
@@ -283,12 +328,36 @@ class HomeViewModelTest {
             //Arrange
             mockGetMoviesForRecommendedTests(
                 listOf(
-                    MovieFake(id = 1L, language = "en", date = LocalDate.ofYearDay(2010, 1)).toDomain(),
-                    MovieFake(id = 2L, language = "es", date = LocalDate.ofYearDay(2003, 1)).toDomain(),
-                    MovieFake(id = 3L, language = "ja", date = LocalDate.ofYearDay(1995, 1)).toDomain(),
-                    MovieFake(id = 4L, language = "ja", date = LocalDate.ofYearDay(2000, 1)).toDomain(),
-                    MovieFake(id = 5L, language = "ja", date = LocalDate.ofYearDay(1910, 1)).toDomain(),
-                    MovieFake(id = 6L, language = "ja", date = LocalDate.ofYearDay(1995, 1)).toDomain(),
+                    MovieFake(
+                        id = 1L,
+                        language = "en",
+                        date = LocalDate.ofYearDay(2010, 1)
+                    ).toDomain(),
+                    MovieFake(
+                        id = 2L,
+                        language = "es",
+                        date = LocalDate.ofYearDay(2003, 1)
+                    ).toDomain(),
+                    MovieFake(
+                        id = 3L,
+                        language = "ja",
+                        date = LocalDate.ofYearDay(1995, 1)
+                    ).toDomain(),
+                    MovieFake(
+                        id = 4L,
+                        language = "ja",
+                        date = LocalDate.ofYearDay(2000, 1)
+                    ).toDomain(),
+                    MovieFake(
+                        id = 5L,
+                        language = "ja",
+                        date = LocalDate.ofYearDay(1910, 1)
+                    ).toDomain(),
+                    MovieFake(
+                        id = 6L,
+                        language = "ja",
+                        date = LocalDate.ofYearDay(1995, 1)
+                    ).toDomain(),
                 )
             )
             buildSUT()
@@ -313,8 +382,16 @@ class HomeViewModelTest {
             //Movies filtered
             Assert.assertEquals(
                 listOf(
-                    MovieFake(id = 3L, language = "ja", date = LocalDate.ofYearDay(1995, 1)).toDomain().toPresentation(),
-                    MovieFake(id = 6L, language = "ja", date = LocalDate.ofYearDay(1995, 1)).toDomain().toPresentation()
+                    MovieFake(
+                        id = 3L,
+                        language = "ja",
+                        date = LocalDate.ofYearDay(1995, 1)
+                    ).toDomain().toPresentation(),
+                    MovieFake(
+                        id = 6L,
+                        language = "ja",
+                        date = LocalDate.ofYearDay(1995, 1)
+                    ).toDomain().toPresentation()
                 ),
                 SUT.homeUiState.value.recommendedMovies.movies
             )
