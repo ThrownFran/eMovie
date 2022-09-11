@@ -1,7 +1,6 @@
 package brillembourg.parser.emovie.domain.use_cases
 
 import brillembourg.parser.emovie.domain.MovieRepository
-import brillembourg.parser.emovie.domain.models.Category
 import brillembourg.parser.emovie.utils.CoroutineTestRule
 import brillembourg.parser.emovie.utils.TestSchedulers
 import io.mockk.coEvery
@@ -28,7 +27,7 @@ class RefreshMovieDetailUseCaseTest {
     @MockK
     lateinit var repository: MovieRepository
 
-    lateinit var SUT: RefreshMovieDetailUseCase
+    private lateinit var SUT: RefreshMovieDetailUseCase
 
     @Before
     fun setUp() {

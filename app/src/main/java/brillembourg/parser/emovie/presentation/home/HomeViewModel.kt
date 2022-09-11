@@ -32,10 +32,21 @@ class HomeViewModel @Inject constructor(
     val homeUiState = _homeUiState.asStateFlow()
 
     private val coroutineExceptionHandler = CoroutineExceptionHandler { context, throwable ->
-        _homeUiState.update { it.copy(messageToShow = getMessageFromException(throwable)) }
+        onError(throwable)
     }
 
-    init { refreshMovieData() }
+    private fun onError(throwable: Throwable) {
+        _homeUiState.update {
+            it.copy(
+                messageToShow = getMessageFromException(throwable),
+                isLoading = false
+            )
+        }
+    }
+
+    init {
+        refreshMovieData()
+    }
 
     private fun refreshMovieData() {
         viewModelScope.launch(coroutineExceptionHandler) {
@@ -58,7 +69,7 @@ class HomeViewModel @Inject constructor(
         _homeUiState.update { it.copy(isLoading = true) }
     }
 
-    fun onMessageShown () {
+    fun onMessageShown() {
         _homeUiState.update { it.copy(messageToShow = null) }
     }
 

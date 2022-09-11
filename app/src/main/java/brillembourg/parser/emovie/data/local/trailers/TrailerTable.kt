@@ -1,12 +1,8 @@
 package brillembourg.parser.emovie.data.local.trailers
 
 import androidx.room.*
-import brillembourg.parser.emovie.data.MovieData
 import brillembourg.parser.emovie.data.local.movies.MovieTable
 import brillembourg.parser.emovie.domain.models.Trailer
-import org.threeten.bp.Instant
-import org.threeten.bp.LocalDate
-import org.threeten.bp.ZoneId
 
 @Entity
 data class TrailerTable(

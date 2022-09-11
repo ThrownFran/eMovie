@@ -4,16 +4,13 @@ import androidx.lifecycle.SavedStateHandle
 import brillembourg.parser.emovie.data.NetworkException
 import brillembourg.parser.emovie.domain.use_cases.GetMovieDetailUseCase
 import brillembourg.parser.emovie.domain.use_cases.RefreshMovieDetailUseCase
-import brillembourg.parser.emovie.presentation.models.toDomain
 import brillembourg.parser.emovie.presentation.models.toPresentation
 import brillembourg.parser.emovie.presentation.utils.UiText
 import brillembourg.parser.emovie.utils.CoroutineTestRule
-import brillembourg.parser.emovie.utils.TestSchedulers
 import brillembourg.parser.emovie.utils.movieDetailFake
 import brillembourg.parser.emovie.utils.movieDomainFakes
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit4.MockKRule
 import kotlinx.coroutines.delay
@@ -22,9 +19,7 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import org.junit.Assert
 import org.junit.Assert.*
-
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -60,7 +55,6 @@ class DetailViewModelTest {
         coEvery { refreshMovieDetailUseCase.invoke(any()) }.returns(Unit)
         SUT = DetailViewModel(
             savedStateHandle = savedStateHandle,
-            schedulers = TestSchedulers(coroutineTestRule.testDispatcher),
             getMovieDetailUseCase = getMovieDetailUseCase,
             refreshMovieDetailUseCase = refreshMovieDetailUseCase
         )
@@ -89,7 +83,7 @@ class DetailViewModelTest {
         //Act
         advanceUntilIdle()
         //Assert
-        Assert.assertEquals(movieDetailFake.movie.toPresentation(), SUT.detailUiState.value.movie)
+        assertEquals(movieDetailFake.movie.toPresentation(), SUT.detailUiState.value.movie)
     }
 
     @Test

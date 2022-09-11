@@ -1,12 +1,12 @@
 package brillembourg.parser.emovie.presentation.home
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import androidx.core.view.isVisible
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
@@ -14,10 +14,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import brillembourg.parser.emovie.R
 import brillembourg.parser.emovie.databinding.FragmentHomeBinding
-import brillembourg.parser.emovie.presentation.detail.DetailFragmentArgs
 import brillembourg.parser.emovie.presentation.models.MoviePresentationModel
 import brillembourg.parser.emovie.presentation.safeUiLaunch
 import brillembourg.parser.emovie.presentation.showMessage
+import brillembourg.parser.emovie.presentation.utils.Logger
 import brillembourg.parser.emovie.presentation.utils.UiText
 import brillembourg.parser.emovie.presentation.utils.asString
 import dagger.hilt.android.AndroidEntryPoint
@@ -44,11 +44,22 @@ class HomeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         renderState()
         setupRefreshListener()
+        disableSwipeToRefreshIfExpanded()
     }
 
     private fun setupRefreshListener() {
         binding.homeSwipeRefresh.setOnRefreshListener {
             viewModel.onRefresh()
+        }
+    }
+
+    private fun disableSwipeToRefreshIfExpanded() {
+        binding.mainAppbar.addOnOffsetChangedListener { _, verticalOffset ->
+            try {
+                binding.homeSwipeRefresh.isEnabled = verticalOffset == 0
+            } catch (e: Exception) {
+                Logger.error(e)
+            }
         }
     }
 
@@ -132,7 +143,7 @@ class HomeFragment : Fragment() {
                 adapter = MovieAdapter {
                     viewModel.onMovieClick(it)
                 }
-                layoutManager = GridLayoutManager(context, 3)
+                layoutManager = GridLayoutManager(context, 2,RecyclerView.VERTICAL,false)
                 isNestedScrollingEnabled = false
             }
         }
@@ -189,8 +200,4 @@ class HomeFragment : Fragment() {
     )
 
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-//        _binding = null
-    }
 }

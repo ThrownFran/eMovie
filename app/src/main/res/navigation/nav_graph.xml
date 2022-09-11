@@ -17,8 +17,7 @@
     </fragment>
     <fragment
         android:id="@+id/DetailFragment"
-        android:name="brillembourg.parser.emovie.presentation.detail.DetailFragment"
-        android:label="@string/second_fragment_label">
+        android:name="brillembourg.parser.emovie.presentation.detail.DetailFragment">
         <argument
             android:name="movie"
             app:argType="brillembourg.parser.emovie.presentation.models.MoviePresentationModel" />

@@ -28,7 +28,7 @@ class RefreshMoviesUseCaseTest {
     @MockK
     lateinit var repository: MovieRepository
 
-    lateinit var SUT: RefreshMoviesUseCase
+    private lateinit var SUT: RefreshMoviesUseCase
 
     @Before
     fun setUp() {

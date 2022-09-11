@@ -30,7 +30,7 @@ class GetMovieDetailUseCaseTest {
     @MockK
     lateinit var repository: MovieRepository
 
-    lateinit var SUT: GetMovieDetailUseCase
+    private lateinit var SUT: GetMovieDetailUseCase
 
     @Before
     fun setUp() {

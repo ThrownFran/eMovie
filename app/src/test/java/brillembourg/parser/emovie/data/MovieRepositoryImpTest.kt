@@ -39,7 +39,7 @@ class MovieRepositoryImpTest {
     @MockK
     lateinit var networkDataSource: MovieNetworkDataSource
 
-    lateinit var SUT: MovieRepository
+    private lateinit var SUT: MovieRepository
 
     @Before
     fun setUp() {

@@ -34,14 +34,6 @@ fun showMessage(coordinator: CoordinatorLayout ,message: String, onMessageShown:
     }
 }
 
-fun ComponentActivity.safeUiLaunch(block: suspend CoroutineScope.() -> Unit) {
-    lifecycleScope.launch {
-        repeatOnLifecycle(Lifecycle.State.STARTED) {
-            block.invoke(this)
-        }
-    }
-}
-
 fun Fragment.safeUiLaunch(block: suspend CoroutineScope.() -> Unit) {
     viewLifecycleOwner.lifecycleScope.launch {
         repeatOnLifecycle(Lifecycle.State.STARTED) {

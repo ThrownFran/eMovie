@@ -2,7 +2,6 @@ package brillembourg.parser.emovie.data.local
 
 import androidx.room.withTransaction
 import brillembourg.parser.emovie.data.MovieData
-import brillembourg.parser.emovie.data.local.categories.CategoryDao
 import brillembourg.parser.emovie.data.local.category_movie_cross.CategoryMovieCrossRef
 import brillembourg.parser.emovie.data.local.category_movie_cross.CategoryMoviesCrossDao
 import brillembourg.parser.emovie.data.local.movies.MovieDao
@@ -17,11 +16,10 @@ import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 
 class RoomDataSource @Inject constructor(
-    val appDatabase: AppDatabase,
-    val movieDao: MovieDao,
-    val categoryDao: CategoryDao,
-    val trailerDao: TrailerDao,
-    val crossDao: CategoryMoviesCrossDao
+    private val appDatabase: AppDatabase,
+    private val movieDao: MovieDao,
+    private val trailerDao: TrailerDao,
+    private val crossDao: CategoryMoviesCrossDao
 ) : MovieLocalDataSource {
 
     override fun getMovie(id: Long): Flow<MovieData> {

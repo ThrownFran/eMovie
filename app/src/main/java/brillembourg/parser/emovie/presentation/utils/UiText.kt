@@ -1,11 +1,10 @@
 package brillembourg.parser.emovie.presentation.utils
 
 import android.content.Context
-import androidx.annotation.IdRes
 import brillembourg.parser.emovie.R
 
 
-sealed class UiText() {
+sealed class UiText {
     data class DynamicString(val value: String) : UiText()
     object NoInternet : UiText()
     object UnexpectedError : UiText()

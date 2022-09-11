@@ -3,8 +3,8 @@ package brillembourg.parser.emovie.presentation
 import androidx.lifecycle.SavedStateHandle
 import brillembourg.parser.emovie.data.NetworkException
 import brillembourg.parser.emovie.domain.models.Category
-import brillembourg.parser.emovie.domain.use_cases.GetMoviesUseCase
 import brillembourg.parser.emovie.domain.models.Movie
+import brillembourg.parser.emovie.domain.use_cases.GetMoviesUseCase
 import brillembourg.parser.emovie.domain.use_cases.RefreshMoviesUseCase
 import brillembourg.parser.emovie.presentation.home.HomeViewModel
 import brillembourg.parser.emovie.presentation.models.toPresentation
@@ -12,8 +12,6 @@ import brillembourg.parser.emovie.presentation.utils.UiText
 import brillembourg.parser.emovie.utils.*
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.coVerifyAll
-import io.mockk.coVerifySequence
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit4.MockKRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -133,6 +131,7 @@ class HomeViewModelTest {
         advanceUntilIdle()
         //Arrange
         Assert.assertEquals(UiText.NoInternet,SUT.homeUiState.value.messageToShow)
+        Assert.assertFalse(SUT.homeUiState.value.isLoading)
     }
 
     @Test

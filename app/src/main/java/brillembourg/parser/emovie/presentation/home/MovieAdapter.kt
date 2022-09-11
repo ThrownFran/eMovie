@@ -25,7 +25,7 @@ class MovieAdapter(val onClicked: (MoviePresentationModel) -> Unit) :
         holder.bind(currentList[position])
     }
 
-    inner class MovieViewHolder(val binding: ItemMovieBinding) : RecyclerView.ViewHolder(binding.root) {
+    inner class MovieViewHolder(private val binding: ItemMovieBinding) : RecyclerView.ViewHolder(binding.root) {
 
         init {
             setupClickListener()
@@ -37,12 +37,6 @@ class MovieAdapter(val onClicked: (MoviePresentationModel) -> Unit) :
 
         fun bind(movie: MoviePresentationModel) {
             movie.posterImageUrl?.let { binding.movieImage.setMovieDbImageUrl(it, ImageType.Poster) }
-            binding.movieYear.text = buildString {
-                append(movie.getReleaseYear())
-                append(" (")
-                append(movie.originalLanguage)
-                    .append(")")
-            }
         }
 
     }
@@ -62,12 +56,5 @@ val diffUtilCallback = object : DiffUtil.ItemCallback<MoviePresentationModel>() 
         newItem: MoviePresentationModel
     ): Boolean {
         return oldItem == newItem
-    }
-
-    override fun getChangePayload(
-        oldItem: MoviePresentationModel,
-        newItem: MoviePresentationModel
-    ): Any? {
-        return super.getChangePayload(oldItem, newItem)
     }
 }

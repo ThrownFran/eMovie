@@ -13,7 +13,6 @@ import brillembourg.parser.emovie.domain.models.Trailer
 import brillembourg.parser.emovie.presentation.safeUiLaunch
 import brillembourg.parser.emovie.presentation.showMessage
 import brillembourg.parser.emovie.presentation.utils.*
-import com.google.android.material.appbar.AppBarLayout
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.options.IFramePlayerOptions
@@ -47,9 +46,16 @@ class DetailFragment : Fragment() {
         renderState()
         setNavigationListener()
         setupSwipeRefreshListener()
+        disableSwipeToRefreshIfExpanded()
+    }
 
+    private fun disableSwipeToRefreshIfExpanded() {
         binding.detailAppbar.addOnOffsetChangedListener { _, verticalOffset ->
-            binding.detailSwipeRefresh.isEnabled = verticalOffset == 0
+            try {
+                binding.detailSwipeRefresh.isEnabled = verticalOffset == 0
+            } catch (e: Exception) {
+                Logger.error(e)
+            }
         }
     }
 
@@ -69,10 +75,15 @@ class DetailFragment : Fragment() {
                 renderVotes(state.movie.voteAverage)
                 renderPlot(state.movie.plot)
                 renderTrailer(state.trailers)
+                renderPoster(state.movie.posterImageUrl)
                 handleMessage(state.messageToShow)
                 renderSwipeLoadingState(state.isLoading)
             }
         }
+    }
+
+    private fun renderPoster(posterImageUrl: String?) {
+        posterImageUrl?.let { binding.detailImagePoster.setMovieDbImageUrl(it,ImageType.Poster) }
     }
 
     private fun renderSwipeLoadingState(isLoading: Boolean) {

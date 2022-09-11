@@ -22,7 +22,7 @@ fun TrailerFake.toDomain(): Trailer {
     return Trailer(id, "key", "name", "youtube", movieId)
 }
 
-val date = LocalDate.ofYearDay(1993, 1)
+val date: LocalDate = LocalDate.ofYearDay(1993, 1)
 
 val movieDataFakes = listOf(
     MovieData(1L, "Movie 1", "", "en", date, null, "plot", 200, 9.5f),

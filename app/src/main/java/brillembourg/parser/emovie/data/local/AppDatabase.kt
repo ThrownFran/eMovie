@@ -19,12 +19,7 @@ import brillembourg.parser.emovie.domain.models.Category
 import java.util.concurrent.Executors
 
 @Database(
-    entities = arrayOf(
-        MovieTable::class,
-        CategoryTable::class,
-        CategoryMovieCrossRef::class,
-        TrailerTable::class
-    ), version = 6
+    entities = [MovieTable::class, CategoryTable::class, CategoryMovieCrossRef::class, TrailerTable::class], version = 6
 )
 @TypeConverters(DateConverter::class)
 abstract class AppDatabase : RoomDatabase() {

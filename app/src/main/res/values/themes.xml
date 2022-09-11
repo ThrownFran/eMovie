@@ -1,16 +1,6 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
+<resources>
     <style name="Base.Theme.EMovie" parent="Theme.Material3.Dark.NoActionBar">
-        <!-- Customize your light theme here. -->
         <item name="android:windowTranslucentStatus">true</item>
         <item name="statusBarScrim">@color/grey_transparent</item>
-
-<!--        <item name = "android:windowActionBar">false</item>-->
-<!--        <item name = "android:windowNoTitle">true</item>-->
     </style>
-
-    <style name="Theme.EMovie" parent="Base.Theme.EMovie" />
-
-
-
 </resources>

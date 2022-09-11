@@ -61,7 +61,7 @@
 
         <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -116,6 +116,8 @@
                 </LinearLayout>
 
 
+
+
                 <LinearLayout
                     android:id="@+id/detail_linear_plot"
                     android:layout_width="match_parent"
@@ -134,13 +136,33 @@
                         android:text="@string/movie_plot"
                         android:textAppearance="@style/TextAppearance.Material3.TitleMedium" />
 
-                    <TextView
-                        android:id="@+id/detail_text_plot"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
                         android:layout_marginTop="8dp"
-                        android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                        tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin vitae diam nisl. Quisque semper ornare sapien, quis auctor risus dapibus ac. Aliquam sapien est, volutpat a nibh quis, feugiat porta felis. Nam nec volutpat orci. Maecenas quis quam in libero tincidunt egestas ut eu risus. Pellentesque bibendum erat et risus vehicula aliquet. Nam scelerisque tellus vehicula dui bibendum rhoncus. In imperdiet elit elit, sit amet sodales quam fermentum sit amet. In ut justo est. Duis non ante ac turpis aliquet volutpat." />
+                        android:orientation="horizontal"
+                        app:layout_constraintTop_toBottomOf="@id/detail_linear_tags">
+
+                        <com.google.android.material.imageview.ShapeableImageView
+                            android:id="@+id/detail_image_poster"
+                            android:layout_width="120dp"
+                            android:layout_height="170dp"
+                            android:scaleType="centerCrop"
+                            app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.eMovie.CornerSize10Percent"
+                            app:srcCompat="@mipmap/ic_launcher"
+                            style="@style/ShapeAppearanceOverlay.eMovie.CornerSize10Percent"/>
+
+                        <TextView
+                            android:id="@+id/detail_text_plot"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="16dp"
+                            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                            tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin vitae diam nisl. Quisque semper ornare sapien, quis auctor risus dapibus ac. Aliquam sapien est, volutpat a nibh quis, feugiat porta felis. Nam nec volutpat orci. Maecenas quis quam in libero tincidunt egestas ut eu risus. Pellentesque bibendum erat et risus vehicula aliquet. Nam scelerisque tellus vehicula dui bibendum rhoncus. In imperdiet elit elit, sit amet sodales quam fermentum sit amet. In ut justo est. Duis non ante ac turpis aliquet volutpat." />
+
+
+                    </LinearLayout>
+
 
 
                 </LinearLayout>

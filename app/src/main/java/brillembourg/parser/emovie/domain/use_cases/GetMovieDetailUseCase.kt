@@ -1,6 +1,5 @@
 package brillembourg.parser.emovie.domain.use_cases
 
-import brillembourg.parser.emovie.domain.models.Movie
 import brillembourg.parser.emovie.domain.MovieRepository
 import brillembourg.parser.emovie.domain.Schedulers
 import brillembourg.parser.emovie.domain.models.MovieDetail

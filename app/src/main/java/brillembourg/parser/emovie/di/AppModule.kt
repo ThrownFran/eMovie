@@ -2,10 +2,7 @@ package brillembourg.parser.emovie.di
 
 import brillembourg.parser.emovie.data.MovieRepositoryImp
 import brillembourg.parser.emovie.data.local.MovieLocalDataSource
-import brillembourg.parser.emovie.data.local.RoomDataSource
-import brillembourg.parser.emovie.data.network.MovieApi
 import brillembourg.parser.emovie.data.network.MovieNetworkDataSource
-import brillembourg.parser.emovie.data.network.RetrofitNetworkDataSource
 import brillembourg.parser.emovie.domain.MovieRepository
 import brillembourg.parser.emovie.domain.Schedulers
 import brillembourg.parser.emovie.domain.SchedulersImp

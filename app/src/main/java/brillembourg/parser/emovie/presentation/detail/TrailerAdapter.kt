@@ -9,12 +9,9 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import brillembourg.parser.emovie.databinding.ItemTrailerBinding
 import brillembourg.parser.emovie.domain.models.Trailer
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.PlayerConstants
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.YouTubePlayerListener
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.options.IFramePlayerOptions
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.utils.YouTubePlayerTracker
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
 
 
@@ -64,10 +61,10 @@ class TrailerAdapter(
         }
 
         fun bind(trailer: Trailer) {
-            currentVideoId = trailer.key;
+            currentVideoId = trailer.key
 
             if (youTubePlayer == null)
-                return;
+                return
 
             currentVideoId?.let { youTubePlayer?.cueVideo(it, 0f); }
         }
@@ -89,12 +86,5 @@ val diffUtilCallback = object : DiffUtil.ItemCallback<Trailer>() {
         newItem: Trailer
     ): Boolean {
         return oldItem == newItem
-    }
-
-    override fun getChangePayload(
-        oldItem: Trailer,
-        newItem: Trailer
-    ): Any? {
-        return super.getChangePayload(oldItem, newItem)
     }
 }

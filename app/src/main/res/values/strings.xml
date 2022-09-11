@@ -1,25 +1,25 @@
 <resources>
     <string name="app_name">eMovie</string>
-    <string name="action_settings">Settings</string>
-    <!-- Strings used for fragments for navigation -->
-    <string name="first_fragment_label">Home Fragment</string>
-    <string name="second_fragment_label">Detail Fragment</string>
-    <string name="next">Next</string>
-    <string name="previous">Previous</string>
+
+    <!-- Home -->
+    <string name="upcoming">Upcoming</string>
+    <string name="toprated">Top rated</string>
+    <string name="no_movies_found">No movies found</string>
+
+    <!-- Recommendation -->
+    <string name="recommended_movies">Recommended Movies</string>
     <string name="all_years">All years</string>
     <string name="all_languages">All languages</string>
     <string name="year">Year</string>
     <string name="language">Language</string>
-    <string name="recommended_movies">Recommended Movies</string>
-    <string name="upcoming">Upcoming</string>
-    <string name="toprated">Top rated</string>
-    <string name="watch_trailer">Watch trailer</string>
+    <string name="no_movies_for_filter">No movies match this filter</string>
+
+    <!-- Movie Detail -->
     <string name="movie_plot">Movie plot</string>
     <string name="movie_trailer">Trailer</string>
-    <string name="stop_trailer">Stop trailer</string>
-    <string name="no_internet">Sorry, please check your Internet connection</string>
+
+    <!-- Error messages -->
+    <string name="no_internet">Sorry! Please check your Internet connection and swipe down to refresh</string>
     <string name="unexpected_error">Sorry! We got an unexpected error</string>
-    <string name="no_movies_found">No movies found</string>
-    <string name="no_movies_for_filter">No movies match this filter</string>
 
 </resources>

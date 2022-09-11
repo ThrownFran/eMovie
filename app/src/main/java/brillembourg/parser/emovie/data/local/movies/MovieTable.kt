@@ -40,7 +40,6 @@ object DateConverter {
     @TypeConverter
     fun fromDate(date: LocalDate): Long {
         val zoneId: ZoneId = ZoneId.systemDefault()
-        val epoch = date.atStartOfDay(zoneId).toEpochSecond()
-        return epoch
+        return date.atStartOfDay(zoneId).toEpochSecond()
     }
 }

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">eMovie</string>
+
+    <!-- Home -->
+    <string name="upcoming">Próximos estrenos</string>
+    <string name="toprated">Tendencias</string>
+    <string name="no_movies_found">No se encontraron películas</string>
+
+    <!-- Recommendation -->
+    <string name="recommended_movies">Recomendados para ti</string>
+    <string name="all_years">Todos los años</string>
+    <string name="all_languages">Todos los lenguajes</string>
+    <string name="year">Año</string>
+    <string name="language">Lenguaje</string>
+    <string name="no_movies_for_filter">No hay películas que coincidan con el filtro</string>
+
+    <!-- Movie Detail -->
+    <string name="movie_plot">Resumen</string>
+    <string name="movie_trailer">Trailer</string>
+
+    <!-- Error messages -->
+    <string name="no_internet">¡Lo sentimos! Revisa tu conexión y luego desliza hacia abajo para refrescar</string>
+    <string name="unexpected_error">¡Lo sentimos! Ocurrió un problema inesperado</string>
+
+
+</resources>

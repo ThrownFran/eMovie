@@ -7,10 +7,10 @@ import kotlinx.coroutines.flow.Flow
 interface CategoryMoviesCrossDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract suspend fun createMovieCrossCategory(noteCrossRef: CategoryMovieCrossRef)
+    suspend fun createMovieCrossCategory(noteCrossRef: CategoryMovieCrossRef)
 
     @Delete
-    abstract suspend fun deleteMovieCrossCategory(noteCrossRef: CategoryMovieCrossRef)
+    suspend fun deleteMovieCrossCategory(noteCrossRef: CategoryMovieCrossRef)
 
     @Transaction
     @Query("SELECT * FROM categorytable WHERE category_key = :categoryKey")

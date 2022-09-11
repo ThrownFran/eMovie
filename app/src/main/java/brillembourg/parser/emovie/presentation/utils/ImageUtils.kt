@@ -1,6 +1,7 @@
 package brillembourg.parser.emovie.presentation.utils
 
 import android.widget.ImageView
+import brillembourg.parser.emovie.R
 import brillembourg.parser.emovie.data.network.IMAGE_PATH
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
@@ -17,8 +18,8 @@ fun ImageView.setMovieDbImageUrl(url: String, imageType: ImageType) {
         .transition(DrawableTransitionOptions.withCrossFade())
         .diskCacheStrategy(DiskCacheStrategy.DATA)
         .centerCrop()
-//        .placeholder(R.drawable.loading_spinner)
-        .into(this);
+        .placeholder(R.drawable.movie_placeholder)
+        .into(this)
 }
 
 enum class ImageType {
