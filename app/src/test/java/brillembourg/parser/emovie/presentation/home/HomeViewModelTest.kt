@@ -1,4 +1,4 @@
-package brillembourg.parser.emovie.presentation
+package brillembourg.parser.emovie.presentation.home
 
 import androidx.lifecycle.SavedStateHandle
 import brillembourg.parser.emovie.core.NetworkException
@@ -6,9 +6,8 @@ import brillembourg.parser.emovie.domain.models.Category
 import brillembourg.parser.emovie.domain.models.Movie
 import brillembourg.parser.emovie.domain.use_cases.GetMoviesUseCase
 import brillembourg.parser.emovie.domain.use_cases.RefreshMoviesUseCase
-import brillembourg.parser.emovie.presentation.home.HomeViewModel
+import brillembourg.parser.emovie.presentation.models.UiText
 import brillembourg.parser.emovie.presentation.models.toPresentation
-import brillembourg.parser.emovie.presentation.utils.UiText
 import brillembourg.parser.emovie.utils.*
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -69,7 +68,6 @@ class HomeViewModelTest {
     private fun buildSUT() {
         SUT = HomeViewModel(
             savedStateHandle,
-            TestSchedulers(coroutineTestRule.testDispatcher),
             getMoviesUseCase,
             refreshMoviesUseCase
         )

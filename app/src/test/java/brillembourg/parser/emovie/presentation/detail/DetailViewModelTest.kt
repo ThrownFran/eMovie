@@ -4,8 +4,8 @@ import androidx.lifecycle.SavedStateHandle
 import brillembourg.parser.emovie.core.NetworkException
 import brillembourg.parser.emovie.domain.use_cases.GetMovieDetailUseCase
 import brillembourg.parser.emovie.domain.use_cases.RefreshMovieDetailUseCase
+import brillembourg.parser.emovie.presentation.models.UiText
 import brillembourg.parser.emovie.presentation.models.toPresentation
-import brillembourg.parser.emovie.presentation.utils.UiText
 import brillembourg.parser.emovie.utils.CoroutineTestRule
 import brillembourg.parser.emovie.utils.movieDetailFake
 import brillembourg.parser.emovie.utils.movieDomainFakes

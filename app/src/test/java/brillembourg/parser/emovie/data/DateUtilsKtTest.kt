@@ -1,4 +1,4 @@
-package brillembourg.parser.emovie.presentation.utils
+package brillembourg.parser.emovie.data
 
 import brillembourg.parser.emovie.data.utils.extractDateFromString
 import brillembourg.parser.emovie.data.utils.extractYearFromDate
