@@ -1,7 +1,7 @@
 package brillembourg.parser.emovie.presentation.detail
 
 import androidx.lifecycle.SavedStateHandle
-import brillembourg.parser.emovie.data.NetworkException
+import brillembourg.parser.emovie.core.NetworkException
 import brillembourg.parser.emovie.domain.use_cases.GetMovieDetailUseCase
 import brillembourg.parser.emovie.domain.use_cases.RefreshMovieDetailUseCase
 import brillembourg.parser.emovie.presentation.models.toPresentation

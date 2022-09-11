@@ -2,7 +2,7 @@ package brillembourg.parser.emovie.domain.use_cases
 
 import brillembourg.parser.emovie.domain.models.Category
 import brillembourg.parser.emovie.domain.MovieRepository
-import brillembourg.parser.emovie.domain.Schedulers
+import brillembourg.parser.emovie.core.Schedulers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 

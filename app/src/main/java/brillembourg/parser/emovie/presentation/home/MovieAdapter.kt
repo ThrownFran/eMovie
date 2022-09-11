@@ -25,7 +25,8 @@ class MovieAdapter(val onClicked: (MoviePresentationModel) -> Unit) :
         holder.bind(currentList[position])
     }
 
-    inner class MovieViewHolder(private val binding: ItemMovieBinding) : RecyclerView.ViewHolder(binding.root) {
+    inner class MovieViewHolder(private val binding: ItemMovieBinding) :
+        RecyclerView.ViewHolder(binding.root) {
 
         init {
             setupClickListener()
@@ -37,7 +38,9 @@ class MovieAdapter(val onClicked: (MoviePresentationModel) -> Unit) :
 
         fun bind(movie: MoviePresentationModel) {
             binding.movie = movie
-            movie.posterImageUrl?.let { binding.movieImage.setMovieDbImageUrl(it, ImageType.Poster) }
+            movie.posterImageUrl?.let {
+                binding.movieImage.setMovieDbImageUrl(it, ImageType.Poster)
+            }
         }
 
     }

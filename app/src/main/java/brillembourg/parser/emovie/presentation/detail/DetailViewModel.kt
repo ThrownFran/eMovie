@@ -7,7 +7,7 @@ import brillembourg.parser.emovie.domain.use_cases.GetMovieDetailUseCase
 import brillembourg.parser.emovie.domain.use_cases.RefreshMovieDetailUseCase
 import brillembourg.parser.emovie.presentation.models.MoviePresentationModel
 import brillembourg.parser.emovie.presentation.models.toPresentation
-import brillembourg.parser.emovie.presentation.utils.Logger
+import brillembourg.parser.emovie.core.Logger
 import brillembourg.parser.emovie.presentation.utils.getMessageFromException
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -36,34 +36,16 @@ class DetailViewModel @Inject constructor(
         onError(throwable)
     }
 
-    private fun onError(throwable: Throwable) {
-        Logger.error(throwable)
-        _detailUiState.update {
-            it.copy(
-                messageToShow = getMessageFromException(throwable),
-                isLoading = false
-            )
-        }
-    }
-
     init {
         refreshMovieDetail()
     }
 
-    private fun refreshMovieDetail() {
-        viewModelScope.launch(coroutineExceptionHandler) {
-            showLoading()
-            refreshMovieDetailUseCase.invoke(detailUiState.value.movie.id)
-            hideLoading()
-        }
+    fun onMessageShown() {
+        _detailUiState.update { it.copy(messageToShow = null) }
     }
 
-    private fun showLoading() {
-        _detailUiState.update { it.copy(isLoading = true) }
-    }
-
-    private fun hideLoading() {
-        _detailUiState.update { it.copy(isLoading = false) }
+    fun onRefresh() {
+        refreshMovieDetail()
     }
 
     private fun observeMovie(id: Long) {
@@ -79,13 +61,30 @@ class DetailViewModel @Inject constructor(
             .launchIn(viewModelScope)
     }
 
-    fun onMessageShown() {
-        _detailUiState.update { it.copy(messageToShow = null) }
+    private fun refreshMovieDetail() {
+        viewModelScope.launch(coroutineExceptionHandler) {
+            showLoading()
+            refreshMovieDetailUseCase.invoke(detailUiState.value.movie.id)
+            hideLoading()
+        }
     }
 
-    fun onRefresh() {
-        refreshMovieDetail()
+    private fun onError(throwable: Throwable) {
+        Logger.error(throwable)
+        _detailUiState.update {
+            it.copy(
+                messageToShow = getMessageFromException(throwable),
+                isLoading = false
+            )
+        }
     }
 
+    private fun showLoading() {
+        _detailUiState.update { it.copy(isLoading = true) }
+    }
+
+    private fun hideLoading() {
+        _detailUiState.update { it.copy(isLoading = false) }
+    }
 
 }

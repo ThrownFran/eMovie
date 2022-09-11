@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-
         <variable
             name="movie"
             type="brillembourg.parser.emovie.presentation.models.MoviePresentationModel" />
@@ -12,15 +11,16 @@
 
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/movie_image"
-        android:layout_width="144dp"
-        android:layout_height="204dp"
-        android:layout_margin="10dp"
+        style="@style/PosterImageStyle"
+        android:layout_width="136dp"
+        android:layout_height="192dp"
         android:scaleType="fitXY"
+        android:layout_margin="10dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.eMovie.CornerSize10Percent"
-        tools:srcCompat="@drawable/ic_launcher_background" />
+        tools:srcCompat="@drawable/movie_placeholder" />
 
 </layout>
 

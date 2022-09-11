@@ -24,10 +24,6 @@ data class MoviePresentationModel(
 
 }
 
-fun MoviePresentationModel.toDomain(): Movie {
-    return Movie(id, name, posterImageUrl, originalLanguage, releaseDate,backdropImageUrl,plot,voteCount,voteAverage)
-}
-
 fun Movie.toPresentation(): MoviePresentationModel {
     return MoviePresentationModel(id, name, posterImageUrl, originalLanguage, releaseYear,backdropImageUrl,plot,voteCount,voteAverage)
 }

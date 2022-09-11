@@ -1,7 +1,7 @@
 package brillembourg.parser.emovie.domain.use_cases
 
 import brillembourg.parser.emovie.domain.MovieRepository
-import brillembourg.parser.emovie.domain.Schedulers
+import brillembourg.parser.emovie.core.Schedulers
 import brillembourg.parser.emovie.domain.models.MovieDetail
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn

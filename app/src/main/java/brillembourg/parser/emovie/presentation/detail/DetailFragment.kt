@@ -8,10 +8,13 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import brillembourg.parser.emovie.core.Logger
 import brillembourg.parser.emovie.databinding.FragmentDetailBinding
 import brillembourg.parser.emovie.domain.models.Trailer
-import brillembourg.parser.emovie.presentation.safeUiLaunch
-import brillembourg.parser.emovie.presentation.showMessage
+import brillembourg.parser.emovie.presentation.models.UiText
+import brillembourg.parser.emovie.presentation.models.asString
+import brillembourg.parser.emovie.presentation.utils.safeUiLaunch
+import brillembourg.parser.emovie.presentation.utils.showMessage
 import brillembourg.parser.emovie.presentation.utils.*
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener
@@ -19,10 +22,6 @@ import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.options.IFram
 import dagger.hilt.android.AndroidEntryPoint
 import kotlin.math.roundToInt
 
-
-/**
- * A simple [Fragment] subclass as the second destination in the navigation.
- */
 @AndroidEntryPoint
 class DetailFragment : Fragment() {
 
@@ -53,22 +52,6 @@ class DetailFragment : Fragment() {
         setNavigationUpListener()
         setupSwipeRefreshListener()
         disableSwipeToRefreshIfExpanded()
-    }
-
-    private fun disableSwipeToRefreshIfExpanded() {
-        binding.detailAppbar.addOnOffsetChangedListener { _, verticalOffset ->
-            try {
-                binding.detailSwipeRefresh.isEnabled = verticalOffset == 0
-            } catch (e: Exception) {
-                Logger.error(e)
-            }
-        }
-    }
-
-    private fun setupSwipeRefreshListener() {
-        binding.detailSwipeRefresh.setOnRefreshListener {
-            viewModel.onRefresh()
-        }
     }
 
     private fun renderState() {
@@ -162,6 +145,22 @@ class DetailFragment : Fragment() {
 
     private fun setNavigationUpListener() {
         binding.detailToolbar.setNavigationOnClickListener { findNavController().navigateUp() }
+    }
+
+    private fun disableSwipeToRefreshIfExpanded() {
+        binding.detailAppbar.addOnOffsetChangedListener { _, verticalOffset ->
+            try {
+                binding.detailSwipeRefresh.isEnabled = verticalOffset == 0
+            } catch (e: Exception) {
+                Logger.error(e)
+            }
+        }
+    }
+
+    private fun setupSwipeRefreshListener() {
+        binding.detailSwipeRefresh.setOnRefreshListener {
+            viewModel.onRefresh()
+        }
     }
 
     override fun onDestroyView() {

@@ -1,7 +1,7 @@
 package brillembourg.parser.emovie.presentation.home
 
 import brillembourg.parser.emovie.presentation.models.MoviePresentationModel
-import brillembourg.parser.emovie.presentation.utils.UiText
+import brillembourg.parser.emovie.presentation.models.UiText
 
 data class HomeUiState(
     val topRatedMovies: List<MoviePresentationModel> = emptyList(),

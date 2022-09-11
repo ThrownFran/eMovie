@@ -1,7 +1,6 @@
 package brillembourg.parser.emovie.data
 
-import brillembourg.parser.emovie.data.local.MovieLocalDataSource
-import brillembourg.parser.emovie.data.network.MovieNetworkDataSource
+import brillembourg.parser.emovie.core.GenericException
 import brillembourg.parser.emovie.domain.models.Category
 import brillembourg.parser.emovie.domain.MovieRepository
 import brillembourg.parser.emovie.domain.models.Trailer
@@ -34,10 +33,10 @@ class MovieRepositoryImpTest {
     val coroutineTestRule = CoroutineTestRule()
 
     @MockK
-    lateinit var localDataSource: MovieLocalDataSource
+    lateinit var localDataSource: LocalDataSource
 
     @MockK
-    lateinit var networkDataSource: MovieNetworkDataSource
+    lateinit var networkDataSource: NetworkDataSource
 
     private lateinit var SUT: MovieRepository
 

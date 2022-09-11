@@ -13,12 +13,14 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import brillembourg.parser.emovie.R
+import brillembourg.parser.emovie.core.Logger
 import brillembourg.parser.emovie.databinding.FragmentHomeBinding
 import brillembourg.parser.emovie.presentation.models.MoviePresentationModel
-import brillembourg.parser.emovie.presentation.safeUiLaunch
-import brillembourg.parser.emovie.presentation.showMessage
+import brillembourg.parser.emovie.presentation.models.UiText
+import brillembourg.parser.emovie.presentation.models.asString
+import brillembourg.parser.emovie.presentation.utils.safeUiLaunch
+import brillembourg.parser.emovie.presentation.utils.showMessage
 import brillembourg.parser.emovie.presentation.utils.*
-import com.google.android.material.transition.MaterialSharedAxis
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -44,22 +46,6 @@ class HomeFragment : Fragment() {
         renderState()
         setupRefreshListener()
         disableSwipeToRefreshIfExpanded()
-    }
-
-    private fun setupRefreshListener() {
-        binding.homeSwipeRefresh.setOnRefreshListener {
-            viewModel.onRefresh()
-        }
-    }
-
-    private fun disableSwipeToRefreshIfExpanded() {
-        binding.mainAppbar.addOnOffsetChangedListener { _, verticalOffset ->
-            try {
-                binding.homeSwipeRefresh.isEnabled = verticalOffset == 0
-            } catch (e: Exception) {
-                Logger.error(e)
-            }
-        }
     }
 
     private fun renderState() {
@@ -103,9 +89,7 @@ class HomeFragment : Fragment() {
 
         if (binding.homeRecyclerTopRated.adapter == null) {
             binding.homeRecyclerTopRated.apply {
-                adapter = MovieAdapter {
-                    viewModel.onMovieClick(it)
-                }
+                adapter = MovieAdapter { viewModel.onMovieClick(it) }
                 layoutManager = LinearLayoutManager(context, RecyclerView.HORIZONTAL, false)
                 isNestedScrollingEnabled = false
             }
@@ -138,9 +122,7 @@ class HomeFragment : Fragment() {
     private fun renderRecommendedMovieRecycler(movies: List<MoviePresentationModel>) {
         if (binding.homeRecyclerRecommended.adapter == null) {
             binding.homeRecyclerRecommended.apply {
-                adapter = MovieAdapter {
-                    viewModel.onMovieClick(it)
-                }
+                adapter = MovieAdapter { viewModel.onMovieClick(it) }
                 layoutManager = GridLayoutManager(context, 2,RecyclerView.VERTICAL,false)
                 isNestedScrollingEnabled = false
             }
@@ -196,6 +178,22 @@ class HomeFragment : Fragment() {
         android.R.layout.simple_spinner_dropdown_item,
         listOf(allOptionsStringValue) + optionList
     )
+
+    private fun setupRefreshListener() {
+        binding.homeSwipeRefresh.setOnRefreshListener {
+            viewModel.onRefresh()
+        }
+    }
+
+    private fun disableSwipeToRefreshIfExpanded() {
+        binding.mainAppbar.addOnOffsetChangedListener { _, verticalOffset ->
+            try {
+                binding.homeSwipeRefresh.isEnabled = verticalOffset == 0
+            } catch (e: Exception) {
+                Logger.error(e)
+            }
+        }
+    }
 
 
 }

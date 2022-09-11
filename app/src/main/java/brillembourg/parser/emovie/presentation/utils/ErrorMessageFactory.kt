@@ -1,8 +1,9 @@
 package brillembourg.parser.emovie.presentation.utils
 
-import brillembourg.parser.emovie.data.GenericException
-import brillembourg.parser.emovie.data.NetworkException
-import brillembourg.parser.emovie.data.ServerErrorException
+import brillembourg.parser.emovie.core.GenericException
+import brillembourg.parser.emovie.core.NetworkException
+import brillembourg.parser.emovie.core.ServerErrorException
+import brillembourg.parser.emovie.presentation.models.UiText
 
 fun getMessageFromException (e: Throwable): UiText {
     if(e !is Exception) {

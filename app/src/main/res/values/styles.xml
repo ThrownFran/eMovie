@@ -4,6 +4,11 @@
         <item name="cornerSize">10%</item>
     </style>
 
+    <style name="PosterImageStyle">
+        <item name="android:layout_width">120dp</item>
+        <item name="android:layout_height">170dp</item>
+        <item name="android:scaleType">fitXY</item>
+    </style>
 
 
 </resources>

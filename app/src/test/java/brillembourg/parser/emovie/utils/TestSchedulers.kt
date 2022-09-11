@@ -1,6 +1,6 @@
 package brillembourg.parser.emovie.utils
 
-import brillembourg.parser.emovie.domain.Schedulers
+import brillembourg.parser.emovie.core.Schedulers
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
