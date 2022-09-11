@@ -17,7 +17,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class DetailViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
+    val savedStateHandle: SavedStateHandle,
     private val getMovieDetailUseCase: GetMovieDetailUseCase,
     private val refreshMovieDetailUseCase: RefreshMovieDetailUseCase
 ) : ViewModel() {

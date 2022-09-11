@@ -77,11 +77,17 @@ class HomeFragment : Fragment() {
 
     private fun handleNavigation(navigateToThisMovie: MoviePresentationModel?) {
         navigateToThisMovie?.let {
+            clearFocus()
             setOriginSharedAxisTransition()
             val directions = HomeFragmentDirections.actionHomeFragmentToDetailFragment(navigateToThisMovie)
             findNavController().navigate(directions)
             viewModel.onNavigateToMovieCompleted()
         }
+    }
+
+    private fun clearFocus() {
+        binding.homeTextinputYear.clearFocus()
+        binding.homeTextinputLanguage.clearFocus()
     }
 
     private fun renderTopRatedMovies(topRatedMovies: List<MoviePresentationModel>) {
