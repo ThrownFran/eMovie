@@ -54,5 +54,11 @@
     Y al entrar en el Detalle se invoca otro método RefreshMovieDetailUseCase que se encargará de solicitar al repositorio que descargue los datos de Internet y actualice la base de datos. 
 
     De esta manera la vista seguiría recibiendo actualizaciones del mismo objeto MovieDetail con la funcionalidad agregada. La tabla en la base de datos de actores, reseñas y lista de imágenes es necesaria para el funcionamiento offline.
+    
+    <p float="left">
+<img width="369" alt="Screen Shot 2022-09-11 at 2 14 13 PM" src="https://user-images.githubusercontent.com/17883253/189540414-0c5a88fc-0551-4152-a8b8-87c5dd2ecb7f.png">
+<img width="369" alt="Screen Shot 2022-09-11 at 2 10 59 PM" src="https://user-images.githubusercontent.com/17883253/189540366-7071bece-f624-4813-8453-457a0a33b948.png">
+<img width="369" alt="Screen Shot 2022-09-11 at 2 11 35 PM" src="https://user-images.githubusercontent.com/17883253/189540368-f3c421d7-51fc-48c6-b209-d786277b4080.png">
+</p>
 
 
