@@ -36,6 +36,7 @@ class MovieAdapter(val onClicked: (MoviePresentationModel) -> Unit) :
         }
 
         fun bind(movie: MoviePresentationModel) {
+            binding.movie = movie
             movie.posterImageUrl?.let { binding.movieImage.setMovieDbImageUrl(it, ImageType.Poster) }
         }
 

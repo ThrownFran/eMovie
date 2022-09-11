@@ -1,7 +1,13 @@
 package brillembourg.parser.emovie.presentation
 
+import android.annotation.SuppressLint
+import android.content.Context
+import android.graphics.Color
 import androidx.activity.ComponentActivity
+import androidx.annotation.AttrRes
+import androidx.annotation.ColorInt
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.content.res.use
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -14,19 +20,13 @@ import kotlinx.coroutines.launch
 fun showMessage(coordinator: CoordinatorLayout ,message: String, onMessageShown: (() -> Unit)? = null) {
     Snackbar.make(coordinator, message, Snackbar.LENGTH_SHORT).apply {
 
-        //Snackbar Widget still not styleable in Material3 (Could not style text color)
-//        setTextColor(resolveAttribute(com.google.android.material.R.attr.colorOnSurface))
-//        setBackgroundTint(resolveAttribute(com.google.android.material.R.attr.colorSecondaryContainer))
-
         addCallback(object : BaseTransientBottomBar.BaseCallback<Snackbar>() {
             override fun onShown(transientBottomBar: Snackbar?) {
                 super.onShown(transientBottomBar)
-//                binding.homeFab.shrink()
             }
 
             override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
                 super.onDismissed(transientBottomBar, event)
-//                binding.homeFab.extend()
                 onMessageShown?.invoke()
             }
         })
@@ -39,5 +39,17 @@ fun Fragment.safeUiLaunch(block: suspend CoroutineScope.() -> Unit) {
         repeatOnLifecycle(Lifecycle.State.STARTED) {
             block.invoke(this)
         }
+    }
+}
+
+@ColorInt
+@SuppressLint("Recycle")
+fun Context.themeColor(
+    @AttrRes themeAttrId: Int
+): Int {
+    return obtainStyledAttributes(
+        intArrayOf(themeAttrId)
+    ).use {
+        it.getColor(0, Color.MAGENTA)
     }
 }

@@ -1,17 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.imageview.ShapeableImageView xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/movie_image"
-    android:layout_width="144dp"
-    android:layout_height="204dp"
-    android:layout_margin="10dp"
-    android:scaleType="fitXY"
-    app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toTopOf="parent"
-    app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.eMovie.CornerSize10Percent"
-    tools:src="@drawable/ic_launcher_background" />
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="movie"
+            type="brillembourg.parser.emovie.presentation.models.MoviePresentationModel" />
+    </data>
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/movie_image"
+        android:layout_width="144dp"
+        android:layout_height="204dp"
+        android:layout_margin="10dp"
+        android:scaleType="fitXY"
+        android:transitionName="@{@string/home_shared_item_container(movie.id)}"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.eMovie.CornerSize10Percent"
+        tools:srcCompat="@drawable/ic_launcher_background" />
+
+</layout>
+
 
 
 

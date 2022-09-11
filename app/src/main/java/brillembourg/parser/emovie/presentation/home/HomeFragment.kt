@@ -17,9 +17,7 @@ import brillembourg.parser.emovie.databinding.FragmentHomeBinding
 import brillembourg.parser.emovie.presentation.models.MoviePresentationModel
 import brillembourg.parser.emovie.presentation.safeUiLaunch
 import brillembourg.parser.emovie.presentation.showMessage
-import brillembourg.parser.emovie.presentation.utils.Logger
-import brillembourg.parser.emovie.presentation.utils.UiText
-import brillembourg.parser.emovie.presentation.utils.asString
+import brillembourg.parser.emovie.presentation.utils.*
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -92,10 +90,22 @@ class HomeFragment : Fragment() {
 
     private fun handleNavigation(navigateToThisMovie: MoviePresentationModel?) {
         navigateToThisMovie?.let {
-            findNavController().navigate(
-                resId = R.id.DetailFragment,
-                args = Bundle().apply { putParcelable("movie", navigateToThisMovie) }
-            )
+
+            val movieIndex = (binding.homeRecyclerUpcoming.adapter as MovieAdapter)
+                .currentList.indexOf(navigateToThisMovie)
+            val view = binding.homeRecyclerUpcoming.findViewHolderForAdapterPosition(movieIndex)?.itemView
+                ?:binding.homeRecyclerRecommended.findViewHolderForAdapterPosition(movieIndex)?.itemView
+                ?:binding.homeRecyclerTopRated.findViewHolderForAdapterPosition(movieIndex)?.itemView
+
+            setTransitionToMovie()
+            val directions = HomeFragmentDirections.actionHomeFragmentToDetailFragment(navigateToThisMovie)
+            findNavController().navigate(directions, setupExtrasToDetail(view))
+
+//            findNavController().navigate(
+//                resId = R.id.DetailFragment,
+//                args = Bundle().apply { putParcelable("movie", navigateToThisMovie)},
+//                navigatorExtras = view?.let { it1 -> setupExtrasToDetail(it1) }
+//            )
             viewModel.onNavigateToMovieCompleted()
         }
     }

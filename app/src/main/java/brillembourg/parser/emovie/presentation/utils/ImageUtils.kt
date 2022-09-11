@@ -6,6 +6,7 @@ import brillembourg.parser.emovie.data.network.IMAGE_PATH
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
+import com.bumptech.glide.request.RequestOptions
 
 fun ImageView.setMovieDbImageUrl(url: String, imageType: ImageType) {
     val size = when(imageType) {
@@ -19,6 +20,9 @@ fun ImageView.setMovieDbImageUrl(url: String, imageType: ImageType) {
         .diskCacheStrategy(DiskCacheStrategy.DATA)
         .centerCrop()
         .placeholder(R.drawable.movie_placeholder)
+        .apply(
+            RequestOptions().dontTransform() // this line
+        )
         .into(this)
 }
 

@@ -23,5 +23,8 @@
     <string name="no_internet">¡Lo sentimos! Revisa tu conexión y luego desliza hacia abajo para refrescar</string>
     <string name="unexpected_error">¡Lo sentimos! Ocurrió un problema inesperado</string>
 
+    <string name="home_shared_item_container">task_animation_container%1$s</string>
+    <string name="home_shared_detail_container">task_animation_detail_container</string>
+
 
 </resources>

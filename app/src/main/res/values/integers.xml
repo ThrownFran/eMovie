@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer name="reply_motion_duration_large">3000</integer>
+    <integer name="reply_motion_duration_medium">2250</integer>
+    <integer name="reply_motion_duration_small">1750</integer>
+</resources>

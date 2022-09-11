@@ -22,4 +22,7 @@
     <string name="no_internet">Sorry! Please check your Internet connection and swipe down to refresh</string>
     <string name="unexpected_error">Sorry! We got an unexpected error</string>
 
+    <string name="home_shared_item_container">task_animation_container%1$s</string>
+    <string name="home_shared_detail_container">task_animation_detail_container</string>
+
 </resources>
