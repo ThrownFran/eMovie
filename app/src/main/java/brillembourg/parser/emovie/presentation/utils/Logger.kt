@@ -6,4 +6,8 @@ object Logger {
         e.printStackTrace()
         //Consider uploading to fabric
     }
+
+    fun error(t: Throwable) {
+        t.printStackTrace()
+    }
 }

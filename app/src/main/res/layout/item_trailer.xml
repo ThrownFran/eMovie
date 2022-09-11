@@ -1,7 +1,34 @@
-<com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/item_trailer_pager_youtubeview"
+<androidx.constraintlayout.widget.ConstraintLayout
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    app:enableAutomaticInitialization="false"/>
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
+        android:id="@+id/item_trailer_pager_youtubeview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:enableAutomaticInitialization="false"/>
+
+    <FrameLayout
+        android:id="@+id/item_trailer_frame_shadow"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintStart_toStartOf="@id/item_trailer_pager_youtubeview"
+        app:layout_constraintEnd_toEndOf="@id/item_trailer_pager_youtubeview"
+        app:layout_constraintTop_toTopOf="@id/item_trailer_pager_youtubeview"
+        app:layout_constraintBottom_toBottomOf="@id/item_trailer_pager_youtubeview"
+        android:background="@color/black"/>
+
+
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
+

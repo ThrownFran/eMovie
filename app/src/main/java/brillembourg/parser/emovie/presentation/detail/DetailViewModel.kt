@@ -8,7 +8,10 @@ import brillembourg.parser.emovie.domain.use_cases.GetMovieDetailUseCase
 import brillembourg.parser.emovie.domain.use_cases.RefreshMovieDetailUseCase
 import brillembourg.parser.emovie.presentation.models.MoviePresentationModel
 import brillembourg.parser.emovie.presentation.models.toPresentation
+import brillembourg.parser.emovie.presentation.utils.Logger
+import brillembourg.parser.emovie.presentation.utils.getMessageFromException
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -27,15 +30,33 @@ class DetailViewModel @Inject constructor(
                 ?: throw IllegalArgumentException("Movie not provided to detail")
         ).also { state ->
             observeMovie(state.movie.id)
-            refreshMovieDetail(state.movie.id)
         })
 
     val detailUiState = _detailUiState.asStateFlow()
 
-    private fun refreshMovieDetail(id: Long) {
-        viewModelScope.launch {
-            refreshMovieDetailUseCase.invoke(id)
+    private val coroutineExceptionHandler = CoroutineExceptionHandler { context, throwable ->
+        Logger.error(throwable)
+        _detailUiState.update { it.copy(messageToShow = getMessageFromException(throwable)) }
+    }
+
+    init {
+        refreshMovieDetail()
+    }
+
+    private fun refreshMovieDetail() {
+        viewModelScope.launch(coroutineExceptionHandler) {
+            showLoading()
+            refreshMovieDetailUseCase.invoke(detailUiState.value.movie.id)
+            hideLoading()
         }
+    }
+
+    private fun showLoading() {
+        _detailUiState.update { it.copy(isLoading = true) }
+    }
+
+    private fun hideLoading() {
+        _detailUiState.update { it.copy(isLoading = false) }
     }
 
     private fun observeMovie(id: Long) {
@@ -49,6 +70,14 @@ class DetailViewModel @Inject constructor(
                 }
             }
             .launchIn(viewModelScope)
+    }
+
+    fun onMessageShown() {
+        _detailUiState.update { it.copy(messageToShow = null) }
+    }
+
+    fun onRefresh() {
+        refreshMovieDetail()
     }
 
 

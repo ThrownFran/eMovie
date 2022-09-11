@@ -2,6 +2,7 @@ package brillembourg.parser.emovie.presentation.detail
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -19,10 +20,6 @@ import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTube
 
 class TrailerAdapter(
     val lifecycleOwner: LifecycleOwner,
-    val onPlayerReady: () -> Unit,
-    val onPlaying: () -> Unit,
-    val onPause: () -> Unit,
-    val onWatchTrailer: (() -> Unit) -> Unit
 ) :
     ListAdapter<Trailer, TrailerAdapter.TrailerViewHolder>(diffUtilCallback) {
 
@@ -42,17 +39,9 @@ class TrailerAdapter(
         private var youTubePlayerView: YouTubePlayerView? = null
         private var youTubePlayer: YouTubePlayer? = null
         private var currentVideoId: String? = null
-        private val tracker by lazy { YouTubePlayerTracker() }
 
         init {
-            onWatchTrailer.invoke {
-                if (tracker.state == PlayerConstants.PlayerState.PLAYING) {
-                    youTubePlayer?.pause()
-                } else {
-                    youTubePlayer?.play()
-                }
-            }
-
+            binding.itemTrailerFrameShadow.isVisible = true
             youTubePlayerView = binding.itemTrailerPagerYoutubeview
             lifecycleOwner.lifecycle.addObserver(binding.itemTrailerPagerYoutubeview)
 
@@ -66,88 +55,11 @@ class TrailerAdapter(
             youTubePlayerView?.initialize(object : AbstractYouTubePlayerListener() {
                 override fun onReady(youTubePlayer: YouTubePlayer) {
                     super.onReady(youTubePlayer)
+                    binding.itemTrailerFrameShadow.isVisible = false
                     this@TrailerViewHolder.youTubePlayer = youTubePlayer
-                    onPause.invoke()
-                    youTubePlayer.addListener(tracker)
-                    youTubePlayer.addListener(object : YouTubePlayerListener {
-                        override fun onStateChange(
-                            youTubePlayer: YouTubePlayer,
-                            state: PlayerConstants.PlayerState
-                        ) {
-                            if (tracker.state == PlayerConstants.PlayerState.PLAYING) {
-                                onPlaying.invoke()
-                            } else {
-                                onPause.invoke()
-                            }
-                        }
-
-                        override fun onApiChange(youTubePlayer: YouTubePlayer) {
-
-
-                        }
-
-                        override fun onCurrentSecond(youTubePlayer: YouTubePlayer, second: Float) {
-
-
-                        }
-
-                        override fun onError(
-                            youTubePlayer: YouTubePlayer,
-                            error: PlayerConstants.PlayerError
-                        ) {
-
-
-                        }
-
-                        override fun onPlaybackQualityChange(
-                            youTubePlayer: YouTubePlayer,
-                            playbackQuality: PlayerConstants.PlaybackQuality
-                        ) {
-
-
-                        }
-
-                        override fun onPlaybackRateChange(
-                            youTubePlayer: YouTubePlayer,
-                            playbackRate: PlayerConstants.PlaybackRate
-                        ) {
-
-
-                        }
-
-                        override fun onReady(youTubePlayer: YouTubePlayer) {
-
-
-                        }
-
-                        override fun onVideoDuration(
-                            youTubePlayer: YouTubePlayer,
-                            duration: Float
-                        ) {
-
-                        }
-
-                        override fun onVideoId(youTubePlayer: YouTubePlayer, videoId: String) {
-
-                        }
-
-                        override fun onVideoLoadedFraction(
-                            youTubePlayer: YouTubePlayer,
-                            loadedFraction: Float
-                        ) {
-
-                        }
-                    });
                     this@TrailerViewHolder.youTubePlayer?.cueVideo(currentVideoId!!, 0f)
-                    onPlayerReady.invoke()
                 }
             }, iFramePlayerOptions)
-
-            youTubePlayerView?.addYouTubePlayerListener(object : AbstractYouTubePlayerListener() {
-                override fun onReady(youTubePlayer: YouTubePlayer) {
-                }
-            })
-
 
         }
 
