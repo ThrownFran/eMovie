@@ -2,10 +2,12 @@ package brillembourg.parser.emovie.presentation.home
 
 import androidx.lifecycle.SavedStateHandle
 import brillembourg.parser.emovie.core.NetworkException
+import brillembourg.parser.emovie.data.PAGE_SIZE
 import brillembourg.parser.emovie.domain.models.Category
 import brillembourg.parser.emovie.domain.models.Movie
 import brillembourg.parser.emovie.domain.use_cases.GetMoviesUseCase
 import brillembourg.parser.emovie.domain.use_cases.RefreshMoviesUseCase
+import brillembourg.parser.emovie.domain.use_cases.RequestNextMoviePageUseCase
 import brillembourg.parser.emovie.presentation.models.UiText
 import brillembourg.parser.emovie.presentation.models.toPresentation
 import brillembourg.parser.emovie.utils.*
@@ -57,6 +59,9 @@ class HomeViewModelTest {
     private lateinit var refreshMoviesUseCase: RefreshMoviesUseCase
 
     @MockK
+    private lateinit var requestNextMoviePageUseCase: RequestNextMoviePageUseCase
+
+    @MockK
     private lateinit var savedStateHandle: SavedStateHandle
 
     private lateinit var SUT: HomeViewModel
@@ -69,15 +74,17 @@ class HomeViewModelTest {
         SUT = HomeViewModel(
             savedStateHandle,
             getMoviesUseCase,
-            refreshMoviesUseCase
+            refreshMoviesUseCase,
+            requestNextMoviePageUseCase
         )
     }
 
     private fun mockGetMoviesSuccess() {
         coEvery { getMoviesUseCase.invoke(any()) }.coAnswers { flow { emit(movieDomainFakes) } }
         coEvery { refreshMoviesUseCase.invoke(any()) }.coAnswers {
-            movieDomainFakes
+            Unit
         }
+        coEvery { requestNextMoviePageUseCase.invoke(any(),any()) }.coAnswers { Unit }
     }
 
     @Test
@@ -171,6 +178,19 @@ class HomeViewModelTest {
             movieDomainFakes.map { it.toPresentation() },
             SUT.homeUiState.value.topRatedMovies
         )
+    }
+
+    @Test
+    fun `given top rated movies bottom reached, then request new page`() = runTest {
+        //Arrange
+        mockGetMoviesSuccess()
+        buildSUT()
+        //Act
+        advanceUntilIdle()
+        SUT.onEndOfTopRatedMoviesReached(PAGE_SIZE -1)
+        advanceUntilIdle()
+        //Assert
+        coVerify { requestNextMoviePageUseCase.invoke(ofType(Category.TopRated::class), PAGE_SIZE - 1) }
     }
 
     @Test

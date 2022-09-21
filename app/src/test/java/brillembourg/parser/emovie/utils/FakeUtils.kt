@@ -31,6 +31,9 @@ val movieDataFakes = listOf(
     MovieData(4L, "Movie 1", "", "", date, null, "plot", 200, 6.6f)
 )
 
+val movieDataFakes20 =
+    (1..20).map { MovieData(it.toLong(), "Movie $it", "", "en", date, "", "plot", 200, 9.5f) }
+
 val movieDomainFakes = listOf(
     Movie(1L, "Movie 1", "", "en", date, null, "plot", 200, 9.5f),
     Movie(2L, "Movie 1", "", "en", date, null, "plot", 200, 9.5f),
@@ -51,8 +54,8 @@ val movieDetailFake = MovieDetail(
         voteAverage = 9.2f
     ),
     trailers = listOf(
-        Trailer("1L", "kdfseref", "Trailer 1", "Youtube",1L),
-        Trailer("2L", "kdfseref", "Trailer 2", "Youtube",2L),
+        Trailer("1L", "kdfseref", "Trailer 1", "Youtube", 1L),
+        Trailer("2L", "kdfseref", "Trailer 2", "Youtube", 2L),
     )
 )
 

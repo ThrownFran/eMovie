@@ -255,6 +255,36 @@ class MovieRepositoryImpTest {
             Assert.assertTrue(exceptionToCatch is GenericException)
         }
 
+    @Test
+    fun `given request next movie page, when page is not last, save results to local data source`() =
+        runTest {
+            //Arrange
+            val category = Category.TopRated()
+            val movieFakesSecondPage = movieDataFakes20.map { it.copy(id = it.id + 100) }
+            mockNetworkDataSourceSuccess(movieFakesSecondPage)
+            mockLocalDataSourceSuccess(movieDataFakes20)
+            //Act
+            SUT.requestNextMoviePage(category, PAGE_SIZE - 1)
+            //Assert
+            coVerify { networkDataSource.getMovies(category, 2) }
+            coVerify { localDataSource.saveMovies(any(),match { movies -> movies == movieFakesSecondPage }) }
+        }
+
+    @Test
+    fun `given request next movie page, when item visible is not last, do nothing`() =
+        runTest {
+            //Arrange
+            val category = Category.TopRated()
+            val movieFakesSecondPage = movieDataFakes20.map { it.copy(id = it.id + 100) }
+            mockNetworkDataSourceSuccess(movieFakesSecondPage)
+            mockLocalDataSourceSuccess(movieDataFakes20)
+            //Act
+            SUT.requestNextMoviePage(category, PAGE_SIZE - 10)
+            //Assert
+            coVerify(exactly = 0) { networkDataSource.getMovies(category, any()) }
+            coVerify(exactly = 0) { localDataSource.saveMovies(any(),any()) }
+        }
+
 
     private fun mockSuccessDatasource() {
         mockLocalDataSourceSuccess(movieDataFakes)
@@ -266,7 +296,7 @@ class MovieRepositoryImpTest {
         trailers: List<Trailer> = trailerFakes
     ) {
         coEvery { networkDataSource.getTrailers(any()) }.returns(trailers)
-        coEvery { networkDataSource.getMovies(any()) }.returns(movieFakes)
+        coEvery { networkDataSource.getMovies(any(),any()) }.returns(movieFakes)
     }
 
     private fun mockNetworkDataSourceError() {

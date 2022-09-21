@@ -8,6 +8,7 @@ import android.widget.ArrayAdapter
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -22,6 +23,7 @@ import brillembourg.parser.emovie.presentation.utils.safeUiLaunch
 import brillembourg.parser.emovie.presentation.utils.showMessage
 import brillembourg.parser.emovie.presentation.utils.*
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collect
 
 @AndroidEntryPoint
 class HomeFragment : Fragment() {
@@ -98,6 +100,12 @@ class HomeFragment : Fragment() {
                 adapter = MovieAdapter { viewModel.onMovieClick(it) }
                 layoutManager = LinearLayoutManager(context, RecyclerView.HORIZONTAL, false)
                 isNestedScrollingEnabled = false
+            }
+
+            safeUiLaunch {
+                binding.homeRecyclerTopRated.lastVisibleEvents.collect { lastVisibleItem ->
+                    viewModel.onEndOfTopRatedMoviesReached(lastVisibleItem)
+                }
             }
         }
 

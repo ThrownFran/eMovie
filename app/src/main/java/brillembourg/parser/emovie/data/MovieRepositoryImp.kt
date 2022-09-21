@@ -8,12 +8,34 @@ import brillembourg.parser.emovie.core.Schedulers
 import brillembourg.parser.emovie.domain.models.MovieDetail
 import kotlinx.coroutines.flow.*
 import javax.inject.Inject
+import kotlin.math.sign
+
+internal const val PAGE_SIZE = 20
+internal const val PAGE_THRESHOLD = 10
 
 class MovieRepositoryImp @Inject constructor(
     private val schedulers: Schedulers,
     private val localDataSource: LocalDataSource,
     private val networkDataSource: NetworkDataSource
 ) : MovieRepository {
+
+    override suspend fun requestNextMoviePage(category: Category, lastVisibleItem: Int) {
+
+        try {
+            val size = localDataSource.getMovies(category).first().size
+            val isLastItemReached = lastVisibleItem >= size - 1
+
+            if(isLastItemReached) {
+                val page = size / PAGE_SIZE + 1
+                val newMovies = networkDataSource.getMovies(category,page)
+                localDataSource.saveMovies(category,newMovies)
+            }
+
+        } catch (e: Exception) {
+            throw (e.toDomain())
+        }
+
+    }
 
     override fun getMovies(category: Category): Flow<List<Movie>> {
         return localDataSource.getMovies(category)
@@ -24,8 +46,7 @@ class MovieRepositoryImp @Inject constructor(
 
     override fun getMovie(id: Long): Flow<MovieDetail> {
         return localDataSource.getMovie(id)
-            .combine(localDataSource.getTrailers(id)
-            ) { movieData, trailer ->
+            .combine(localDataSource.getTrailers(id)) { movieData, trailer ->
                 MovieDetail(movieData.toDomain(), trailer)
             }
             .catch { if (it is Exception) throw it.toDomain() else throw GenericException("Throwable: ${it.message}") }
@@ -48,7 +69,7 @@ class MovieRepositoryImp @Inject constructor(
         try {
             val trailersFromLocal = localDataSource.getTrailers(id).first()
             val trailersFromNetwork = networkDataSource.getTrailers(id)
-            if(trailersFromLocal != trailersFromNetwork) {
+            if (trailersFromLocal != trailersFromNetwork) {
                 localDataSource.saveTrailers(trailersFromNetwork)
             }
         } catch (e: Exception) {

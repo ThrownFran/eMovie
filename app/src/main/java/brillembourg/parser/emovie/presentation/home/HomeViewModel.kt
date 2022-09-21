@@ -7,6 +7,7 @@ import brillembourg.parser.emovie.domain.models.Category
 import brillembourg.parser.emovie.domain.use_cases.GetMoviesUseCase
 import brillembourg.parser.emovie.domain.use_cases.RefreshMoviesUseCase
 import brillembourg.parser.emovie.core.Schedulers
+import brillembourg.parser.emovie.domain.use_cases.RequestNextMoviePageUseCase
 import brillembourg.parser.emovie.presentation.models.MoviePresentationModel
 import brillembourg.parser.emovie.presentation.models.toPresentation
 import brillembourg.parser.emovie.presentation.utils.getMessageFromException
@@ -19,7 +20,8 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val getMoviesUseCase: GetMoviesUseCase,
-    private val refreshMoviesUseCase: RefreshMoviesUseCase
+    private val refreshMoviesUseCase: RefreshMoviesUseCase,
+    private val requestNextMoviePageUseCase: RequestNextMoviePageUseCase,
 ) : ViewModel() {
 
     private val recommendedMovieCount = 6
@@ -171,6 +173,14 @@ class HomeViewModel @Inject constructor(
 
     fun onRefresh() {
         refreshMovieData()
+    }
+
+    fun onEndOfTopRatedMoviesReached(lastVisibleItem: Int) {
+        viewModelScope.launch(coroutineExceptionHandler) {
+//            showLoading()
+            requestNextMoviePageUseCase.invoke(Category.TopRated(), lastVisibleItem)
+//            hideLoading()
+        }
     }
 
 
