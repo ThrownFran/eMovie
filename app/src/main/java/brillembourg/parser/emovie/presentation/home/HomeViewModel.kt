@@ -34,7 +34,9 @@ class HomeViewModel @Inject constructor(
         onError(throwable)
     }
 
-    init { refreshMovieData() }
+    init {
+        refreshMovieData()
+    }
 
     private fun refreshMovieData() {
         viewModelScope.launch(coroutineExceptionHandler) {
@@ -91,9 +93,8 @@ class HomeViewModel @Inject constructor(
 
     private fun filterRecommendedMovies() {
         val movies = homeUiState.value.topRatedMovies
-
-        val languages: List<String> = homeUiState.value.topRatedMovies.map { it.originalLanguage }
-        val yearList: List<Int> = homeUiState.value.topRatedMovies.map { it.getReleaseYear() }
+        val languages: List<String> = movies.map { it.originalLanguage }
+        val yearList: List<Int> = movies.map { it.getReleaseYear() }
 
         val currentYear = _homeUiState.value.recommendedMovies.yearFilter.currentYear
         val currentLanguage = homeUiState.value.recommendedMovies.languageFilter.currentLanguage
@@ -113,13 +114,13 @@ class HomeViewModel @Inject constructor(
                 (it.getReleaseYear() == currentYear) && it.originalLanguage == currentLanguage
             }.take(recommendedMovieCount)
 
-        val selectableYears: List<Int> = yearList.distinct().sortedByDescending { it }
-
-        _homeUiState.update {
-            it.copy(
-                recommendedMovies = it.recommendedMovies.copy(
-                    yearFilter = it.recommendedMovies.yearFilter.copy(selectableYears = selectableYears),
-                    languageFilter = it.recommendedMovies.languageFilter.copy(
+        _homeUiState.update { uiState ->
+            uiState.copy(
+                recommendedMovies = uiState.recommendedMovies.copy(
+                    yearFilter = uiState.recommendedMovies.yearFilter.copy(
+                        selectableYears = yearList.distinct().sortedByDescending { it }
+                    ),
+                    languageFilter = uiState.recommendedMovies.languageFilter.copy(
                         selectableLanguages = languages.distinct().sortedDescending()
                     ),
                     movies = filteredList

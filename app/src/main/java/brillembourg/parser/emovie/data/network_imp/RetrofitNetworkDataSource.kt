@@ -2,10 +2,10 @@ package brillembourg.parser.emovie.data.network_imp
 
 import brillembourg.parser.emovie.data.MovieData
 import brillembourg.parser.emovie.data.NetworkDataSource
-import brillembourg.parser.emovie.data.toData
 import brillembourg.parser.emovie.domain.models.Category
 import brillembourg.parser.emovie.domain.models.Trailer
 import brillembourg.parser.emovie.core.Logger
+import brillembourg.parser.emovie.data.network_imp.responses.toData
 import javax.inject.Inject
 
 class RetrofitNetworkDataSource @Inject constructor(

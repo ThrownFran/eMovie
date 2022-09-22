@@ -42,7 +42,7 @@ class MovieRepositoryImpTest {
 
     @Before
     fun setUp() {
-        SUT = MovieRepositoryImp(TestSchedulers(), localDataSource, networkDataSource)
+        SUT = MovieRepositoryImp(TestSchedulers(coroutineTestRule.testDispatcher), localDataSource, networkDataSource)
     }
 
     @Test
