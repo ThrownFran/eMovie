@@ -26,14 +26,10 @@ import brillembourg.parser.emovie.presentation.theme.eMovieTheme
 val upcomingMovies = movieListFake
 val topRatedMovies = movieListFake.shuffled()
 val recommendedMovies = RecommendedMovies(
-    movies = topRatedMovies.take(6),
-    yearFilter = YearFilter(
-        currentYear = null,
-        selectableYears = listOf(1940, 1888, 2000, 2020, 2022)
-    ),
-    languageFilter = LanguageFilter(
-        currentLanguage = null,
-        selectableLanguages = listOf("es", "en", "ja", "it")
+    movies = topRatedMovies.take(6), yearFilter = YearFilter(
+        currentYear = null, selectableYears = listOf(1940, 1888, 2000, 2020, 2022)
+    ), languageFilter = LanguageFilter(
+        currentLanguage = null, selectableLanguages = listOf("es", "en", "ja", "it")
     )
 )
 
@@ -41,13 +37,13 @@ val recommendedMovies = RecommendedMovies(
 fun HomeScreen(
     upcomingMovies: List<MoviePresentationModel>,
     topRatedMovies: List<MoviePresentationModel>,
-    recommendedMovies: RecommendedMovies
+    recommendedMovies: RecommendedMovies,
+    onFilterYearChanged: (Int?) -> Unit,
+    onFilterLanguageChanged: (String?) -> Unit
 ) {
-    Scaffold(
-        topBar = {
-            MainAppBar()
-        }
-    ) { paddingValues ->
+    Scaffold(topBar = {
+        MainAppBar()
+    }) { paddingValues ->
         Surface(modifier = Modifier.padding(paddingValues)) {
 
             LazyVerticalGrid(
@@ -55,8 +51,7 @@ fun HomeScreen(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 columns = GridCells.Adaptive(150.dp)
-            )
-            {
+            ) {
 
                 item(span = { GridItemSpan(maxLineSpan) }) {
                     Column {
@@ -72,23 +67,11 @@ fun HomeScreen(
 
                 item(span = { GridItemSpan(maxLineSpan) }) {
                     HomeSection(title = stringResource(id = R.string.recommended_movies)) {
-
-                        Row(modifier = Modifier.padding(16.dp), horizontalArrangement = Arrangement.SpaceEvenly) {
-                            val years =
-                                recommendedMovies.yearFilter.selectableYears.map { it.toString() }
-                            FilterMenu(
-                                options = years,
-                                currentOption = recommendedMovies.yearFilter.currentYear?.toString()
-                                    ?: stringResource(id = R.string.all_years),
-                                onOptionSelected = { optionSelected -> })
-
-                            val languages = recommendedMovies.languageFilter.selectableLanguages
-                            FilterMenu(
-                                options = languages,
-                                currentOption = recommendedMovies.languageFilter.currentLanguage
-                                    ?: stringResource(id = R.string.all_languages),
-                                onOptionSelected = { optionSelected -> })
-                        }
+                        RecommendedMovieFilters(
+                            recommendedMovies = recommendedMovies,
+                            onYearValueChanged = onFilterYearChanged,
+                            onLanguageValueChanged = onFilterLanguageChanged
+                        )
                     }
                 }
 
@@ -102,6 +85,43 @@ fun HomeScreen(
     }
 }
 
+@Composable
+private fun RecommendedMovieFilters(
+    recommendedMovies: RecommendedMovies,
+    onYearValueChanged: (Int?) -> Unit,
+    onLanguageValueChanged: (String?) -> Unit
+) {
+    Row(modifier = Modifier.padding(16.dp), horizontalArrangement = Arrangement.SpaceEvenly) {
+        val years = recommendedMovies.yearFilter.selectableYears.map { it.toString() }
+        val allYears = stringResource(id = R.string.all_years)
+        FilterMenu(modifier = Modifier.weight(1f),
+            options = listOf(allYears) + years,
+            label = stringResource(id = R.string.year),
+            currentOption = recommendedMovies.yearFilter.currentYear?.toString() ?: allYears,
+            onOptionSelected = { optionSelected ->
+                onYearValueChanged.invoke(
+                    if(optionSelected == allYears) null
+                    else optionSelected.toInt()
+                )
+            })
+
+        Spacer(modifier = Modifier.width(16.dp))
+
+        val languages = recommendedMovies.languageFilter.selectableLanguages
+        val allLanguages = stringResource(id = R.string.all_languages)
+        FilterMenu(modifier = Modifier.weight(1f),
+            options = listOf(allLanguages) + languages,
+            label = stringResource(id = R.string.language),
+            currentOption = recommendedMovies.languageFilter.currentLanguage ?: allLanguages,
+            onOptionSelected = { optionSelected ->
+                onLanguageValueChanged.invoke(
+                    if (optionSelected == allLanguages) null
+                    else optionSelected
+                )
+            })
+    }
+}
+
 @Preview
 @Composable
 fun HomeScreenPreview() {
@@ -109,7 +129,9 @@ fun HomeScreenPreview() {
         HomeScreen(
             upcomingMovies = upcomingMovies,
             topRatedMovies = topRatedMovies,
-            recommendedMovies = recommendedMovies
+            recommendedMovies = recommendedMovies,
+            onFilterLanguageChanged = {},
+            onFilterYearChanged = {}
         )
     }
 }

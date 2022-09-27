@@ -64,7 +64,13 @@ class HomeFragment : Fragment() {
                     HomeScreen(
                         upcomingMovies = uiState.value.upcomingMovies,
                         topRatedMovies = uiState.value.topRatedMovies,
-                        recommendedMovies = uiState.value.recommendedMovies
+                        recommendedMovies = uiState.value.recommendedMovies,
+                        onFilterYearChanged = {
+                            viewModel.onYearFilterSelected(it)
+                        },
+                        onFilterLanguageChanged = {
+                            viewModel.onLanguageFilterSelected(it)
+                        }
                     )
                 }
             }
