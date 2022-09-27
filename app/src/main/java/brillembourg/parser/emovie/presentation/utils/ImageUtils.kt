@@ -9,6 +9,14 @@ import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 
 enum class ImageType { Backdrop, Poster }
 
+fun getMovieDbImageUrl (url: String, imageType: ImageType): String {
+    val size = when(imageType) {
+        ImageType.Backdrop -> "w300"
+        ImageType.Poster -> "w185"
+    }
+    return IMAGE_PATH + url.replace("original",size)
+}
+
 fun ImageView.setMovieDbImageUrl(url: String, imageType: ImageType) {
     val size = when(imageType) {
         ImageType.Backdrop -> getBackdropSize()

@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package brillembourg.parser.emovie.presentation.home
 
 import android.os.Bundle
@@ -5,6 +7,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -15,19 +28,22 @@ import androidx.recyclerview.widget.RecyclerView
 import brillembourg.parser.emovie.R
 import brillembourg.parser.emovie.core.Logger
 import brillembourg.parser.emovie.databinding.FragmentHomeBinding
+import brillembourg.parser.emovie.presentation.home.ui.*
 import brillembourg.parser.emovie.presentation.models.MoviePresentationModel
 import brillembourg.parser.emovie.presentation.models.UiText
 import brillembourg.parser.emovie.presentation.models.asString
+import brillembourg.parser.emovie.presentation.theme.eMovieTheme
 import brillembourg.parser.emovie.presentation.utils.safeUiLaunch
 import brillembourg.parser.emovie.presentation.utils.showMessage
 import brillembourg.parser.emovie.presentation.utils.*
+import com.google.android.material.composethemeadapter3.Mdc3Theme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class HomeFragment : Fragment() {
 
-    private var _binding: FragmentHomeBinding? = null
-    private val binding get() = _binding!!
+//    private var _binding: FragmentHomeBinding? = null
+//    private val binding get() = _binding!!
 
     private val viewModel: HomeViewModel by viewModels()
 
@@ -35,13 +51,28 @@ class HomeFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        if(_binding == null) {
-            _binding = FragmentHomeBinding.inflate(inflater, container, false)
+//        if(_binding == null) {
+//            _binding = FragmentHomeBinding.inflate(inflater, container, false)
+//        }
+
+//        return binding.root
+        return ComposeView(requireContext()).apply {
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setContent {
+                eMovieTheme {
+                    val uiState = viewModel.homeUiState.collectAsState()
+                    HomeScreen(
+                        upcomingMovies = uiState.value.upcomingMovies,
+                        topRatedMovies = uiState.value.topRatedMovies,
+                        recommendedMovies = uiState.value.recommendedMovies
+                    )
+                }
+            }
         }
-        return binding.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+
+/*    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         renderState()
         setupRefreshListener()
@@ -199,7 +230,7 @@ class HomeFragment : Fragment() {
                 Logger.error(e)
             }
         }
-    }
+    }*/
 
 
 }
