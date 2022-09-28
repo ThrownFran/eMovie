@@ -46,6 +46,12 @@ class DetailFragment : Fragment() {
                         lifecycleOwner = viewLifecycleOwner,
                         onClickBack = {
                             findNavController().navigateUp()
+                        },
+                        onRefresh = {
+                            viewModel.onRefresh()
+                        },
+                        onMessageShown = {
+                            viewModel.onMessageShown()
                         })
                 }
             }
