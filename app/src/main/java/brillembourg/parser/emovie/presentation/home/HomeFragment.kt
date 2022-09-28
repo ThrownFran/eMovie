@@ -65,20 +65,12 @@ class HomeFragment : Fragment() {
                         upcomingMovies = uiState.value.upcomingMovies,
                         topRatedMovies = uiState.value.topRatedMovies,
                         recommendedMovies = uiState.value.recommendedMovies,
-                        onFilterYearChanged = {
-                            viewModel.onYearFilterSelected(it)
-                        },
-                        onFilterLanguageChanged = {
-                            viewModel.onLanguageFilterSelected(it)
-                        },
+                        onFilterYearChanged = viewModel::onYearFilterSelected,
+                        onFilterLanguageChanged = viewModel::onLanguageFilterSelected,
                         messageToShow = uiState.value.messageToShow?.asString(context),
-                        onMessageShown = {
-                            viewModel.onMessageShown()
-                        },
+                        onMessageShown = viewModel::onMessageShown,
                         isLoading = uiState.value.isLoading,
-                        onRefresh = {
-                            viewModel.onRefresh()
-                        }
+                        onRefresh = viewModel::onRefresh
                     )
                 }
             }

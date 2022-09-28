@@ -50,12 +50,12 @@ fun FilterMenu(
     }
     val focusManager = LocalFocusManager.current
 
-    Column(modifier = modifier) {
+    Column(modifier = modifier.widthIn(max = 180.dp)) {
         OutlinedTextField(
             value = currentItem,
             onValueChange = {},
             modifier = Modifier
-                .fillMaxWidth()
+                .defaultMinSize(minWidth = 100.dp)
                 .onSizeChanged {
                     dropDownWidth = it.width
                 }

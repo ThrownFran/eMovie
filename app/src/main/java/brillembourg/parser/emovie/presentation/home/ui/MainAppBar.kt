@@ -1,5 +1,3 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
-
 package brillembourg.parser.emovie.presentation.home.ui
 
 import androidx.compose.foundation.background
