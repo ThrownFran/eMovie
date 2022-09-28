@@ -27,14 +27,18 @@ val movieListFake = (1..10).map {
 }
 
 @Composable
-fun MovieRowItems(movies: List<MoviePresentationModel>, modifier: Modifier = Modifier) {
+fun MovieRowItems(
+    modifier: Modifier = Modifier,
+    movies: List<MoviePresentationModel>,
+    onMovieClick: ((MoviePresentationModel) -> Unit)? = null
+) {
     LazyRow(
         modifier = modifier,
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         contentPadding = PaddingValues(8.dp)
     ) {
         items(movies, key = { item -> item.id }) { movie ->
-            MovieItem(movie = movie)
+            MovieItem(movie = movie, onClick = { onMovieClick?.invoke(movie) })
         }
     }
 }

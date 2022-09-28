@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
@@ -57,6 +58,7 @@ class HomeFragment : Fragment() {
 
 //        return binding.root
         return ComposeView(requireContext()).apply {
+            isTransitionGroup = true
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
                 eMovieTheme {
@@ -70,10 +72,22 @@ class HomeFragment : Fragment() {
                         messageToShow = uiState.value.messageToShow?.asString(context),
                         onMessageShown = viewModel::onMessageShown,
                         isLoading = uiState.value.isLoading,
-                        onRefresh = viewModel::onRefresh
+                        onRefresh = viewModel::onRefresh,
+                        onMovieClick = {
+                            handleNavigation(it)
+                        }
                     )
                 }
             }
+        }
+    }
+
+    private fun handleNavigation(navigateToThisMovie: MoviePresentationModel?) {
+        navigateToThisMovie?.let {
+            setOriginSharedAxisTransition()
+            val directions = HomeFragmentDirections.actionHomeFragmentToDetailFragment(navigateToThisMovie)
+            findNavController().navigate(directions)
+//            viewModel.onNavigateToMovieCompleted()
         }
     }
 
@@ -112,15 +126,7 @@ class HomeFragment : Fragment() {
         }
     }
 
-    private fun handleNavigation(navigateToThisMovie: MoviePresentationModel?) {
-        navigateToThisMovie?.let {
-            clearFocus()
-            setOriginSharedAxisTransition()
-            val directions = HomeFragmentDirections.actionHomeFragmentToDetailFragment(navigateToThisMovie)
-            findNavController().navigate(directions)
-            viewModel.onNavigateToMovieCompleted()
-        }
-    }
+
 
     private fun clearFocus() {
         binding.homeTextinputYear.clearFocus()

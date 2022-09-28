@@ -41,6 +41,7 @@ fun HomeScreen(
     upcomingMovies: List<MoviePresentationModel>,
     topRatedMovies: List<MoviePresentationModel>,
     recommendedMovies: RecommendedMovies,
+    onMovieClick: ((MoviePresentationModel) -> Unit)? = null,
     onFilterYearChanged: (Int?) -> Unit,
     onFilterLanguageChanged: (String?) -> Unit,
     messageToShow: String?,
@@ -52,10 +53,8 @@ fun HomeScreen(
         state = rememberSwipeRefreshState(isLoading),
         onRefresh = { onRefresh() },
     ) {
-        Scaffold(
-            topBar = { MainAppBar() },
-            snackbarHost = { MainSnackBar(messageToShow, onMessageShown) }
-        ) { paddingValues ->
+        Scaffold(topBar = { MainAppBar() },
+            snackbarHost = { MainSnackBar(messageToShow, onMessageShown) }) { paddingValues ->
 
             LazyVerticalGrid(
                 contentPadding = paddingValues,
@@ -67,12 +66,16 @@ fun HomeScreen(
                 item(span = { GridItemSpan(maxLineSpan) }) {
                     Column {
                         HomeSection(title = stringResource(id = R.string.upcoming)) {
-                            MovieRowItems(movies = upcomingMovies)
+                            MovieRowItems(
+                                movies = upcomingMovies, onMovieClick = onMovieClick
+                            )
                             EmptyMoviesText(upcomingMovies)
                         }
 
                         HomeSection(title = stringResource(id = R.string.toprated)) {
-                            MovieRowItems(movies = topRatedMovies)
+                            MovieRowItems(
+                                movies = topRatedMovies, onMovieClick = onMovieClick
+                            )
                             EmptyMoviesText(upcomingMovies)
                         }
                     }
@@ -98,7 +101,7 @@ fun HomeScreen(
                             .wrapContentWidth()
                             .animateItemPlacement(tween(300))
                     ) {
-                        MovieItem(movie = movie)
+                        MovieItem(movie = movie, onClick = { onMovieClick?.invoke(movie) })
                     }
                 }
             }
@@ -124,7 +127,11 @@ private fun RecommendedMovieFilters(
     onYearValueChanged: (Int?) -> Unit,
     onLanguageValueChanged: (String?) -> Unit
 ) {
-    Row(modifier = Modifier.padding(8.dp).wrapContentSize()) {
+    Row(
+        modifier = Modifier
+            .padding(8.dp)
+            .wrapContentSize()
+    ) {
 
         val allYears = stringResource(id = R.string.all_years)
         val years = recommendedMovies.yearFilter.selectableYears.map { it.toString() }
@@ -142,8 +149,7 @@ private fun RecommendedMovieFilters(
                     else optionSelected.toInt()
                 )
             },
-            modifier = Modifier
-                .wrapContentWidth(Alignment.Start)
+            modifier = Modifier.wrapContentWidth(Alignment.Start)
         )
 
         Spacer(modifier = Modifier.width(16.dp))

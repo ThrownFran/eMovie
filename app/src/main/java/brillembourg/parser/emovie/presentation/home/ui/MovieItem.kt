@@ -1,5 +1,6 @@
 package brillembourg.parser.emovie.presentation.home.ui
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
@@ -35,9 +36,10 @@ val movieFake = MoviePresentationModel(
 )
 
 @Composable
-fun MovieItem(movie: MoviePresentationModel, modifier: Modifier = Modifier) {
-    Box(
-    ) {
+fun MovieItem(modifier: Modifier = Modifier,
+              movie: MoviePresentationModel,
+              onClick: (() -> Unit)? = null) {
+    Box(modifier.clickable { onClick?.invoke() }) {
         AsyncImage(
             model = ImageRequest.Builder(LocalContext.current)
                 .data(movie.getPosterCompleteUrl())
