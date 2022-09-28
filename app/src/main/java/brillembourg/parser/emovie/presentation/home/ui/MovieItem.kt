@@ -37,7 +37,6 @@ val movieFake = MoviePresentationModel(
 @Composable
 fun MovieItem(movie: MoviePresentationModel, modifier: Modifier = Modifier) {
     Box(
-        modifier = modifier
     ) {
         AsyncImage(
             model = ImageRequest.Builder(LocalContext.current)
@@ -47,7 +46,7 @@ fun MovieItem(movie: MoviePresentationModel, modifier: Modifier = Modifier) {
             contentDescription = null,
             placeholder = painterResource(id = R.drawable.movie_placeholder),
             contentScale = ContentScale.Crop,
-            modifier = Modifier
+            modifier = modifier
                 .width(136.dp)
                 .height(192.dp)
                 .align(Alignment.Center)

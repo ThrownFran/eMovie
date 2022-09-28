@@ -25,6 +25,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import brillembourg.parser.emovie.presentation.theme.White
 import brillembourg.parser.emovie.presentation.theme.eMovieTheme
 import kotlin.math.exp
@@ -52,8 +53,7 @@ fun FilterMenu(
     Column(modifier = modifier) {
         OutlinedTextField(
             value = currentItem,
-            onValueChange = {
-            },
+            onValueChange = {},
             modifier = Modifier
                 .fillMaxWidth()
                 .onSizeChanged {
@@ -69,7 +69,8 @@ fun FilterMenu(
                     contentDescription = "contentDescription",
                     modifier = Modifier.clickable { expanded = !expanded })
             },
-            readOnly = true
+            readOnly = true,
+            textStyle = LocalTextStyle.current.copy(fontSize = 14.sp)
         )
         DropdownMenu(
             expanded = expanded,

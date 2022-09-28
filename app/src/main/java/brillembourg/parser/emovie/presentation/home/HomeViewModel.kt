@@ -112,7 +112,7 @@ class HomeViewModel @Inject constructor(
                 }
 
                 (it.getReleaseYear() == currentYear) && it.originalLanguage == currentLanguage
-            }.take(recommendedMovieCount)
+            }
 
         _homeUiState.update { uiState ->
             uiState.copy(
