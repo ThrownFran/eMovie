@@ -8,11 +8,17 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 
 @Composable
-fun MainSnackBar(messageToShow: String?, onMessageShown: () -> Unit) {
+fun MainSnackBar(
+    messageToShow: String?,
+    onMessageShown: () -> Unit,
+) {
     val snackbarHostState = remember { SnackbarHostState() }
     SnackbarHost(snackbarHostState)
     messageToShow?.let {
-        LaunchedEffect(snackbarHostState) {
+        LaunchedEffect(
+            key1 = messageToShow,
+            key2 = snackbarHostState
+        ) {
             val result = snackbarHostState.showSnackbar(it)
             if (result == SnackbarResult.Dismissed) {
                 onMessageShown()
