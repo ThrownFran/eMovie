@@ -11,6 +11,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -33,7 +35,7 @@ fun MovieCollapsableScaffold(
     modifier: Modifier = Modifier,
     movie: MoviePresentationModel,
     onClickBack: (() -> Unit)? = null,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     val state = rememberCollapsingToolbarScaffoldState()
     CollapsingToolbarScaffold(
@@ -56,7 +58,11 @@ fun CollapsingToolbarScope.MovieCollapsableToolbar(
     movie: MoviePresentationModel,
     onClickBack: (() -> Unit)? = null,
 ) {
-    val textSize = (18 + (30 - 12) * state.toolbarState.progress / 2).sp
+    val textSize = remember {
+        derivedStateOf {
+            (18 + (30 - 12) * state.toolbarState.progress / 2).sp
+        }
+    }
     val initialPadding = (16 + 60f * (1f - state.toolbarState.progress)).dp
 
     Box(
@@ -79,13 +85,16 @@ fun CollapsingToolbarScope.MovieCollapsableToolbar(
             .fillMaxSize()
             .parallax()
             .height(500.dp),
-        alpha = (state.toolbarState.progress)+0.25f,
-        onError = {error -> Log.e("MovieCollapsable error",error.result.throwable.message.toString())}
+        alpha = (state.toolbarState.progress) + 0.25f,
+        onError = { error ->
+            Log.e("MovieCollapsable error",
+                error.result.throwable.message.toString())
+        }
     )
 
     Text(
         text = movie.name,
-        style = TextStyle(color = Color.White, fontSize = textSize),
+        style = TextStyle(color = Color.White, fontSize = textSize.value),
         modifier = Modifier
             .width(IntrinsicSize.Max)
             .background(
@@ -102,7 +111,7 @@ fun CollapsingToolbarScope.MovieCollapsableToolbar(
                 whenCollapsed = Alignment.TopStart,
                 whenExpanded = Alignment.BottomCenter
             ),
-        textAlign = if (state.toolbarState.progress > 0.01f) TextAlign.Center  else TextAlign.Start,
+        textAlign = if (state.toolbarState.progress > 0.01f) TextAlign.Center else TextAlign.Start,
     )
 
     IconButton(
