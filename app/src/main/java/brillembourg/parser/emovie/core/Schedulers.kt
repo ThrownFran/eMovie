@@ -20,7 +20,7 @@ class SchedulersImp : Schedulers {
     }
 
     override fun defaultDispatcher(): CoroutineDispatcher {
-        return Dispatchers.Main
+        return Dispatchers.Default
     }
 
 }

@@ -66,6 +66,7 @@ class HomeViewModel @Inject constructor(
             .onEach { movies ->
                 _homeUiState.update { it.copy(upcomingMovies = movies) }
             }
+            .catch { t -> onError(t) }
             .launchIn(viewModelScope)
     }
 
@@ -76,6 +77,7 @@ class HomeViewModel @Inject constructor(
                 _homeUiState.update { it.copy(topRatedMovies = movies) }
                 filterRecommendedMovies()
             }
+            .catch { t -> onError(t) }
             .launchIn(viewModelScope)
     }
 
