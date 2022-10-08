@@ -2,7 +2,6 @@ package brillembourg.parser.emovie.presentation.home.ui
 
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -13,16 +12,16 @@ fun MainSnackBar(
     onMessageShown: () -> Unit,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
-    SnackbarHost(snackbarHostState)
-    messageToShow?.let {
-        LaunchedEffect(
-            key1 = messageToShow,
-            key2 = snackbarHostState
-        ) {
-            val result = snackbarHostState.showSnackbar(it)
-            if (result == SnackbarResult.Dismissed) {
-                onMessageShown()
-            }
+
+    LaunchedEffect(
+        key1 = messageToShow,
+        key2 = snackbarHostState
+    ) {
+        messageToShow?.let {
+            snackbarHostState.showSnackbar(it)
+            onMessageShown()
         }
     }
+
+    SnackbarHost(snackbarHostState)
 }

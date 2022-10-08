@@ -53,7 +53,8 @@ fun HomeScreen(
         state = rememberSwipeRefreshState(isLoading),
         onRefresh = { onRefresh() },
     ) {
-        Scaffold(topBar = { MainAppBar() },
+        Scaffold(
+            topBar = { MainAppBar() },
             snackbarHost = { MainSnackBar(messageToShow, onMessageShown) }) { paddingValues ->
 
             LazyVerticalGrid(
