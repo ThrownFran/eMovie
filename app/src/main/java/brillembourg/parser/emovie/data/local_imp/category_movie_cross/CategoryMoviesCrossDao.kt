@@ -16,4 +16,8 @@ interface CategoryMoviesCrossDao {
     @Query("SELECT * FROM categorytable")
     fun getCategoriesWithMovies(): Flow<List<CategoryWithMovies>>
 
+    @Transaction
+    @Query("SELECT * FROM categorytable WHERE category_key = :categoryKey")
+    fun getCategoryWithMovies(categoryKey: String): Flow<CategoryWithMovies>
+
 }

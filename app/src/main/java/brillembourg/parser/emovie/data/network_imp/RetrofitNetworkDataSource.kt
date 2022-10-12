@@ -12,13 +12,21 @@ class RetrofitNetworkDataSource @Inject constructor(
     private val movieApi: MovieApi
 ) : NetworkDataSource {
 
-    override suspend fun getMovies(category: Category, page: Int): List<MovieData> {
+    override suspend fun getMovies(category: Category, page: Int): NetworkDataSource.MoviePageResponse {
         val response = when (category) {
             is Category.TopRated -> movieApi.getTopRated(API_KEY, page)
             is Category.Upcoming -> movieApi.getUpcoming(API_KEY, page)
         }
-        return response.results?.map { it.toData() }
-            ?: emptyList<MovieData>().also { Logger.error(IllegalStateException("Api results are null")) }
+
+        return NetworkDataSource.MoviePageResponse(
+            movies = response.results?.map { it.toData() }
+                ?: emptyList<MovieData>().also { Logger.error(IllegalStateException("Api results are null")) },
+            currentPage = response.currentPage,
+            lastPage = response.lastPage
+        )
+
+//        return response.results?.map { it.toData() }
+//            ?: emptyList<MovieData>().also { Logger.error(IllegalStateException("Api results are null")) }
     }
 
     override suspend fun getTrailers(movieId: Long): List<Trailer> {

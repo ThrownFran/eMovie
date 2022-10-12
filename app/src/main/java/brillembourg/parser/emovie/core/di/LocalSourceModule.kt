@@ -6,6 +6,7 @@ import brillembourg.parser.emovie.data.local_imp.*
 import brillembourg.parser.emovie.data.local_imp.categories.CategoryDao
 import brillembourg.parser.emovie.data.local_imp.category_movie_cross.CategoryMoviesCrossDao
 import brillembourg.parser.emovie.data.local_imp.movies.MovieDao
+import brillembourg.parser.emovie.data.local_imp.remote_keys.RemoteKeyDao
 import brillembourg.parser.emovie.data.local_imp.trailers.TrailerDao
 import dagger.Module
 import dagger.Provides
@@ -31,6 +32,12 @@ class LocalSourceModule {
         return appDatabase.categoryDao()
     }
 
+    @Singleton
+    @Provides
+    fun provideRemoteKeyDao(appDatabase: AppDatabase): RemoteKeyDao {
+        return appDatabase.remoteKeyDao()
+    }
+
 
     @Singleton
     @Provides
@@ -50,9 +57,10 @@ class LocalSourceModule {
         appDatabase: AppDatabase,
         movieDao: MovieDao,
         trailerDao: TrailerDao,
-        crossDao: CategoryMoviesCrossDao
+        crossDao: CategoryMoviesCrossDao,
+        remoteKeyDao: RemoteKeyDao
     ): LocalDataSource =
-        RoomLocalDataSource(appDatabase, movieDao, trailerDao, crossDao)
+        RoomLocalDataSource(appDatabase, movieDao, trailerDao, crossDao,remoteKeyDao)
 
     @Singleton
     @Provides

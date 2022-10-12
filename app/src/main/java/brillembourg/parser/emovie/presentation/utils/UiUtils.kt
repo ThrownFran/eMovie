@@ -13,9 +13,7 @@ import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.conflate
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 fun Fragment.safeUiLaunch(block: suspend CoroutineScope.() -> Unit) {
@@ -26,7 +24,11 @@ fun Fragment.safeUiLaunch(block: suspend CoroutineScope.() -> Unit) {
     }
 }
 
-fun showMessage(coordinator: CoordinatorLayout ,message: String, onMessageShown: (() -> Unit)? = null) {
+fun showMessage(
+    coordinator: CoordinatorLayout,
+    message: String,
+    onMessageShown: (() -> Unit)? = null,
+) {
     Snackbar.make(coordinator, message, Snackbar.LENGTH_LONG).apply {
 
         addCallback(object : BaseTransientBottomBar.BaseCallback<Snackbar>() {
@@ -56,5 +58,7 @@ val RecyclerView.lastVisibleEvents: Flow<Int>
         addOnScrollListener(listener)
         awaitClose { removeOnScrollListener(listener) }
     }.conflate()
+        .distinctUntilChanged()
+        .debounce(100)
 
 

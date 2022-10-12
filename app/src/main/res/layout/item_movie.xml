@@ -9,15 +9,25 @@
             type="brillembourg.parser.emovie.presentation.models.MoviePresentationModel" />
     </data>
 
-    <com.google.android.material.imageview.ShapeableImageView
-        android:id="@+id/movie_image"
-        style="@style/PosterImageStyle"
-        android:layout_margin="10dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.eMovie.CornerSize10Percent"
-        tools:srcCompat="@drawable/movie_placeholder" />
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/movie_image"
+            style="@style/PosterImageStyle"
+            android:layout_margin="10dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.eMovie.CornerSize10Percent"
+            tools:srcCompat="@drawable/movie_placeholder" />
+
+        <TextView
+            android:id="@+id/movie_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
 
 </layout>
 

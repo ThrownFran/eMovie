@@ -219,7 +219,7 @@ class MovieRepositoryImpTest {
 
             //Assert
             coVerify {
-                localDataSource.saveMovies(category, match { params -> params == networkMovies })
+                localDataSource.saveMovies(category, match { params -> params == networkMovies }, )
             }
         }
 
@@ -233,7 +233,7 @@ class MovieRepositoryImpTest {
             //Act
             SUT.refreshMovies(category)
             //Assert
-            coVerify(exactly = 0) { localDataSource.saveMovies(any(), any()) }
+            coVerify(exactly = 0) { localDataSource.saveMovies(any(), any(), ) }
         }
 
     @Test
@@ -267,7 +267,8 @@ class MovieRepositoryImpTest {
             SUT.requestNextMoviePage(category, PAGE_SIZE - 1)
             //Assert
             coVerify { networkDataSource.getMovies(category, 2) }
-            coVerify { localDataSource.saveMovies(any(),match { movies -> movies == movieFakesSecondPage }) }
+            coVerify { localDataSource.saveMovies(any(),
+                match { movies -> movies == movieFakesSecondPage }, ) }
         }
 
     @Test
@@ -282,7 +283,7 @@ class MovieRepositoryImpTest {
             SUT.requestNextMoviePage(category, PAGE_SIZE - 10)
             //Assert
             coVerify(exactly = 0) { networkDataSource.getMovies(category, any()) }
-            coVerify(exactly = 0) { localDataSource.saveMovies(any(),any()) }
+            coVerify(exactly = 0) { localDataSource.saveMovies(any(), any(), ) }
         }
 
 
@@ -309,7 +310,7 @@ class MovieRepositoryImpTest {
     ) {
         mockTrailerSuccess(trailers)
         coEvery { localDataSource.getMovies(any()) }.coAnswers { flow { emit(movieFakes) } }
-        coEvery { localDataSource.saveMovies(any(), any()) }.returns(Unit)
+        coEvery { localDataSource.saveMovies(any(), any(), ) }.returns(Unit)
         coEvery { localDataSource.getMovie(any()) }.coAnswers { flow { emit(movieFakes[0]) } }
         coEvery { localDataSource.saveTrailers(any()) }.returns(Unit)
     }

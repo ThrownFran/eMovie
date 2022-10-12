@@ -6,7 +6,6 @@ import androidx.lifecycle.viewModelScope
 import brillembourg.parser.emovie.domain.models.Category
 import brillembourg.parser.emovie.domain.use_cases.GetMoviesUseCase
 import brillembourg.parser.emovie.domain.use_cases.RefreshMoviesUseCase
-import brillembourg.parser.emovie.core.Schedulers
 import brillembourg.parser.emovie.domain.use_cases.RequestNextMoviePageUseCase
 import brillembourg.parser.emovie.presentation.models.MoviePresentationModel
 import brillembourg.parser.emovie.presentation.models.toPresentation
@@ -36,7 +35,9 @@ class HomeViewModel @Inject constructor(
         onError(throwable)
     }
 
-    init { refreshMovieData() }
+    init {
+        refreshMovieData()
+    }
 
     private fun refreshMovieData() {
         viewModelScope.launch(coroutineExceptionHandler) {
@@ -176,11 +177,17 @@ class HomeViewModel @Inject constructor(
     }
 
     fun onEndOfTopRatedMoviesReached(lastVisibleItem: Int) {
+        requestNextPage(Category.TopRated(),lastVisibleItem)
+    }
+
+    private fun requestNextPage(category: Category, lastVisibleItem: Int) {
         viewModelScope.launch(coroutineExceptionHandler) {
-//            showLoading()
-            requestNextMoviePageUseCase.invoke(Category.TopRated(), lastVisibleItem)
-//            hideLoading()
+            requestNextMoviePageUseCase.invoke(category, lastVisibleItem)
         }
+    }
+
+    fun onEndOfUpcomingMoviesReached(lastVisibleItem: Int) {
+        requestNextPage(Category.Upcoming(),lastVisibleItem)
     }
 
 

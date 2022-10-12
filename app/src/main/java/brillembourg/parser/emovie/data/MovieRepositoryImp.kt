@@ -7,8 +7,8 @@ import brillembourg.parser.emovie.domain.MovieRepository
 import brillembourg.parser.emovie.core.Schedulers
 import brillembourg.parser.emovie.domain.models.MovieDetail
 import kotlinx.coroutines.flow.*
+import timber.log.Timber
 import javax.inject.Inject
-import kotlin.math.sign
 
 internal const val PAGE_SIZE = 20
 internal const val PAGE_THRESHOLD = 10
@@ -24,11 +24,12 @@ class MovieRepositoryImp @Inject constructor(
         try {
             val size = localDataSource.getMovies(category).first().size
             val isLastItemReached = lastVisibleItem >= size - 1
-
+            Timber.e("Size: $size.toString()")
+            Timber.e("lasVisibleItem: $isLastItemReached.toString()")
             if(isLastItemReached) {
                 val page = size / PAGE_SIZE + 1
-                val newMovies = networkDataSource.getMovies(category,page)
-                localDataSource.saveMovies(category,newMovies)
+                val moviePagedResponse = networkDataSource.getMovies(category,page)
+                localDataSource.saveMovies(category, moviePagedResponse, size)
             }
 
         } catch (e: Exception) {
@@ -53,13 +54,12 @@ class MovieRepositoryImp @Inject constructor(
             .flowOn(schedulers.ioDispatcher())
     }
 
-    override suspend fun refreshMovies(category: Category) {
+    override suspend fun refreshMovies(category: Category, invalidateCache: Boolean) {
         try {
             val moviesFromLocal = localDataSource.getMovies(category).first()
             val moviesFromNetwork = networkDataSource.getMovies(category)
-            if (moviesFromLocal != moviesFromNetwork) {
-                localDataSource.saveMovies(category, moviesFromNetwork)
-            }
+            if(invalidateCache) localDataSource.deleteMovies(category)
+            localDataSource.saveMovies(category, moviesFromNetwork, moviesFromLocal.size)
         } catch (e: Exception) {
             throw (e.toDomain())
         }

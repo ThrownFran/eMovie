@@ -5,6 +5,10 @@ import com.google.gson.annotations.SerializedName
 class GetMoviesResponse {
     @SerializedName("results")
     var results : List<MovieResponse>? = null
+    @SerializedName("page")
+    val currentPage = 0
+    @SerializedName("total_pages")
+    val lastPage = 0
 }
 
 class MovieResponse(

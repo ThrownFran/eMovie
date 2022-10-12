@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalCoroutinesApi::class)
+
 package brillembourg.parser.emovie.presentation.home
 
 import android.os.Bundle
@@ -23,7 +25,11 @@ import brillembourg.parser.emovie.presentation.utils.safeUiLaunch
 import brillembourg.parser.emovie.presentation.utils.showMessage
 import brillembourg.parser.emovie.presentation.utils.*
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 
 @AndroidEntryPoint
 class HomeFragment : Fragment() {
@@ -103,7 +109,8 @@ class HomeFragment : Fragment() {
             }
 
             safeUiLaunch {
-                binding.homeRecyclerTopRated.lastVisibleEvents.collect { lastVisibleItem ->
+                binding.homeRecyclerTopRated.lastVisibleEvents
+                    .collectLatest { lastVisibleItem ->
                     viewModel.onEndOfTopRatedMoviesReached(lastVisibleItem)
                 }
             }
@@ -121,6 +128,13 @@ class HomeFragment : Fragment() {
                 layoutManager = LinearLayoutManager(context, RecyclerView.HORIZONTAL, false)
                 isNestedScrollingEnabled = false
             }
+        }
+
+        safeUiLaunch {
+            binding.homeRecyclerUpcoming.lastVisibleEvents
+                .collectLatest { lastVisibleItem ->
+                    viewModel.onEndOfUpcomingMoviesReached(lastVisibleItem)
+                }
         }
 
         (binding.homeRecyclerUpcoming.adapter as? MovieAdapter?)?.submitList(upcomingMovies)

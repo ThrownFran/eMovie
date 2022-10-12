@@ -7,7 +7,7 @@ import org.threeten.bp.LocalDate
 
 data class MovieData(
     val id: Long,
-    val name: String,
+    var name: String, //TODO
     val posterImageUrl: String? = null,
     val originalLanguage: String,
     val releaseDate: LocalDate,

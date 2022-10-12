@@ -41,6 +41,7 @@ class MovieAdapter(val onClicked: (MoviePresentationModel) -> Unit) :
             movie.posterImageUrl?.let {
                 binding.movieImage.setMovieDbImageUrl(it, ImageType.Poster)
             }
+            binding.movieText.text = movie.name
         }
 
     }
