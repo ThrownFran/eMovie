@@ -92,7 +92,7 @@ class MovieRepositoryImpTest {
     fun `given get Movies, when any category, then parameter is passed correctly to local data source`() =
         runTest {
             //Arrange
-            val category = Category.TopRated()
+            val category = Category.TopRated
             mockSuccessDatasource()
             //Act
             SUT.getMovies(category)
@@ -103,7 +103,7 @@ class MovieRepositoryImpTest {
     @Test
     fun `given get Movies, when success, then result is mapped to domain`() = runTest {
         //Arrange
-        val category = Category.TopRated()
+        val category = Category.TopRated
         mockSuccessDatasource()
         //Act
         val result = SUT.getMovies(category).first()
@@ -114,7 +114,7 @@ class MovieRepositoryImpTest {
     @Test
     fun `given get Movies, when error, then propagate error as domain`() = runTest {
         //Arrange
-        val category = Category.TopRated()
+        val category = Category.TopRated
         mockLocalDataSourceError()
         var errorToCapture: Exception? = null
         //Act
@@ -194,7 +194,7 @@ class MovieRepositoryImpTest {
     fun `given refresh movies data, then fetch network and local data source with correct params`() =
         runTest {
             //Arrange
-            val category = Category.TopRated()
+            val category = Category.TopRated
             mockSuccessDatasource()
             //Act
             SUT.refreshMovies(category)
@@ -204,10 +204,10 @@ class MovieRepositoryImpTest {
         }
 
     @Test
-    fun `given refresh movies data, when network movies are different from local movies, then save network movies in local data source`() =
+    fun `given refresh movies data, when network source is success, then save network movies in local data source`() =
         runTest {
             //Arrange
-            val category = Category.TopRated()
+            val category = Category.TopRated
             val networkMovies =
                 movieDataFakes + movieDomainFakes[0].copy(name = "Movie 20", id = 20L).toData()
             val localMovies = movieDataFakes
@@ -219,28 +219,43 @@ class MovieRepositoryImpTest {
 
             //Assert
             coVerify {
-                localDataSource.saveMovies(category, match { params -> params == networkMovies }, )
+                localDataSource.saveMovies(category,
+                    match { params -> params.movies == networkMovies },
+                    localMovies.size)
             }
         }
 
     @Test
-    fun `given refresh movies data, when network data is same as local data, then avoid saving to local source`() =
+    fun `given refresh movies data, when invalidateCache flag is true, then delete movies from local source`() =
         runTest {
             //Arrange
-            val category = Category.TopRated()
+            val category = Category.TopRated
             mockLocalDataSourceSuccess(movieDataFakes)
             mockNetworkDataSourceSuccess(movieDataFakes)
             //Act
-            SUT.refreshMovies(category)
+            SUT.refreshMovies(category = category, invalidateCache = true)
             //Assert
-            coVerify(exactly = 0) { localDataSource.saveMovies(any(), any(), ) }
+            coVerify(exactly = 1) { localDataSource.deleteMovies(category) }
+        }
+
+    @Test
+    fun `given refresh movies data, when invalidateCache flag is false, then dont delete movies from local source`() =
+        runTest {
+            //Arrange
+            val category = Category.TopRated
+            mockLocalDataSourceSuccess(movieDataFakes)
+            mockNetworkDataSourceSuccess(movieDataFakes)
+            //Act
+            SUT.refreshMovies(category = category, invalidateCache = false)
+            //Assert
+            coVerify(exactly = 0) { localDataSource.deleteMovies(category) }
         }
 
     @Test
     fun `given refresh movies data, when network source has error, rethrow error as domain`() =
         runTest {
             //Arrange
-            val category = Category.TopRated()
+            val category = Category.TopRated
             mockNetworkDataSourceError()
             mockLocalDataSourceSuccess(movieDataFakes)
             var exceptionToCatch: Exception? = null
@@ -259,7 +274,7 @@ class MovieRepositoryImpTest {
     fun `given request next movie page, when page is not last, save results to local data source`() =
         runTest {
             //Arrange
-            val category = Category.TopRated()
+            val category = Category.TopRated
             val movieFakesSecondPage = movieDataFakes20.map { it.copy(id = it.id + 100) }
             mockNetworkDataSourceSuccess(movieFakesSecondPage)
             mockLocalDataSourceSuccess(movieDataFakes20)
@@ -267,15 +282,18 @@ class MovieRepositoryImpTest {
             SUT.requestNextMoviePage(category, PAGE_SIZE - 1)
             //Assert
             coVerify { networkDataSource.getMovies(category, 2) }
-            coVerify { localDataSource.saveMovies(any(),
-                match { movies -> movies == movieFakesSecondPage }, ) }
+            coVerify {
+                localDataSource.saveMovies(any(),
+                    match { moviePageResponse -> moviePageResponse.movies == movieFakesSecondPage },
+                    movieDataFakes20.size)
+            }
         }
 
     @Test
     fun `given request next movie page, when item visible is not last, do nothing`() =
         runTest {
             //Arrange
-            val category = Category.TopRated()
+            val category = Category.TopRated
             val movieFakesSecondPage = movieDataFakes20.map { it.copy(id = it.id + 100) }
             mockNetworkDataSourceSuccess(movieFakesSecondPage)
             mockLocalDataSourceSuccess(movieDataFakes20)
@@ -283,7 +301,7 @@ class MovieRepositoryImpTest {
             SUT.requestNextMoviePage(category, PAGE_SIZE - 10)
             //Assert
             coVerify(exactly = 0) { networkDataSource.getMovies(category, any()) }
-            coVerify(exactly = 0) { localDataSource.saveMovies(any(), any(), ) }
+            coVerify(exactly = 0) { localDataSource.saveMovies(any(), any(), any()) }
         }
 
 
@@ -294,10 +312,16 @@ class MovieRepositoryImpTest {
 
     private fun mockNetworkDataSourceSuccess(
         movieFakes: List<MovieData> = movieDataFakes,
-        trailers: List<Trailer> = trailerFakes
+        trailers: List<Trailer> = trailerFakes,
     ) {
         coEvery { networkDataSource.getTrailers(any()) }.returns(trailers)
-        coEvery { networkDataSource.getMovies(any(),any()) }.returns(movieFakes)
+        coEvery { networkDataSource.getMovies(any(), any()) }.returns(
+            NetworkDataSource.MoviePageResponse(
+                movies = movieFakes,
+                currentPage = 1,
+                lastPage = 50
+            )
+        )
     }
 
     private fun mockNetworkDataSourceError() {
@@ -306,13 +330,14 @@ class MovieRepositoryImpTest {
 
     private fun mockLocalDataSourceSuccess(
         movieFakes: List<MovieData> = movieDataFakes,
-        trailers: List<Trailer> = trailerFakes
+        trailers: List<Trailer> = trailerFakes,
     ) {
         mockTrailerSuccess(trailers)
         coEvery { localDataSource.getMovies(any()) }.coAnswers { flow { emit(movieFakes) } }
-        coEvery { localDataSource.saveMovies(any(), any(), ) }.returns(Unit)
+        coEvery { localDataSource.saveMovies(any(), any(), any()) }.returns(Unit)
         coEvery { localDataSource.getMovie(any()) }.coAnswers { flow { emit(movieFakes[0]) } }
         coEvery { localDataSource.saveTrailers(any()) }.returns(Unit)
+        coEvery { localDataSource.deleteMovies(any()) }.returns(Unit)
     }
 
     private fun mockLocalDataSourceError() {

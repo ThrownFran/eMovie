@@ -194,6 +194,19 @@ class HomeViewModelTest {
     }
 
     @Test
+    fun `given upcoming movies bottom reached, then request new page`() = runTest {
+        //Arrange
+        mockGetMoviesSuccess()
+        buildSUT()
+        //Act
+        advanceUntilIdle()
+        SUT.onEndOfUpcomingMoviesReached(PAGE_SIZE -1)
+        advanceUntilIdle()
+        //Assert
+        coVerify { requestNextMoviePageUseCase.invoke(ofType(Category.Upcoming::class), PAGE_SIZE - 1) }
+    }
+
+    @Test
     fun `given upcoming movies flow received, then update home state`() = runTest {
         //Arrange
         mockGetMoviesSuccess()

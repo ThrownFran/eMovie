@@ -42,7 +42,7 @@ class GetMoviesUseCaseTest {
     fun `given invoke, when category is upcoming, then correct parameters are passed`() = runTest {
         //Arrange
         mockGetMoviesFromRepository()
-        val upcomingCategory = Category.Upcoming()
+        val upcomingCategory = Category.Upcoming
         //Act
         SUT.invoke(upcomingCategory)
         //Assert
@@ -53,7 +53,7 @@ class GetMoviesUseCaseTest {
     fun `given invoke, when category is top rated, then correct parameters are passed`() = runTest {
         //Arrange
         mockGetMoviesFromRepository()
-        val topRatedCategory = Category.TopRated()
+        val topRatedCategory = Category.TopRated
         //Act
         SUT.invoke(topRatedCategory)
         //Assert

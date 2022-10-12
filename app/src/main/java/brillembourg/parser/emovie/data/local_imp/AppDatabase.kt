@@ -66,8 +66,8 @@ abstract class AppDatabase : RoomDatabase() {
         private fun prepopulateCategories() {
             Executors.newSingleThreadExecutor().execute {
                 instance?.let {
-                    it.categoryDao().save(CategoryTable(Category.Upcoming().key))
-                    it.categoryDao().save(CategoryTable(Category.TopRated().key))
+                    it.categoryDao().save(CategoryTable(Category.Upcoming.key))
+                    it.categoryDao().save(CategoryTable(Category.TopRated.key))
                 }
             }
         }

@@ -13,6 +13,7 @@ import brillembourg.parser.emovie.presentation.utils.getMessageFromException
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
+import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 
 @HiltViewModel
@@ -24,6 +25,12 @@ class HomeViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val recommendedMovieCount = 6
+
+    var isRequestingNextPage : MutableMap<Category,Boolean> = ConcurrentHashMap<Category, Boolean>()
+        .apply {
+            set(Category.Upcoming,false)
+            set(Category.TopRated,false)
+        }
 
     private val _homeUiState = MutableStateFlow(HomeUiState()).also {
         observeTopRatedMovies()
@@ -44,8 +51,8 @@ class HomeViewModel @Inject constructor(
             showLoading()
 
             listOf(
-                launch { refreshMoviesUseCase.invoke(Category.Upcoming()) },
-                launch { refreshMoviesUseCase.invoke(Category.TopRated()) }
+                launch { refreshMoviesUseCase.invoke(Category.Upcoming) },
+                launch { refreshMoviesUseCase.invoke(Category.TopRated) }
             ).joinAll()
 
             hideLoading()
@@ -62,7 +69,7 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun observeUpcomingMovies() {
-        getMoviesUseCase.invoke(Category.Upcoming())
+        getMoviesUseCase.invoke(Category.Upcoming)
             .map { list -> list.map { movie -> movie.toPresentation() } }
             .onEach { movies ->
                 _homeUiState.update { it.copy(upcomingMovies = movies) }
@@ -71,7 +78,7 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun observeTopRatedMovies() {
-        getMoviesUseCase.invoke(Category.TopRated())
+        getMoviesUseCase.invoke(Category.TopRated)
             .map { list -> list.map { movie -> movie.toPresentation() } }
             .onEach { movies ->
                 _homeUiState.update { it.copy(topRatedMovies = movies) }
@@ -177,18 +184,22 @@ class HomeViewModel @Inject constructor(
     }
 
     fun onEndOfTopRatedMoviesReached(lastVisibleItem: Int) {
-        requestNextPage(Category.TopRated(),lastVisibleItem)
-    }
-
-    private fun requestNextPage(category: Category, lastVisibleItem: Int) {
-        viewModelScope.launch(coroutineExceptionHandler) {
-            requestNextMoviePageUseCase.invoke(category, lastVisibleItem)
-        }
+        requestNextPage(Category.TopRated,lastVisibleItem)
     }
 
     fun onEndOfUpcomingMoviesReached(lastVisibleItem: Int) {
-        requestNextPage(Category.Upcoming(),lastVisibleItem)
+        requestNextPage(Category.Upcoming,lastVisibleItem)
     }
+
+    private fun requestNextPage(category: Category, lastVisibleItem: Int) {
+        if(isRequestingNextPage[category] == true) return
+        viewModelScope.launch(coroutineExceptionHandler) {
+            isRequestingNextPage[category] = true
+            requestNextMoviePageUseCase.invoke(category, lastVisibleItem)
+            isRequestingNextPage[category] = false
+        }
+    }
+
 
 
 }

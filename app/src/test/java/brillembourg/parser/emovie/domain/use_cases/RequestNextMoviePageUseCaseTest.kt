@@ -41,7 +41,7 @@ class RequestNextMoviePageUseCaseTest {
     @Test
     fun `given invoke, then request next page with correct params`() = runTest {
         //Arrange
-        val category = Category.TopRated()
+        val category = Category.TopRated
         val page = 3
         //Act
         SUT.invoke(category, page)

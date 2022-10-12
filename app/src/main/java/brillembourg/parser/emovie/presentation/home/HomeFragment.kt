@@ -30,6 +30,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
+import timber.log.Timber
 
 @AndroidEntryPoint
 class HomeFragment : Fragment() {
@@ -107,6 +108,7 @@ class HomeFragment : Fragment() {
                 layoutManager = LinearLayoutManager(context, RecyclerView.HORIZONTAL, false)
                 isNestedScrollingEnabled = false
             }
+
 
             safeUiLaunch {
                 binding.homeRecyclerTopRated.lastVisibleEvents

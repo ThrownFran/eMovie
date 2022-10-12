@@ -3,8 +3,8 @@ package brillembourg.parser.emovie.domain.models
 sealed class Category(
     val key: String
 ) {
-    class Upcoming : Category("upcoming")
-    class TopRated : Category("top_rated")
+    object Upcoming : Category("upcoming")
+    object TopRated : Category("top_rated")
 }
 
 

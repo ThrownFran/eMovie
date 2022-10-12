@@ -39,7 +39,7 @@ class RefreshMoviesUseCaseTest {
     @Test
     fun `given invoke, then refresh with correct params`() = runTest {
         //Arrange
-        val category = Category.TopRated()
+        val category = Category.TopRated
         //Act
         SUT.invoke(category)
         //Assert

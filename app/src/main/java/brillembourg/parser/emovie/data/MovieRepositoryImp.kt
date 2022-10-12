@@ -24,8 +24,6 @@ class MovieRepositoryImp @Inject constructor(
         try {
             val size = localDataSource.getMovies(category).first().size
             val isLastItemReached = lastVisibleItem >= size - 1
-            Timber.e("Size: $size.toString()")
-            Timber.e("lasVisibleItem: $isLastItemReached.toString()")
             if(isLastItemReached) {
                 val page = size / PAGE_SIZE + 1
                 val moviePagedResponse = networkDataSource.getMovies(category,page)
