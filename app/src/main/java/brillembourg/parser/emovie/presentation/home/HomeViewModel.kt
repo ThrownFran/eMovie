@@ -26,10 +26,10 @@ class HomeViewModel @Inject constructor(
 
     private val recommendedMovieCount = 6
 
-    var isRequestingNextPage : MutableMap<Category,Boolean> = ConcurrentHashMap<Category, Boolean>()
+    var isRequestingNextPage: MutableMap<Category, Boolean> = ConcurrentHashMap<Category, Boolean>()
         .apply {
-            set(Category.Upcoming,false)
-            set(Category.TopRated,false)
+            set(Category.Upcoming, false)
+            set(Category.TopRated, false)
         }
 
     private val _homeUiState = MutableStateFlow(HomeUiState()).also {
@@ -184,22 +184,26 @@ class HomeViewModel @Inject constructor(
     }
 
     fun onEndOfTopRatedMoviesReached(lastVisibleItem: Int) {
-        requestNextPage(Category.TopRated,lastVisibleItem)
+        requestNextPage(Category.TopRated, lastVisibleItem)
     }
 
     fun onEndOfUpcomingMoviesReached(lastVisibleItem: Int) {
-        requestNextPage(Category.Upcoming,lastVisibleItem)
+        requestNextPage(Category.Upcoming, lastVisibleItem)
     }
 
     private fun requestNextPage(category: Category, lastVisibleItem: Int) {
-        if(isRequestingNextPage[category] == true) return
+        if (isRequestingNextPage[category] == true) return
         viewModelScope.launch(coroutineExceptionHandler) {
-            isRequestingNextPage[category] = true
-            requestNextMoviePageUseCase.invoke(category, lastVisibleItem)
-            isRequestingNextPage[category] = false
+            try {
+                isRequestingNextPage[category] = true
+                requestNextMoviePageUseCase.invoke(category, lastVisibleItem)
+            } catch (e: Exception) {
+                onError(e)
+            } finally {
+                isRequestingNextPage[category] = false
+            }
         }
     }
-
 
 
 }
