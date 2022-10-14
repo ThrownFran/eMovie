@@ -24,7 +24,7 @@ import java.util.concurrent.Executors
         CategoryTable::class,
         CategoryMovieCrossRef::class,
         RemoteKey::class,
-        TrailerTable::class], version = 3
+        TrailerTable::class], version = 4
 )
 @TypeConverters(DateConverter::class)
 abstract class AppDatabase : RoomDatabase() {
@@ -54,22 +54,9 @@ abstract class AppDatabase : RoomDatabase() {
                 databaseName
             )
                 .fallbackToDestructiveMigration()
-                .addCallback(object : RoomDatabase.Callback() {
-                    override fun onCreate(db: SupportSQLiteDatabase) {
-                        super.onCreate(db)
-                        prepopulateCategories()
-                    }
-                })
                 .build()
         }
 
-        private fun prepopulateCategories() {
-            Executors.newSingleThreadExecutor().execute {
-                instance?.let {
-                    it.categoryDao().save(CategoryTable(Category.Upcoming.key))
-                    it.categoryDao().save(CategoryTable(Category.TopRated.key))
-                }
-            }
-        }
+
     }
 }

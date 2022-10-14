@@ -15,4 +15,7 @@ interface MovieDao {
     @Query("SELECT * FROM movietable WHERE id = :id")
     fun getMovie(id: Long): Flow<MovieTable>
 
+    @Query("DELETE FROM movietable")
+    fun deleteAll()
+
 }

@@ -1,6 +1,7 @@
 package brillembourg.parser.emovie.core.di
 
 import android.content.Context
+import brillembourg.parser.emovie.core.Schedulers
 import brillembourg.parser.emovie.data.LocalDataSource
 import brillembourg.parser.emovie.data.local_imp.*
 import brillembourg.parser.emovie.data.local_imp.categories.CategoryDao
@@ -56,11 +57,13 @@ class LocalSourceModule {
     fun provideLocalDataSource(
         appDatabase: AppDatabase,
         movieDao: MovieDao,
+        categoryDao: CategoryDao,
         trailerDao: TrailerDao,
         crossDao: CategoryMoviesCrossDao,
-        remoteKeyDao: RemoteKeyDao
+        remoteKeyDao: RemoteKeyDao,
+        schedulers: Schedulers
     ): LocalDataSource =
-        RoomLocalDataSource(appDatabase, movieDao, trailerDao, crossDao,remoteKeyDao)
+        RoomLocalDataSource(appDatabase, movieDao, trailerDao, crossDao, categoryDao,remoteKeyDao,schedulers)
 
     @Singleton
     @Provides

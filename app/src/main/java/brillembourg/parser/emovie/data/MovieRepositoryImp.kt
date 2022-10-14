@@ -6,9 +6,11 @@ import brillembourg.parser.emovie.domain.models.Movie
 import brillembourg.parser.emovie.domain.MovieRepository
 import brillembourg.parser.emovie.core.Schedulers
 import brillembourg.parser.emovie.domain.models.MovieDetail
-import kotlinx.coroutines.delay
+import brillembourg.parser.emovie.domain.use_cases.RefreshMoviesUseCase
+import brillembourg.parser.emovie.domain.use_cases.RequestNextMoviePageUseCase
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.*
-import timber.log.Timber
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 internal const val PAGE_SIZE = 20
@@ -20,15 +22,30 @@ class MovieRepositoryImp @Inject constructor(
     private val networkDataSource: NetworkDataSource
 ) : MovieRepository {
 
-    override suspend fun requestNextMoviePage(category: Category, lastVisibleItem: Int) {
+    init {
+        CoroutineScope(schedulers.ioDispatcher()).launch {
+            localDataSource.prepopulateCategories()
+        }
+    }
+
+    override suspend fun requestNextMoviePage(category: Category, lastVisibleItem: Int): RequestNextMoviePageUseCase.Result {
 
         try {
             val size = localDataSource.getMovies(category).first().size
             val isLastItemReached = lastVisibleItem >= size - 1
             if(isLastItemReached) {
-                val page = size / PAGE_SIZE + 1
-                val moviePagedResponse = networkDataSource.getMovies(category,page)
+                val nextPage = size / PAGE_SIZE + 1
+                val lastPage = localDataSource.getLastPageForCategory(category)
+
+                if(nextPage > lastPage) {
+                    return RequestNextMoviePageUseCase.Result.LastPageAlreadyReached
+                }
+
+                val moviePagedResponse = networkDataSource.getMovies(category,nextPage)
                 localDataSource.saveMovies(category, moviePagedResponse, size)
+                return RequestNextMoviePageUseCase.Result.RequestSuccess
+            } else {
+                return RequestNextMoviePageUseCase.Result.LastItemInPageNotReachedYet
             }
 
         } catch (e: Exception) {
@@ -53,12 +70,21 @@ class MovieRepositoryImp @Inject constructor(
             .flowOn(schedulers.ioDispatcher())
     }
 
-    override suspend fun refreshMovies(category: Category, invalidateCache: Boolean) {
+    override suspend fun refreshMovies(category: Category, invalidateCache: Boolean) : RefreshMoviesUseCase.Result{
         try {
             val moviesFromLocal = localDataSource.getMovies(category).first()
-            val moviesFromNetwork = networkDataSource.getMovies(category)
+            val moviesResponseFromNetwork = networkDataSource.getMovies(category)
+
             if(invalidateCache) localDataSource.deleteMovies(category)
-            localDataSource.saveMovies(category, moviesFromNetwork, moviesFromLocal.size)
+
+            localDataSource.saveMovies(category, moviesResponseFromNetwork, moviesFromLocal.size)
+
+            if(moviesResponseFromNetwork.currentPage == moviesResponseFromNetwork.lastPage) {
+                return RefreshMoviesUseCase.Result.IsFirstAndLastPage
+            } else {
+                return RefreshMoviesUseCase.Result.HasMorePagesToLoad
+            }
+
         } catch (e: Exception) {
             throw (e.toDomain())
         }

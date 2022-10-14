@@ -24,9 +24,6 @@ class RetrofitNetworkDataSource @Inject constructor(
             currentPage = response.currentPage,
             lastPage = response.lastPage
         )
-
-//        return response.results?.map { it.toData() }
-//            ?: emptyList<MovieData>().also { Logger.error(IllegalStateException("Api results are null")) }
     }
 
     override suspend fun getTrailers(movieId: Long): List<Trailer> {

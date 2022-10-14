@@ -34,7 +34,7 @@ class RequestNextMoviePageUseCaseTest {
 
     @Before
     fun setUp() {
-        coEvery { repository.requestNextMoviePage(any(), any()) } returns (Unit)
+        coEvery { repository.requestNextMoviePage(any(), any()) }.returns(RequestNextMoviePageUseCase.Result.RequestSuccess)
         SUT = RequestNextMoviePageUseCase(TestSchedulers(), repository)
     }
 
@@ -52,6 +52,8 @@ class RequestNextMoviePageUseCaseTest {
                 match { params -> params == page })
         }
     }
+
+
 
 
 }

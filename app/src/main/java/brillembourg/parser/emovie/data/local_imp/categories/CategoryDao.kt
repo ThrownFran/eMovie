@@ -5,7 +5,7 @@ import androidx.room.*
 @Dao
 interface CategoryDao {
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun save(category: CategoryTable)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun save(category: CategoryTable)
 
 }

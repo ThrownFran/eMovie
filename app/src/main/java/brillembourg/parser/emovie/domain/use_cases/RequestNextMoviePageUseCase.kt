@@ -11,8 +11,14 @@ class RequestNextMoviePageUseCase @Inject constructor(
     private val repository: MovieRepository
 ) {
 
-    suspend operator fun invoke(category: Category, lastItemVisible: Int) = withContext(schedulers.ioDispatcher()) {
+    suspend operator fun invoke(category: Category, lastItemVisible: Int): Result = withContext(schedulers.ioDispatcher()) {
         repository.requestNextMoviePage(category,lastItemVisible)
+    }
+
+    sealed interface Result {
+        object RequestSuccess: Result
+        object LastPageAlreadyReached: Result
+        object LastItemInPageNotReachedYet: Result
     }
 
 }

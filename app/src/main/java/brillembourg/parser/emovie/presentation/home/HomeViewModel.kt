@@ -27,12 +27,6 @@ class HomeViewModel @Inject constructor(
 
     private val recommendedMovieCount = 6
 
-    var isRequestingNextPage: MutableMap<Category, Boolean> = ConcurrentHashMap<Category, Boolean>()
-        .apply {
-            set(Category.Upcoming, false)
-            set(Category.TopRated, false)
-        }
-
     private val _homeUiState = MutableStateFlow(HomeUiState()).also {
         observeTopRatedMovies()
         observeUpcomingMovies()
@@ -51,10 +45,21 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch(coroutineExceptionHandler) {
             showLoading()
 
-            listOf(
-                launch { refreshMoviesUseCase.invoke(Category.Upcoming) },
-                launch { refreshMoviesUseCase.invoke(Category.TopRated) }
-            ).joinAll()
+            val refreshTopRatedJob : Deferred<RefreshMoviesUseCase.Result> = async {
+                refreshMoviesUseCase.invoke(Category.TopRated)
+            }
+            val refreshUpcomingJob = async {
+                refreshMoviesUseCase.invoke(Category.Upcoming)
+            }
+            listOf(refreshUpcomingJob,refreshUpcomingJob).awaitAll()
+
+            if(refreshTopRatedJob.await() == RefreshMoviesUseCase.Result.IsFirstAndLastPage) {
+                _homeUiState.update { it.copy(isLastTopRatedPageReached = true) }
+            }
+
+            if(refreshUpcomingJob.await() == RefreshMoviesUseCase.Result.IsFirstAndLastPage) {
+                _homeUiState.update { it.copy(isLastUpcomingPageReached = true) }
+            }
 
             hideLoading()
         }
@@ -194,18 +199,34 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun requestNextPage(category: Category, lastVisibleItem: Int) {
-        if (isRequestingNextPage[category] == true) return
+        val isLoading = when (category) {
+            Category.TopRated -> homeUiState.value.isLoadingMoreTopRatedMovies
+            Category.Upcoming -> homeUiState.value.isLoadingMoreUpcomingMovies
+        }
+        if(isLoading) return
         viewModelScope.launch(coroutineExceptionHandler) {
             try {
-                isRequestingNextPage[category] = true
-                updateIsLoadingMoreState(category,true)
+                updateIsLoadingMoreState(category, true)
                 Timber.e("Request next page")
-                requestNextMoviePageUseCase.invoke(category, lastVisibleItem)
-                updateIsLoadingMoreState(category,false)
+                val result = requestNextMoviePageUseCase.invoke(category, lastVisibleItem)
+                updateIsLastPageState(category,result)
             } catch (e: Exception) {
                 onError(e)
             } finally {
-                isRequestingNextPage[category] = false
+                updateIsLoadingMoreState(category, false)
+            }
+        }
+    }
+
+    private fun updateIsLastPageState(category: Category, result: RequestNextMoviePageUseCase.Result) {
+        when (category) {
+            Category.TopRated -> _homeUiState.update {
+                it.copy(isLastTopRatedPageReached = result
+                        == RequestNextMoviePageUseCase.Result.LastPageAlreadyReached)
+            }
+            Category.Upcoming -> _homeUiState.update {
+                it.copy(isLastUpcomingPageReached = result
+                        == RequestNextMoviePageUseCase.Result.LastPageAlreadyReached)
             }
         }
     }

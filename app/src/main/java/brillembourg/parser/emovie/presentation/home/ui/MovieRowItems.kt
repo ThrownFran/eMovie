@@ -2,7 +2,6 @@ package brillembourg.parser.emovie.presentation.home.ui
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.CircularProgressIndicator
@@ -14,6 +13,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import brillembourg.parser.emovie.presentation.models.MoviePresentationModel
 import brillembourg.parser.emovie.presentation.theme.eMovieTheme
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.threeten.bp.LocalDate
 
 val movieListFake = (1..10).map {
@@ -34,11 +35,24 @@ val movieListFake = (1..10).map {
 fun MovieRowItems(
     modifier: Modifier = Modifier,
     movies: List<MoviePresentationModel>,
-    isLoadingMore: Boolean = false,
+    isLoadingMoreItems: Boolean = false,
+    isLastPageReached: Boolean = false,
     onMovieClick: ((MoviePresentationModel) -> Unit)? = null,
-    onEndReached: (position: Int) -> Unit,
+    onEndOfPageReached: (position: Int) -> Unit,
 ) {
     val state = rememberLazyListState()
+
+    val isEndOfPageReached = remember {
+        derivedStateOf {
+            val lastVisibleItemIndex = state.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+            val totalItems = state.layoutInfo.totalItemsCount
+            (lastVisibleItemIndex == totalItems - 1)
+        }
+    }
+
+    if (isEndOfPageReached.value && movies.isNotEmpty() && !isLoadingMoreItems && !isLastPageReached) {
+        onEndOfPageReached.invoke((state.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0) - 1)
+    }
 
     Box {
         LazyRow(
@@ -48,20 +62,23 @@ fun MovieRowItems(
             contentPadding = PaddingValues(8.dp)
         ) {
 
-            itemsIndexed(movies, key = { i,item -> item.id }) { i,movie ->
-                if(i >= movies.size -5) {
-                    onEndReached.invoke(movies.size - 1)
-                }
-                MovieItem(movie = movie, onClick = { onMovieClick?.invoke(movie) })
+
+            itemsIndexed(movies, key = { i, item -> item.id }) { i, movie ->
+
+//                if (isEndOfPageReached.value && i >= movies.size - 1) {
+//                    onEndOfPageReached.invoke(i)
+//                }
+
+                MovieItem(movie = movie, onClick = {
+                    onMovieClick?.invoke(movie)
+                })
             }
 
-            if(isLoadingMore) {
+            if (movies.isNotEmpty() && !isLastPageReached) {
                 item {
                     Column(modifier = Modifier
-                        .padding(16.dp)
                         .width(136.dp)
                         .height(192.dp)
-                        .fillMaxHeight()
                         .align(Alignment.CenterEnd),
                         verticalArrangement = Arrangement.Center
                     ) {
@@ -71,56 +88,37 @@ fun MovieRowItems(
                     }
                 }
             }
-
-//            if (isLoadingMore) {
-//                item {
-//                    Box(modifier = Modifier
-//                        .padding(16.dp)
-//                        .width(120.dp)
-//                        .align(Alignment.CenterEnd),
-//                        contentAlignment = Alignment.Center
-//                    ) {
-//                        CircularProgressIndicator()
-//                    }
-//                }
-//            }
-
         }
-
-//        if (isLoadingMore) {
-//            Box(modifier = Modifier
-//                .padding(16.dp)
-//                .align(Alignment.CenterEnd),
-//                contentAlignment = Alignment.Center
-//            ) {
-//                CircularProgressIndicator()
-//            }
-//        }
     }
-
-//    val isEndReached = remember {
-//        derivedStateOf {
-//            val lastVisibleItemIndex = state.layoutInfo.visibleItemsInfo.lastOrNull()?.index?:0
-//            val totalItems = state.layoutInfo.totalItemsCount
-//            lastVisibleItemIndex >= totalItems - 10
-////            state.layoutInfo.visibleItemsInfo
-////                .lastOrNull()?.index == state.layoutInfo.totalItemsCount - 1
-//        }
-//    }
-//
-////    LaunchedEffect(true) {
-//    if (isEndReached.value) {
-//        onEndReached.invoke(state.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0)
-//    }
-//    }
-
-
 }
 
 @Preview(showBackground = false)
 @Composable
 fun MovieRowItemsPreview() {
     eMovieTheme {
-        MovieRowItems(movies = movieListFake, onEndReached = {}, isLoadingMore = true)
+
+        val isEmpty = false
+        val movies = if (!isEmpty) movieListFake.take(2) else emptyList()
+        val moviesState = remember { mutableStateOf(movies) }
+        val isLoadingMore = remember {
+            mutableStateOf(false)
+        }
+        val isLastPageReached = remember { mutableStateOf(false) }
+        val coroutineScope = rememberCoroutineScope()
+        MovieRowItems(
+            movies = moviesState.value,
+            isLastPageReached = isLastPageReached.value,
+            onEndOfPageReached = {
+                coroutineScope.launch {
+                    delay(200)
+                    isLoadingMore.value = true
+                    moviesState.value =
+                        moviesState.value + (30..35).map { movieFake.copy(id = it.toLong()) }
+                    isLoadingMore.value = false
+                    isLastPageReached.value = true
+                }
+            },
+            isLoadingMoreItems = isLoadingMore.value,
+        )
     }
 }

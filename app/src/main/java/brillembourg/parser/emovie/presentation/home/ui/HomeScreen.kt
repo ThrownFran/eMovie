@@ -40,10 +40,14 @@ val recommendedMovies = RecommendedMovies(
 fun HomeScreen(
     upcomingMovies: List<MoviePresentationModel>,
     isLoadingMoreUpcomingMovies: Boolean = false,
+    isLastUpcomingPageReached: Boolean = false,
     onEndReachedForUpcomingMovies: (position: Int) -> Unit,
+
     topRatedMovies: List<MoviePresentationModel>,
     isLoadingMoreTopRatedMovies: Boolean = false,
+    isLastTopRatedPageReached: Boolean = false,
     onEndReachedForTopRatedMovies: (position: Int) -> Unit,
+
     recommendedMovies: RecommendedMovies,
     onMovieClick: ((MoviePresentationModel) -> Unit)? = null,
     onFilterYearChanged: (Int?) -> Unit,
@@ -74,8 +78,9 @@ fun HomeScreen(
                             MovieRowItems(
                                 movies = upcomingMovies,
                                 onMovieClick = onMovieClick,
-                                onEndReached = onEndReachedForUpcomingMovies,
-                                isLoadingMore = isLoadingMoreUpcomingMovies
+                                onEndOfPageReached = onEndReachedForUpcomingMovies,
+                                isLoadingMoreItems = isLoadingMoreUpcomingMovies,
+                                isLastPageReached = isLastUpcomingPageReached
                             )
                             EmptyMoviesText(upcomingMovies)
                         }
@@ -84,8 +89,9 @@ fun HomeScreen(
                             MovieRowItems(
                                 movies = topRatedMovies,
                                 onMovieClick = onMovieClick,
-                                onEndReached = onEndReachedForTopRatedMovies,
-                                isLoadingMore = isLoadingMoreTopRatedMovies
+                                onEndOfPageReached = onEndReachedForTopRatedMovies,
+                                isLoadingMoreItems = isLoadingMoreTopRatedMovies,
+                                isLastPageReached = isLastTopRatedPageReached
                             )
                             EmptyMoviesText(upcomingMovies)
                         }

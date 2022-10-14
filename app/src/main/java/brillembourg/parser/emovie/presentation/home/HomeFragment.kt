@@ -31,7 +31,7 @@ class HomeFragment : Fragment() {
     ): View {
 
         return ComposeView(requireContext()).apply {
-            isTransitionGroup = true
+//            isTransitionGroup = true
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
                 eMovieTheme {
@@ -40,9 +40,13 @@ class HomeFragment : Fragment() {
                         upcomingMovies = uiState.value.upcomingMovies,
                         isLoadingMoreUpcomingMovies = uiState.value.isLoadingMoreUpcomingMovies,
                         onEndReachedForUpcomingMovies = { viewModel.onEndOfUpcomingMoviesReached(it) },
+                        isLastUpcomingPageReached =  uiState.value.isLastUpcomingPageReached,
+
                         topRatedMovies = uiState.value.topRatedMovies,
                         isLoadingMoreTopRatedMovies = uiState.value.isLoadingMoreTopRatedMovies,
                         onEndReachedForTopRatedMovies = { viewModel.onEndOfTopRatedMoviesReached(it) },
+                        isLastTopRatedPageReached = uiState.value.isLastTopRatedPageReached,
+
                         recommendedMovies = uiState.value.recommendedMovies,
                         onFilterYearChanged = viewModel::onYearFilterSelected,
                         onFilterLanguageChanged = viewModel::onLanguageFilterSelected,
@@ -61,7 +65,7 @@ class HomeFragment : Fragment() {
 
     private fun handleNavigation(navigateToThisMovie: MoviePresentationModel?) {
         navigateToThisMovie?.let {
-            setOriginSharedAxisTransition()
+//            setOriginSharedAxisTransition()
             val directions = HomeFragmentDirections.actionHomeFragmentToDetailFragment(navigateToThisMovie)
             findNavController().navigate(directions)
 //            viewModel.onNavigateToMovieCompleted()

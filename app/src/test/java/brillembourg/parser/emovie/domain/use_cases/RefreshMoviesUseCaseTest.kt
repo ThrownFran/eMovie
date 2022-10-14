@@ -32,7 +32,7 @@ class RefreshMoviesUseCaseTest {
 
     @Before
     fun setUp() {
-        coEvery { repository.refreshMovies(any()) }returns(Unit)
+        coEvery { repository.refreshMovies(any()) }returns(RefreshMoviesUseCase.Result.HasMorePagesToLoad)
         SUT = RefreshMoviesUseCase(TestSchedulers(),repository)
     }
 

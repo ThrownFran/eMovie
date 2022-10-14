@@ -82,9 +82,12 @@ class HomeViewModelTest {
     private fun mockGetMoviesSuccess() {
         coEvery { getMoviesUseCase.invoke(any()) }.coAnswers { flow { emit(movieDomainFakes) } }
         coEvery { refreshMoviesUseCase.invoke(any()) }.coAnswers {
-            Unit
+            RefreshMoviesUseCase.Result.HasMorePagesToLoad
         }
-        coEvery { requestNextMoviePageUseCase.invoke(any(), any()) }.coAnswers { Unit }
+        coEvery {
+            requestNextMoviePageUseCase.invoke(any(),
+                any())
+        }.coAnswers { RequestNextMoviePageUseCase.Result.RequestSuccess }
     }
 
     @Test
@@ -116,7 +119,7 @@ class HomeViewModelTest {
             mockGetMoviesSuccess()
             coEvery { refreshMoviesUseCase.invoke(any()) }.coAnswers {
                 delay(500)
-                movieDomainFakes
+                RefreshMoviesUseCase.Result.HasMorePagesToLoad
             }
             buildSUT()
             //Assert
@@ -139,6 +142,36 @@ class HomeViewModelTest {
             Assert.assertEquals(UiText.NoInternet, SUT.homeUiState.value.messageToShow)
             Assert.assertFalse(SUT.homeUiState.value.isLoading)
         }
+
+    @Test
+    fun `given refresh top rated movies data, when result is first and last page, update is last page for top rated movies state` () = runTest {
+        //Arrange
+        mockGetMoviesSuccess()
+        coEvery { refreshMoviesUseCase.invoke(any()) }.coAnswers {
+            RefreshMoviesUseCase.Result.IsFirstAndLastPage
+        }
+        buildSUT()
+        //Act
+        advanceUntilIdle()
+        //Assert
+        coVerify(exactly = 1) { refreshMoviesUseCase.invoke(Category.TopRated) }
+        Assert.assertEquals(true, SUT.homeUiState.value.isLastTopRatedPageReached)
+    }
+
+    @Test
+    fun `given refresh upcoming movies data, when result is first and last page, update is last page for upcoming movies state` () = runTest {
+        //Arrange
+        mockGetMoviesSuccess()
+        coEvery { refreshMoviesUseCase.invoke(any()) }.coAnswers {
+            RefreshMoviesUseCase.Result.IsFirstAndLastPage
+        }
+        buildSUT()
+        //Act
+        advanceUntilIdle()
+        //Assert
+        coVerify(exactly = 1) { refreshMoviesUseCase.invoke(Category.Upcoming) }
+        Assert.assertEquals(true, SUT.homeUiState.value.isLastUpcomingPageReached)
+    }
 
     @Test
     fun `given on swipe to refresh, then invoke refresh all movies categories`() = runTest {
@@ -204,17 +237,32 @@ class HomeViewModelTest {
             mockGetMoviesSuccess()
             coEvery { requestNextMoviePageUseCase.invoke(any(), any()) }.coAnswers {
                 delay(500)
-                Unit
+                RequestNextMoviePageUseCase.Result.RequestSuccess
             }
             buildSUT()
             //Act
             advanceUntilIdle()
             SUT.onEndOfTopRatedMoviesReached(PAGE_SIZE - 1)
             advanceTimeBy(100)
-            Assert.assertEquals(true,SUT.homeUiState.value.isLoadingMoreTopRatedMovies)
+            Assert.assertEquals(true, SUT.homeUiState.value.isLoadingMoreTopRatedMovies)
             advanceTimeBy(500)
-            Assert.assertEquals(false,SUT.homeUiState.value.isLoadingMoreTopRatedMovies)
+            Assert.assertEquals(false, SUT.homeUiState.value.isLoadingMoreTopRatedMovies)
         }
+
+    @Test
+    fun `given top rated last page reached, then update last page state`() = runTest {
+        //Arrange
+        mockGetMoviesSuccess()
+        coEvery { requestNextMoviePageUseCase.invoke(any(), any()) }
+            .coAnswers { RequestNextMoviePageUseCase.Result.LastPageAlreadyReached }
+        buildSUT()
+        //Act
+        advanceUntilIdle()
+        SUT.onEndOfTopRatedMoviesReached(SUT.homeUiState.value.topRatedMovies.size - 1)
+        advanceUntilIdle()
+        //Assert
+        Assert.assertEquals(SUT.homeUiState.value.isLastTopRatedPageReached, true)
+    }
 
     @Test
     fun `given upcoming movies bottom reached, then request new page`() = runTest {
@@ -239,7 +287,7 @@ class HomeViewModelTest {
             mockGetMoviesSuccess()
             coEvery { requestNextMoviePageUseCase.invoke(any(), any()) }.coAnswers {
                 delay(500)
-                Unit
+                RequestNextMoviePageUseCase.Result.RequestSuccess
             }
             buildSUT()
             //Act
@@ -250,6 +298,44 @@ class HomeViewModelTest {
             advanceTimeBy(500)
             Assert.assertEquals(false, SUT.homeUiState.value.isLoadingMoreUpcomingMovies)
         }
+
+    @Test
+    fun `given upcoming last page reached, then update last page state`() = runTest {
+        //Arrange
+        mockGetMoviesSuccess()
+        coEvery { requestNextMoviePageUseCase.invoke(any(), any()) }
+            .coAnswers { RequestNextMoviePageUseCase.Result.LastPageAlreadyReached }
+        buildSUT()
+        //Act
+        advanceUntilIdle()
+        SUT.onEndOfUpcomingMoviesReached(SUT.homeUiState.value.upcomingMovies.size - 1)
+        advanceUntilIdle()
+        //Assert
+        Assert.assertEquals(SUT.homeUiState.value.isLastUpcomingPageReached, true)
+    }
+
+    @Test
+    fun `given bottom movie reached multiple times, then request one time`() = runTest {
+        //Arrange
+        mockGetMoviesSuccess()
+        coEvery { requestNextMoviePageUseCase.invoke(any(),any()) }.coAnswers {
+            delay(100)
+            RequestNextMoviePageUseCase.Result.RequestSuccess
+        }
+        buildSUT()
+        //Act
+        advanceUntilIdle()
+        SUT.onEndOfUpcomingMoviesReached(SUT.homeUiState.value.upcomingMovies.size - 1)
+        delay(10)
+        SUT.onEndOfUpcomingMoviesReached(SUT.homeUiState.value.upcomingMovies.size - 1)
+        delay(10)
+        SUT.onEndOfUpcomingMoviesReached(SUT.homeUiState.value.upcomingMovies.size - 1)
+        delay(10)
+        SUT.onEndOfUpcomingMoviesReached(SUT.homeUiState.value.upcomingMovies.size - 1)
+        advanceUntilIdle()
+        //Assert
+        coVerify(exactly = 1) { requestNextMoviePageUseCase.invoke(any(),any()) }
+    }
 
     @Test
     fun `given upcoming movies flow received, then update home state`() = runTest {

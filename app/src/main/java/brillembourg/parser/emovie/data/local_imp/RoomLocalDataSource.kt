@@ -1,10 +1,12 @@
 package brillembourg.parser.emovie.data.local_imp
 
-import androidx.room.Update
 import androidx.room.withTransaction
+import brillembourg.parser.emovie.core.Schedulers
 import brillembourg.parser.emovie.data.MovieData
 import brillembourg.parser.emovie.data.LocalDataSource
 import brillembourg.parser.emovie.data.NetworkDataSource
+import brillembourg.parser.emovie.data.local_imp.categories.CategoryDao
+import brillembourg.parser.emovie.data.local_imp.categories.CategoryTable
 import brillembourg.parser.emovie.data.local_imp.category_movie_cross.CategoryMovieCrossRef
 import brillembourg.parser.emovie.data.local_imp.category_movie_cross.CategoryMoviesCrossDao
 import brillembourg.parser.emovie.data.local_imp.movies.MovieDao
@@ -17,7 +19,9 @@ import brillembourg.parser.emovie.data.local_imp.trailers.toDomain
 import brillembourg.parser.emovie.data.local_imp.trailers.toTable
 import brillembourg.parser.emovie.domain.models.Category
 import brillembourg.parser.emovie.domain.models.Trailer
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class RoomLocalDataSource @Inject constructor(
@@ -25,8 +29,15 @@ class RoomLocalDataSource @Inject constructor(
     private val movieDao: MovieDao,
     private val trailerDao: TrailerDao,
     private val crossDao: CategoryMoviesCrossDao,
+    private val categoryDao: CategoryDao,
     private val remoteKeyDao: RemoteKeyDao,
+    private val schedulers: Schedulers,
 ) : LocalDataSource {
+
+    override suspend fun prepopulateCategories() {
+        categoryDao.save(CategoryTable(Category.Upcoming.key))
+        categoryDao.save(CategoryTable(Category.TopRated.key))
+    }
 
     override fun getMovie(id: Long): Flow<MovieData> {
         return movieDao.getMovie(id).map { movieTable -> movieTable.toData() }
@@ -47,40 +58,39 @@ class RoomLocalDataSource @Inject constructor(
     }
 
     override fun getMovies(category: Category): Flow<List<MovieData>> {
-        return crossDao.getCategoriesWithMovies()
-            .transform { categories ->
-                categories.forEach { categoryWithMovies ->
-                    if (categoryWithMovies.category.name == category.key) {
-                        emit(
-                            categoryWithMovies.movies.map { table ->
-                                table.toData()
-                            }
-                                .sortedBy {
-                                    val remoteKey = remoteKeyDao.getRemoteKeyForMovie(
-                                        movieId = it.id,
-                                        categoryKey = categoryWithMovies.category.name
-                                    )
-                                    //TODO remove
-                                    it.name = remoteKey?.order.toString()
-                                    remoteKey?.order
-                                }
+        return crossDao.getCategoryWithMovies(category.key)
+            .map { categoryWithMovies ->
+                categoryWithMovies?.movies
+                    ?.map { movieTable -> movieTable.toData() }
+                    ?.sortedBy {
+                        val remoteKey = remoteKeyDao.getRemoteKeyForMovie(
+                            movieId = it.id,
+                            categoryKey = categoryWithMovies.category.name
                         )
-                    }
-                }
+                        //TODO remove
+                        it.name = remoteKey?.order.toString()
+                        //TODO remove
+
+                        remoteKey?.order
+                    } ?: emptyList()
             }
     }
 
     override suspend fun saveMovies(
         category: Category,
-        movieResponse: NetworkDataSource.MoviePageResponse,
+        moviePageResponse: NetworkDataSource.MoviePageResponse,
         nextOrder: Int,
     ) {
-        saveMovies(movieResponse, category, nextOrder)
+        saveMovies(moviePageResponse, category, nextOrder)
+    }
+
+    override suspend fun getLastPageForCategory(category: Category): Int {
+        return remoteKeyDao.getRemoteKeysForCategory(category.key).first().lastPage
     }
 
     override suspend fun deleteMovies(category: Category) {
-        val movies = crossDao.getCategoryWithMovies(category.key).first().movies
-        movies.forEach { movieTable ->
+        val movies = crossDao.getCategoryWithMovies(category.key).first()?.movies
+        movies?.forEach { movieTable ->
             appDatabase.withTransaction {
                 crossDao.delete(CategoryMovieCrossRef(
                     category.key,
@@ -88,6 +98,7 @@ class RoomLocalDataSource @Inject constructor(
                 ))
             }
         }
+//        movieDao.deleteAll()
     }
 
     private suspend fun saveMovies(

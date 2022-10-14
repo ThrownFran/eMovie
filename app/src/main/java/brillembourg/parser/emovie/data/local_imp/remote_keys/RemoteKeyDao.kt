@@ -12,5 +12,7 @@ interface RemoteKeyDao {
     @Query("SELECT * FROM remotekey WHERE movieId = :movieId AND categoryKey = :categoryKey")
     fun getRemoteKeyForMovie(movieId: Long, categoryKey: String): RemoteKey?
 
+    @Query("SELECT * FROM remotekey WHERE categoryKey = :categoryKey")
+    fun getRemoteKeysForCategory(categoryKey: String): List<RemoteKey>
 
 }

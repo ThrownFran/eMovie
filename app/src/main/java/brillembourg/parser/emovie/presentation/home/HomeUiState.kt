@@ -6,8 +6,10 @@ import brillembourg.parser.emovie.presentation.models.UiText
 data class HomeUiState(
     val topRatedMovies: List<MoviePresentationModel> = emptyList(),
     val isLoadingMoreTopRatedMovies: Boolean = false,
+    val isLastTopRatedPageReached: Boolean = false,
     val upcomingMovies: List<MoviePresentationModel> = emptyList(),
     val isLoadingMoreUpcomingMovies: Boolean = false,
+    val isLastUpcomingPageReached: Boolean = false,
     val recommendedMovies: RecommendedMovies = RecommendedMovies(),
     val navigateToThisMovie: MoviePresentationModel? = null,
     val isLoading : Boolean = false,

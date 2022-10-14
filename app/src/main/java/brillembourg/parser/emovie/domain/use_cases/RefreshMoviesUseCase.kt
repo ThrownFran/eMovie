@@ -14,8 +14,13 @@ class RefreshMoviesUseCase @Inject constructor(
     suspend operator fun invoke(
         category: Category,
         invalidateCache: Boolean = true,
-    ) = withContext(schedulers.ioDispatcher()) {
+    ): Result = withContext(schedulers.ioDispatcher()) {
         repository.refreshMovies(category,invalidateCache)
+    }
+
+    sealed interface Result {
+        object HasMorePagesToLoad: Result
+        object IsFirstAndLastPage: Result
     }
 
 }

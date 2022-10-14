@@ -4,6 +4,8 @@ import brillembourg.parser.emovie.core.GenericException
 import brillembourg.parser.emovie.domain.models.Category
 import brillembourg.parser.emovie.domain.MovieRepository
 import brillembourg.parser.emovie.domain.models.Trailer
+import brillembourg.parser.emovie.domain.use_cases.RefreshMoviesUseCase
+import brillembourg.parser.emovie.domain.use_cases.RequestNextMoviePageUseCase
 import brillembourg.parser.emovie.utils.*
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -14,6 +16,7 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
 import org.junit.Before
@@ -42,7 +45,20 @@ class MovieRepositoryImpTest {
 
     @Before
     fun setUp() {
-        SUT = MovieRepositoryImp(TestSchedulers(coroutineTestRule.testDispatcher), localDataSource, networkDataSource)
+        mockLocalDataSourceSuccess()
+        SUT = MovieRepositoryImp(TestSchedulers(coroutineTestRule.testDispatcher),
+            localDataSource,
+            networkDataSource)
+    }
+
+    @Test
+    fun `given init, then prepopulate categories in local data source`() = runTest {
+        //Arrange
+        mockSuccessDatasource()
+        //Act
+        advanceUntilIdle()
+        //Assert
+        coVerify(exactly = 1) { localDataSource.prepopulateCategories() }
     }
 
     @Test
@@ -271,15 +287,71 @@ class MovieRepositoryImpTest {
         }
 
     @Test
-    fun `given request next movie page, when page is not last, save results to local data source`() =
+    fun `given refresh movies data, when is first and last page, then return correct result`() = runTest {
+        //Arrange
+        val category = Category.TopRated
+        mockNetworkDataSourceSuccess(currentMoviePage = 1, lastMoviePage = 1)
+        mockLocalDataSourceSuccess()
+        //Act
+        val result = SUT.refreshMovies(category)
+        //Assert
+        Assert.assertEquals(RefreshMoviesUseCase.Result.IsFirstAndLastPage, result)
+    }
+
+    @Test
+    fun `given refresh movies data, when is last page is more than first page, then return has more pages to load result`() = runTest {
+        //Arrange
+        val category = Category.TopRated
+        mockNetworkDataSourceSuccess(currentMoviePage = 1, lastMoviePage = 100)
+        mockLocalDataSourceSuccess()
+        //Act
+        val result = SUT.refreshMovies(category)
+        //Assert
+        Assert.assertEquals(RefreshMoviesUseCase.Result.HasMorePagesToLoad, result)
+    }
+
+    @Test
+    fun `given request next movie page, when last item not reached yet, then do nothing and return result LastPageInItemNotReachedYet`() = runTest {
+        //Arrange
+        val category = Category.TopRated
+        mockLocalDataSourceSuccess(movieDataFakes20)
+        mockNetworkDataSourceSuccess()
+        //Act
+        val result = SUT.requestNextMoviePage(category,5)
+        //Assert
+        Assert.assertEquals(result, RequestNextMoviePageUseCase.Result.LastItemInPageNotReachedYet)
+        coVerify(exactly = 0) { networkDataSource.getMovies(category, any()) }
+        coVerify(exactly = 0) { localDataSource.saveMovies(category,any(),any()) }
+    }
+
+    @Test
+    fun `given request next movie page, when first page is last page, then return last page result and dont request next page`() =
+        runTest {
+            //Arrange
+            val category = Category.TopRated
+            mockLocalDataSourceSuccess(movieDataFakes20, lastPage = 1)
+            mockNetworkDataSourceSuccess()
+            val lastVisibleItem = movieDataFakes20.size - 1
+            //Act
+            val result = SUT.requestNextMoviePage(category, lastVisibleItem)
+            advanceUntilIdle()
+            //Assert
+            Assert.assertEquals(result, RequestNextMoviePageUseCase.Result.LastPageAlreadyReached)
+            coVerify(exactly = 0) { networkDataSource.getMovies(category, any()) }
+            coVerify(exactly = 0) { localDataSource.saveMovies(category,any(),any()) }
+        }
+
+    @Test
+    fun `given request next movie page, when page is not last, save results to local data source and return success`() =
         runTest {
             //Arrange
             val category = Category.TopRated
             val movieFakesSecondPage = movieDataFakes20.map { it.copy(id = it.id + 100) }
             mockNetworkDataSourceSuccess(movieFakesSecondPage)
-            mockLocalDataSourceSuccess(movieDataFakes20)
+            mockLocalDataSourceSuccess(movieDataFakes20, lastPage = 2)
+            val lastVisibleItem = movieDataFakes20.size - 1
             //Act
-            SUT.requestNextMoviePage(category, PAGE_SIZE - 1)
+            val result = SUT.requestNextMoviePage(category, lastVisibleItem)
             //Assert
             coVerify { networkDataSource.getMovies(category, 2) }
             coVerify {
@@ -287,6 +359,7 @@ class MovieRepositoryImpTest {
                     match { moviePageResponse -> moviePageResponse.movies == movieFakesSecondPage },
                     movieDataFakes20.size)
             }
+            Assert.assertEquals(result, RequestNextMoviePageUseCase.Result.RequestSuccess)
         }
 
     @Test
@@ -312,14 +385,16 @@ class MovieRepositoryImpTest {
 
     private fun mockNetworkDataSourceSuccess(
         movieFakes: List<MovieData> = movieDataFakes,
+        currentMoviePage : Int = 1,
+        lastMoviePage: Int = 50,
         trailers: List<Trailer> = trailerFakes,
     ) {
         coEvery { networkDataSource.getTrailers(any()) }.returns(trailers)
         coEvery { networkDataSource.getMovies(any(), any()) }.returns(
             NetworkDataSource.MoviePageResponse(
                 movies = movieFakes,
-                currentPage = 1,
-                lastPage = 50
+                currentPage = currentMoviePage,
+                lastPage = lastMoviePage
             )
         )
     }
@@ -331,6 +406,7 @@ class MovieRepositoryImpTest {
     private fun mockLocalDataSourceSuccess(
         movieFakes: List<MovieData> = movieDataFakes,
         trailers: List<Trailer> = trailerFakes,
+        lastPage: Int = 1
     ) {
         mockTrailerSuccess(trailers)
         coEvery { localDataSource.getMovies(any()) }.coAnswers { flow { emit(movieFakes) } }
@@ -338,6 +414,8 @@ class MovieRepositoryImpTest {
         coEvery { localDataSource.getMovie(any()) }.coAnswers { flow { emit(movieFakes[0]) } }
         coEvery { localDataSource.saveTrailers(any()) }.returns(Unit)
         coEvery { localDataSource.deleteMovies(any()) }.returns(Unit)
+        coEvery { localDataSource.getLastPageForCategory(any()) }.returns(lastPage)
+        coEvery { localDataSource.prepopulateCategories() }.coAnswers { Unit }
     }
 
     private fun mockLocalDataSourceError() {

@@ -13,7 +13,7 @@ fun Exception.toDomain(): Throwable {
             return ServerErrorException(message())
         }
         is IOException -> {
-            return NetworkException(message)
+            return NetworkException(message?:"IO Exception")
         }
         is CancellationException -> {
             //Cancellation must be propagated
