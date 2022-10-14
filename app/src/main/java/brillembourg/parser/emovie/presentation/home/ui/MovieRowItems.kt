@@ -1,5 +1,9 @@
+@file:OptIn(ExperimentalFoundationApi::class)
+
 package brillembourg.parser.emovie.presentation.home.ui
 
+import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -16,6 +20,7 @@ import brillembourg.parser.emovie.presentation.theme.eMovieTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.threeten.bp.LocalDate
+import timber.log.Timber
 
 val movieListFake = (1..10).map {
     MoviePresentationModel(
@@ -41,6 +46,7 @@ fun MovieRowItems(
     onEndOfPageReached: (position: Int) -> Unit,
 ) {
     val state = rememberLazyListState()
+    Timber.e(movies.size.toString())
 
     val isEndOfPageReached = remember {
         derivedStateOf {
@@ -64,14 +70,12 @@ fun MovieRowItems(
 
 
             itemsIndexed(movies, key = { i, item -> item.id }) { i, movie ->
-
-//                if (isEndOfPageReached.value && i >= movies.size - 1) {
-//                    onEndOfPageReached.invoke(i)
-//                }
-
-                MovieItem(movie = movie, onClick = {
-                    onMovieClick?.invoke(movie)
-                })
+                MovieItem(
+                    modifier = Modifier.animateItemPlacement().animateContentSize(),
+                    movie = movie,
+                    onClick = {
+                        onMovieClick?.invoke(movie)
+                    })
             }
 
             if (movies.isNotEmpty() && !isLastPageReached) {

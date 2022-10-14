@@ -42,15 +42,15 @@ fun MovieItem(
     movie: MoviePresentationModel,
     onClick: (() -> Unit)? = null,
 ) {
-    Column(
+    Row(
         modifier
             .clickable { onClick?.invoke() },
-        verticalArrangement = Arrangement.Center
+//        verticalArrangement = Arrangement.Center
     ) {
         AsyncImage(
             model = ImageRequest.Builder(LocalContext.current)
                 .data(movie.getPosterCompleteUrl())
-                .crossfade(true)
+//                .crossfade(true)
                 .build(),
             contentDescription = null,
             placeholder = painterResource(id = R.drawable.movie_placeholder),
@@ -58,16 +58,16 @@ fun MovieItem(
             modifier = modifier
                 .width(136.dp)
                 .height(192.dp)
-                .align(Alignment.CenterHorizontally)
+//                .align(Alignment.CenterHorizontally)
                 .clip(RoundedCornerShape(10))
         )
-        Text(
-            modifier = Modifier.width(136.dp)
-                .align(Alignment.CenterHorizontally),
-            text = movie.name,
-            textAlign = TextAlign.Center,
-            color = Color.White
-        )
+//        Text(
+//            modifier = Modifier.width(136.dp)
+//                .align(Alignment.CenterHorizontally),
+//            text = movie.name,
+//            textAlign = TextAlign.Center,
+//            color = Color.White
+//        )
     }
 }
 

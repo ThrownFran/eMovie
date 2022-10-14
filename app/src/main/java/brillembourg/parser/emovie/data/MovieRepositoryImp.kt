@@ -77,7 +77,7 @@ class MovieRepositoryImp @Inject constructor(
 
             if(invalidateCache) localDataSource.deleteMovies(category)
 
-            localDataSource.saveMovies(category, moviesResponseFromNetwork, moviesFromLocal.size)
+            localDataSource.saveMovies(category, moviesResponseFromNetwork, localDataSource.getMovies(category).first().size)
 
             if(moviesResponseFromNetwork.currentPage == moviesResponseFromNetwork.lastPage) {
                 return RefreshMoviesUseCase.Result.IsFirstAndLastPage

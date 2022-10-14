@@ -45,19 +45,19 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch(coroutineExceptionHandler) {
             showLoading()
 
-            val refreshTopRatedJob : Deferred<RefreshMoviesUseCase.Result> = async {
+            val refreshTopRatedJob: Deferred<RefreshMoviesUseCase.Result> = async {
                 refreshMoviesUseCase.invoke(Category.TopRated)
             }
             val refreshUpcomingJob = async {
                 refreshMoviesUseCase.invoke(Category.Upcoming)
             }
-            listOf(refreshUpcomingJob,refreshUpcomingJob).awaitAll()
+            listOf(refreshUpcomingJob, refreshUpcomingJob).awaitAll()
 
-            if(refreshTopRatedJob.await() == RefreshMoviesUseCase.Result.IsFirstAndLastPage) {
+            if (refreshTopRatedJob.await() == RefreshMoviesUseCase.Result.IsFirstAndLastPage) {
                 _homeUiState.update { it.copy(isLastTopRatedPageReached = true) }
             }
 
-            if(refreshUpcomingJob.await() == RefreshMoviesUseCase.Result.IsFirstAndLastPage) {
+            if (refreshUpcomingJob.await() == RefreshMoviesUseCase.Result.IsFirstAndLastPage) {
                 _homeUiState.update { it.copy(isLastUpcomingPageReached = true) }
             }
 
@@ -203,13 +203,13 @@ class HomeViewModel @Inject constructor(
             Category.TopRated -> homeUiState.value.isLoadingMoreTopRatedMovies
             Category.Upcoming -> homeUiState.value.isLoadingMoreUpcomingMovies
         }
-        if(isLoading) return
+        if (isLoading) return
         viewModelScope.launch(coroutineExceptionHandler) {
             try {
                 updateIsLoadingMoreState(category, true)
                 Timber.e("Request next page")
                 val result = requestNextMoviePageUseCase.invoke(category, lastVisibleItem)
-                updateIsLastPageState(category,result)
+                updateIsLastPageState(category, result)
             } catch (e: Exception) {
                 onError(e)
             } finally {
@@ -218,7 +218,10 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun updateIsLastPageState(category: Category, result: RequestNextMoviePageUseCase.Result) {
+    private fun updateIsLastPageState(
+        category: Category,
+        result: RequestNextMoviePageUseCase.Result,
+    ) {
         when (category) {
             Category.TopRated -> _homeUiState.update {
                 it.copy(isLastTopRatedPageReached = result

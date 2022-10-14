@@ -68,7 +68,7 @@ class RoomLocalDataSource @Inject constructor(
                             categoryKey = categoryWithMovies.category.name
                         )
                         //TODO remove
-                        it.name = remoteKey?.order.toString()
+//                        it.name = remoteKey?.order.toString()
                         //TODO remove
 
                         remoteKey?.order
@@ -107,6 +107,25 @@ class RoomLocalDataSource @Inject constructor(
         nextOrder: Int,
     ) {
         appDatabase.withTransaction {
+
+//            val remoteKeys = moviePageResponse.movies.mapIndexed { i, movie ->
+//                RemoteKey(
+//                    movieId = movie.id,
+//                    currentPage = moviePageResponse.currentPage,
+//                    lastPage = moviePageResponse.lastPage,
+//                    order = nextOrder + i,
+//                    categoryKey = category.key
+//                )
+//            }
+//
+//            val categoryMoviesCrossList = moviePageResponse.movies.map { movie ->
+//                CategoryMovieCrossRef(category.key, movie.id)
+//            }
+//
+//            movieDao.saveMovies(moviePageResponse.movies.map { it.toTable() })
+//            crossDao.insertList(categoryMoviesCrossList)
+//            remoteKeyDao.saveRemoteKeys(remoteKeys)
+
             moviePageResponse.movies.forEachIndexed { i, movieData ->
                 movieDao.saveMovie(movieData.toTable())
                 crossDao.create(CategoryMovieCrossRef(category.key, movieData.id))

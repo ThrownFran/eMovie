@@ -9,6 +9,9 @@ interface CategoryMoviesCrossDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun create (noteCrossRef: CategoryMovieCrossRef)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertList(noteCrossRefList: List<CategoryMovieCrossRef>)
+
     @Delete
     suspend fun delete(noteCrossRef: CategoryMovieCrossRef)
 
