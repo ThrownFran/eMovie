@@ -45,15 +45,4 @@ fun Movie.toData(): MovieData {
     )
 }
 
-fun MovieResponse.toData(): MovieData {
-    return MovieData(
-        id = id,
-        name = name,
-        posterImageUrl = posterImageUrl,
-        originalLanguage = originalLanguage,
-        releaseDate = extractDateFromString(releaseDate),
-        backdropImageUrl = backDropImageUrl,
-        plot = plot,
-        voteCount = voteCount, voteAverage = voteAverage
-    )
-}
+

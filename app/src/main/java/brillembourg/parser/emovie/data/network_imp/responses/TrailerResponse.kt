@@ -1,5 +1,6 @@
 package brillembourg.parser.emovie.data.network_imp.responses
 
+import brillembourg.parser.emovie.domain.models.Trailer
 import com.google.gson.annotations.SerializedName
 
 class GetTrailersResponse {

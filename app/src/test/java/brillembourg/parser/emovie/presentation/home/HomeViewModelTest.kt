@@ -84,7 +84,7 @@ class HomeViewModelTest {
         coEvery { refreshMoviesUseCase.invoke(any()) }.coAnswers {
             Unit
         }
-        coEvery { requestNextMoviePageUseCase.invoke(any(),any()) }.coAnswers { Unit }
+        coEvery { requestNextMoviePageUseCase.invoke(any(), any()) }.coAnswers { Unit }
     }
 
     @Test
@@ -127,17 +127,18 @@ class HomeViewModelTest {
         }
 
     @Test
-    fun `given refresh movies data, when error, then show user error and hide loading state`() = runTest {
-        //Arrange
-        mockGetMoviesSuccess()
-        coEvery { refreshMoviesUseCase.invoke(any()) }.throws(NetworkException())
-        buildSUT()
-        //Act
-        advanceUntilIdle()
-        //Arrange
-        Assert.assertEquals(UiText.NoInternet,SUT.homeUiState.value.messageToShow)
-        Assert.assertFalse(SUT.homeUiState.value.isLoading)
-    }
+    fun `given refresh movies data, when error, then show user error and hide loading state`() =
+        runTest {
+            //Arrange
+            mockGetMoviesSuccess()
+            coEvery { refreshMoviesUseCase.invoke(any()) }.throws(NetworkException())
+            buildSUT()
+            //Act
+            advanceUntilIdle()
+            //Arrange
+            Assert.assertEquals(UiText.NoInternet, SUT.homeUiState.value.messageToShow)
+            Assert.assertFalse(SUT.homeUiState.value.isLoading)
+        }
 
     @Test
     fun `given on swipe to refresh, then invoke refresh all movies categories`() = runTest {
@@ -187,11 +188,33 @@ class HomeViewModelTest {
         buildSUT()
         //Act
         advanceUntilIdle()
-        SUT.onEndOfTopRatedMoviesReached(PAGE_SIZE -1)
+        SUT.onEndOfTopRatedMoviesReached(PAGE_SIZE - 1)
         advanceUntilIdle()
         //Assert
-        coVerify { requestNextMoviePageUseCase.invoke(ofType(Category.TopRated::class), PAGE_SIZE - 1) }
+        coVerify {
+            requestNextMoviePageUseCase.invoke(ofType(Category.TopRated::class),
+                PAGE_SIZE - 1)
+        }
     }
+
+    @Test
+    fun `given top rated movies bottom reached, then show progress before request and hide after request`() =
+        runTest {
+            //Arrange
+            mockGetMoviesSuccess()
+            coEvery { requestNextMoviePageUseCase.invoke(any(), any()) }.coAnswers {
+                delay(500)
+                Unit
+            }
+            buildSUT()
+            //Act
+            advanceUntilIdle()
+            SUT.onEndOfTopRatedMoviesReached(PAGE_SIZE - 1)
+            advanceTimeBy(100)
+            Assert.assertEquals(true,SUT.homeUiState.value.isLoadingMoreTopRatedMovies)
+            advanceTimeBy(500)
+            Assert.assertEquals(false,SUT.homeUiState.value.isLoadingMoreTopRatedMovies)
+        }
 
     @Test
     fun `given upcoming movies bottom reached, then request new page`() = runTest {
@@ -200,11 +223,33 @@ class HomeViewModelTest {
         buildSUT()
         //Act
         advanceUntilIdle()
-        SUT.onEndOfUpcomingMoviesReached(PAGE_SIZE -1)
+        SUT.onEndOfUpcomingMoviesReached(PAGE_SIZE - 1)
         advanceUntilIdle()
         //Assert
-        coVerify { requestNextMoviePageUseCase.invoke(ofType(Category.Upcoming::class), PAGE_SIZE - 1) }
+        coVerify {
+            requestNextMoviePageUseCase.invoke(ofType(Category.Upcoming::class),
+                PAGE_SIZE - 1)
+        }
     }
+
+    @Test
+    fun `given upcoming movies bottom reached, then show progress before request and hide after request`() =
+        runTest {
+            //Arrange
+            mockGetMoviesSuccess()
+            coEvery { requestNextMoviePageUseCase.invoke(any(), any()) }.coAnswers {
+                delay(500)
+                Unit
+            }
+            buildSUT()
+            //Act
+            advanceUntilIdle()
+            SUT.onEndOfUpcomingMoviesReached(PAGE_SIZE - 1)
+            advanceTimeBy(100)
+            Assert.assertEquals(true, SUT.homeUiState.value.isLoadingMoreUpcomingMovies)
+            advanceTimeBy(500)
+            Assert.assertEquals(false, SUT.homeUiState.value.isLoadingMoreUpcomingMovies)
+        }
 
     @Test
     fun `given upcoming movies flow received, then update home state`() = runTest {
@@ -319,7 +364,8 @@ class HomeViewModelTest {
         advanceUntilIdle()
         SUT.onYearFilterSelected(1993)
         //Arrange
-        Assert.assertEquals(movieToBeFiltered.toPresentation().getReleaseYear(), SUT.homeUiState.value.recommendedMovies.yearFilter.currentYear)
+        Assert.assertEquals(movieToBeFiltered.toPresentation().getReleaseYear(),
+            SUT.homeUiState.value.recommendedMovies.yearFilter.currentYear)
         Assert.assertEquals(
             listOf(movieToBeFiltered.toPresentation()),
             SUT.homeUiState.value.recommendedMovies.movies

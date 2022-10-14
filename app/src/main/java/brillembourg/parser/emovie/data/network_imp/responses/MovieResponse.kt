@@ -1,5 +1,7 @@
 package brillembourg.parser.emovie.data.network_imp.responses
 
+import brillembourg.parser.emovie.data.MovieData
+import brillembourg.parser.emovie.data.utils.extractDateFromString
 import com.google.gson.annotations.SerializedName
 
 class GetMoviesResponse {
@@ -31,3 +33,16 @@ class MovieResponse(
     @SerializedName("release_date")
     val releaseDate: String
 )
+
+fun MovieResponse.toData(): MovieData {
+    return MovieData(
+        id = id,
+        name = name,
+        posterImageUrl = posterImageUrl,
+        originalLanguage = originalLanguage,
+        releaseDate = extractDateFromString(releaseDate),
+        backdropImageUrl = backDropImageUrl,
+        plot = plot,
+        voteCount = voteCount, voteAverage = voteAverage
+    )
+}

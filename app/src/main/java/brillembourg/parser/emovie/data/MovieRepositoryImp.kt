@@ -6,6 +6,7 @@ import brillembourg.parser.emovie.domain.models.Movie
 import brillembourg.parser.emovie.domain.MovieRepository
 import brillembourg.parser.emovie.core.Schedulers
 import brillembourg.parser.emovie.domain.models.MovieDetail
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import timber.log.Timber
 import javax.inject.Inject
