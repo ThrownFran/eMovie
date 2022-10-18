@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalCoroutinesApi::class)
+
 package brillembourg.parser.emovie.data.local_imp
 
 import androidx.room.Room
@@ -8,7 +10,10 @@ import brillembourg.parser.emovie.data.local_imp.category_movie_cross.CategoryMo
 import brillembourg.parser.emovie.data.local_imp.movies.MovieTable
 import brillembourg.parser.emovie.data.local_imp.movies.toData
 import brillembourg.parser.emovie.data.local_imp.remote_keys.RemoteKey
+import brillembourg.parser.emovie.data.local_imp.trailers.toDomain
 import brillembourg.parser.emovie.domain.models.Category
+import brillembourg.parser.emovie.domain.models.Movie
+import brillembourg.parser.emovie.domain.models.Trailer
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.currentTime
@@ -22,7 +27,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.threeten.bp.LocalDate
-
 
 @RunWith(AndroidJUnit4::class)
 class RoomLocalDataSourceTest {
@@ -88,16 +92,21 @@ class RoomLocalDataSourceTest {
     fun getMovies_returnMoviesMappedToData_and_sortedByOrder() = runTest {
         //Arrange
         val category = Category.TopRated
-        val movies = movies.map { it.toData() }
+        val movies = movies.map { it.toData() }.shuffled()
         SUT.prepopulateCategories()
         SUT.saveMovies(category, MoviePage(movies, 1, 1), 0)
         //Act
         val moviesFromDb = SUT.getMovies(category).first()
         //Assert
         assertEquals(movies, moviesFromDb)
-        movies.forEachIndexed { index, movie ->
+
+        //Movies are in order
+        moviesFromDb.mapIndexed { index, movie ->
             val remoteKey = remoteKeyDao.getRemoteKeyForMovie(movie.id, category.key)
-            assertEquals(index,remoteKey?.order)
+            Pair(remoteKey?.order, movie)
+        }.zipWithNext { a, b ->
+            //Check order with next value
+            assertTrue((a.first ?: 0) < (b.first ?: 0))
         }
     }
 
@@ -174,6 +183,40 @@ class RoomLocalDataSourceTest {
                 assertEquals(order + index, remoteKeyToCheck?.order)
             }
         }
+
+    @Test
+    fun saveTrailers_ThenCallTrailerDaoWithCorrectParams () = runTest {
+        //Arrange
+        val category = Category.Upcoming
+        val movieId = 100L
+        val movies = (movies + listOf(movies[0].copy(id = movieId))).map { it.toData() }
+        val trailers = (1..5).map { Trailer(it.toString(),"key","name","",movieId) }
+        //Act
+        SUT.prepopulateCategories()
+        SUT.saveMovies(category, MoviePage(movies,1,1),0)
+        SUT.saveTrailers(trailers)
+        //Assert
+        val result = trailerDao.getMovieWithTrailers(movieId).first().trailers
+        assertEquals(trailers,result.map { it.toDomain() })
+    }
+
+    @Test
+    fun getTrailers_thenReturnTrailersMappedAsDomain () = runTest {
+        //Arrange
+        val movieId = 120L
+        val category = Category.TopRated
+        val movies = (movies + listOf(movies[0].copy(id = movieId))).map { it.toData() }
+        val trailers = (1..5).map { Trailer(it.toString(),"key","name","",movieId) }
+        SUT.prepopulateCategories()
+        SUT.saveMovies(category,MoviePage(movies,1,1),0)
+        SUT.saveTrailers(trailers)
+        //Act
+        val result = SUT.getTrailers(movieId).first()
+        //Assert
+        assertEquals(trailers,result)
+    }
+
+
 
 
 }
