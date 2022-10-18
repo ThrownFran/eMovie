@@ -13,4 +13,6 @@ interface MovieRepository {
     suspend fun refreshMovies (category: Category, invalidateCache: Boolean = true): RefreshMoviesUseCase.Result
     suspend fun requestNextMoviePage(category: Category, lastVisibleItem: Int): RequestNextMoviePageUseCase.Result
     suspend fun refreshMovieDetail (id: Long)
+
+
 }

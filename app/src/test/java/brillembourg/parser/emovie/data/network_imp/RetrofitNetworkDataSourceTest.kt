@@ -1,16 +1,13 @@
 package brillembourg.parser.emovie.data.network_imp
 
-import brillembourg.parser.emovie.data.NetworkDataSource
+import brillembourg.parser.emovie.data.MoviePage
 import brillembourg.parser.emovie.data.network_imp.responses.*
 import brillembourg.parser.emovie.domain.models.Category
-import brillembourg.parser.emovie.domain.models.Movie
 import brillembourg.parser.emovie.utils.CoroutineTestRule
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit4.MockKRule
-import io.mockk.verify
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
 import org.junit.Assert.*
@@ -19,7 +16,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import kotlin.math.exp
 
 @RunWith(JUnit4::class)
 class RetrofitNetworkDataSourceTest {
@@ -130,7 +126,7 @@ class RetrofitNetworkDataSourceTest {
         //Act
         val result = SUT.getMovies(Category.Upcoming, page)
         //Assert
-        val expectedResult = NetworkDataSource.MoviePageResponse(
+        val expectedResult = MoviePage(
             movies = movieResponseMock.results?.map { it.toData() } ?: emptyList(),
             currentPage = page,
             lastPage = lastPag
@@ -151,7 +147,7 @@ class RetrofitNetworkDataSourceTest {
         //Act
         val result = SUT.getMovies(Category.TopRated, page)
         //Assert
-        val expectedResult = NetworkDataSource.MoviePageResponse(
+        val expectedResult = MoviePage(
             movies = movieResponseMock.results?.map { it.toData() } ?: emptyList(),
             currentPage = page,
             lastPage = lastPag
@@ -166,7 +162,7 @@ class RetrofitNetworkDataSourceTest {
         //Act
         val result = SUT.getMovies(Category.TopRated, 1)
         //Assert
-        val expectedResult = NetworkDataSource.MoviePageResponse(
+        val expectedResult = MoviePage(
             movies = emptyList(),
             currentPage = 0,
             lastPage = 0

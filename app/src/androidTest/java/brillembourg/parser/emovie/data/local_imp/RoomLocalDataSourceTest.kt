@@ -3,19 +3,15 @@ package brillembourg.parser.emovie.data.local_imp
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import brillembourg.parser.emovie.data.NetworkDataSource
-import brillembourg.parser.emovie.data.local_imp.categories.CategoryDao
-import brillembourg.parser.emovie.data.local_imp.categories.CategoryTable
+import brillembourg.parser.emovie.data.MoviePage
 import brillembourg.parser.emovie.data.local_imp.category_movie_cross.CategoryMovieCrossRef
-import brillembourg.parser.emovie.data.local_imp.category_movie_cross.CategoryMoviesCrossDao
-import brillembourg.parser.emovie.data.local_imp.movies.MovieDao
 import brillembourg.parser.emovie.data.local_imp.movies.MovieTable
 import brillembourg.parser.emovie.data.local_imp.movies.toData
-import brillembourg.parser.emovie.data.local_imp.remote_keys.RemoteKeyDao
+import brillembourg.parser.emovie.data.local_imp.remote_keys.RemoteKey
 import brillembourg.parser.emovie.domain.models.Category
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.currentTime
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert
@@ -26,7 +22,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.threeten.bp.LocalDate
-import java.util.concurrent.CountDownLatch
 
 
 @RunWith(AndroidJUnit4::class)
@@ -90,17 +85,20 @@ class RoomLocalDataSourceTest {
     }
 
     @Test
-    fun getMovies_returnMoviesMappedToData() = runTest {
+    fun getMovies_returnMoviesMappedToData_and_sortedByOrder() = runTest {
         //Arrange
-        //Act
+        val category = Category.TopRated
+        val movies = movies.map { it.toData() }
         SUT.prepopulateCategories()
-        movies.forEach {
-            movieDao.saveMovie(it)
-            crossDao.create(CategoryMovieCrossRef(Category.TopRated.key, it.id))
-        }
-        val moviesFromDb = SUT.getMovies(Category.TopRated).first()
+        SUT.saveMovies(category, MoviePage(movies, 1, 1), 0)
+        //Act
+        val moviesFromDb = SUT.getMovies(category).first()
         //Assert
-        assertEquals(movies.map { it.toData() }, moviesFromDb)
+        assertEquals(movies, moviesFromDb)
+        movies.forEachIndexed { index, movie ->
+            val remoteKey = remoteKeyDao.getRemoteKeyForMovie(movie.id, category.key)
+            assertEquals(index,remoteKey?.order)
+        }
     }
 
     @Test
@@ -109,7 +107,7 @@ class RoomLocalDataSourceTest {
         SUT.prepopulateCategories()
         SUT.saveMovies(
             category = Category.TopRated,
-            moviePageResponse = NetworkDataSource.MoviePageResponse(movies.map { it.toData() },
+            moviePage = MoviePage(movies.map { it.toData() },
                 1,
                 4),
             nextOrder = 1)
@@ -117,9 +115,65 @@ class RoomLocalDataSourceTest {
         SUT.deleteMovies(Category.TopRated)
         val movies = SUT.getMovies(Category.TopRated).first()
         //Assert
-        assertEquals(0,movies.size)
+        assertEquals(0, movies.size)
 
         val crossList = crossDao.getList().filter { it.categoryKey == Category.TopRated.key }
-        assertEquals(0,crossList.size)
+        assertEquals(0, crossList.size)
     }
+
+    @Test
+    fun saveMovies_then_saveMoviesInDao_and_saveCategoryMoviesCrossList_and_saveRemoteKeys() =
+        runTest {
+            //Arrange
+            val page = 1
+            val lastPage = 3
+            val order = 0
+            val category = Category.TopRated
+            val moviesMocked = movies
+            val pageToSave = MoviePage(
+                movies = moviesMocked.map { it.toData() },
+                currentPage = page,
+                lastPage = lastPage
+            )
+            SUT.prepopulateCategories()
+
+            //Act
+            SUT.saveMovies(Category.TopRated, pageToSave, order)
+
+            //ASSERT
+
+            //Movies are saved correctly
+            val movies = SUT.getMovies(Category.TopRated).first()
+            assertEquals(moviesMocked.map { it.toData() }, movies)
+
+            //CategoryMoviesCross are saved correctly
+            val categoryMovieCrossList = crossDao.getList()
+            categoryMovieCrossList.forEach { crossTable ->
+                //Movie id is saved
+                assertNotNull(moviesMocked.find { it.id == crossTable.movieId })
+                //Category key is saved
+                assertEquals(crossTable.categoryKey, category.key)
+            }
+
+            //Save remote keys
+            val remoteKeys = remoteKeyDao.getRemoteKeysForCategory(category.key)
+            remoteKeys.forEach { remoteKey ->
+                //Movie id is saved
+                assertNotNull(moviesMocked.find { remoteKey.movieId == it.id })
+                //Page data is saved
+                assertEquals(remoteKey.currentPage, page)
+                assertEquals(remoteKey.lastPage, lastPage)
+                //Category key is saved
+                assertEquals(remoteKey.categoryKey, category.key)
+            }
+
+            //Check remote key order
+            moviesMocked.forEachIndexed { index, movieTable ->
+                val remoteKeyToCheck =
+                    remoteKeyDao.getRemoteKeyForMovie(movieTable.id, category.key)
+                assertEquals(order + index, remoteKeyToCheck?.order)
+            }
+        }
+
+
 }

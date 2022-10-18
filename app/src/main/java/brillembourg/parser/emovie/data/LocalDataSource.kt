@@ -12,7 +12,7 @@ interface LocalDataSource {
     suspend fun saveTrailers(trailers: List<Trailer>)
     suspend fun saveMovies(
         category: Category,
-        moviePageResponse: NetworkDataSource.MoviePageResponse,
+        moviePage: MoviePage,
         nextOrder: Int
     )
 

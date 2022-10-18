@@ -1,10 +1,9 @@
 package brillembourg.parser.emovie.data.local_imp
 
 import androidx.room.withTransaction
-import brillembourg.parser.emovie.core.Schedulers
 import brillembourg.parser.emovie.data.MovieData
 import brillembourg.parser.emovie.data.LocalDataSource
-import brillembourg.parser.emovie.data.NetworkDataSource
+import brillembourg.parser.emovie.data.MoviePage
 import brillembourg.parser.emovie.data.local_imp.categories.CategoryDao
 import brillembourg.parser.emovie.data.local_imp.categories.CategoryTable
 import brillembourg.parser.emovie.data.local_imp.category_movie_cross.CategoryMovieCrossRef
@@ -19,9 +18,7 @@ import brillembourg.parser.emovie.data.local_imp.trailers.toDomain
 import brillembourg.parser.emovie.data.local_imp.trailers.toTable
 import brillembourg.parser.emovie.domain.models.Category
 import brillembourg.parser.emovie.domain.models.Trailer
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class RoomLocalDataSource @Inject constructor(
@@ -67,16 +64,17 @@ class RoomLocalDataSource @Inject constructor(
                             categoryKey = categoryWithMovies.category.name
                         )
                         remoteKey?.order
-                    } ?: emptyList()
+                    }
+                    ?: emptyList()
             }
     }
 
     override suspend fun saveMovies(
         category: Category,
-        moviePageResponse: NetworkDataSource.MoviePageResponse,
+        moviePage: MoviePage,
         nextOrder: Int,
     ) {
-        saveMovies(moviePageResponse, category, nextOrder)
+        saveMovies(moviePage, category, nextOrder)
     }
 
     override suspend fun getLastPageForCategory(category: Category): Int {
@@ -98,27 +96,27 @@ class RoomLocalDataSource @Inject constructor(
     }
 
     private suspend fun saveMovies(
-        moviePageResponse: NetworkDataSource.MoviePageResponse,
+        moviePage: MoviePage,
         category: Category,
         nextOrder: Int,
     ) {
         appDatabase.withTransaction {
 
-            val remoteKeys = moviePageResponse.movies.mapIndexed { i, movie ->
+            val remoteKeys = moviePage.movies.mapIndexed { i, movie ->
                 RemoteKey(
                     movieId = movie.id,
-                    currentPage = moviePageResponse.currentPage,
-                    lastPage = moviePageResponse.lastPage,
+                    currentPage = moviePage.currentPage,
+                    lastPage = moviePage.lastPage,
                     order = nextOrder + i,
                     categoryKey = category.key
                 )
             }
 
-            val categoryMoviesCrossList = moviePageResponse.movies.map { movie ->
+            val categoryMoviesCrossList = moviePage.movies.map { movie ->
                 CategoryMovieCrossRef(category.key, movie.id)
             }
 
-            movieDao.saveMovies(moviePageResponse.movies.map { it.toTable() })
+            movieDao.saveMovies(moviePage.movies.map { it.toTable() })
             crossDao.insertList(categoryMoviesCrossList)
             remoteKeyDao.saveRemoteKeys(remoteKeys)
 

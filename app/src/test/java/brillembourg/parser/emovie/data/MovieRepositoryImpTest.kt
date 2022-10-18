@@ -391,7 +391,7 @@ class MovieRepositoryImpTest {
     ) {
         coEvery { networkDataSource.getTrailers(any()) }.returns(trailers)
         coEvery { networkDataSource.getMovies(any(), any()) }.returns(
-            NetworkDataSource.MoviePageResponse(
+            MoviePage(
                 movies = movieFakes,
                 currentPage = currentMoviePage,
                 lastPage = lastMoviePage

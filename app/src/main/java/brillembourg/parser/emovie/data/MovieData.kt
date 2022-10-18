@@ -1,9 +1,13 @@
 package brillembourg.parser.emovie.data
 
-import brillembourg.parser.emovie.data.network_imp.responses.MovieResponse
 import brillembourg.parser.emovie.domain.models.Movie
-import brillembourg.parser.emovie.data.utils.extractDateFromString
 import org.threeten.bp.LocalDate
+
+data class MoviePage (
+    val movies: List<MovieData>,
+    val currentPage: Int,
+    val lastPage: Int,
+)
 
 data class MovieData(
     val id: Long,
