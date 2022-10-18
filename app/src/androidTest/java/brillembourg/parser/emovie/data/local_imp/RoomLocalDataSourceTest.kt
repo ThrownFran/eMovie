@@ -76,7 +76,7 @@ class RoomLocalDataSourceTest {
     }
 
     @Test
-    fun givenPrepopulateCategories_then_saveAllCategoriesKeys() = runTest {
+    fun prepopulateCategories_then_saveAllCategoriesKeys() = runTest {
         //Arrange
         //Act
         SUT.prepopulateCategories()
@@ -90,7 +90,7 @@ class RoomLocalDataSourceTest {
     }
 
     @Test
-    fun givenGetMovies_returnMoviesMappedToData() = runTest {
+    fun getMovies_returnMoviesMappedToData() = runTest {
         //Arrange
         //Act
         SUT.prepopulateCategories()
@@ -104,7 +104,7 @@ class RoomLocalDataSourceTest {
     }
 
     @Test
-    fun givenDeleteMovies_thenDeleteCategoryCrossEntityAndMovieEntity() = runTest {
+    fun deleteMovies_thenDeleteCategoryCrossEntityAndMovieEntity() = runTest {
         //Arrange
         SUT.prepopulateCategories()
         SUT.saveMovies(
@@ -117,9 +117,9 @@ class RoomLocalDataSourceTest {
         SUT.deleteMovies(Category.TopRated)
         val movies = SUT.getMovies(Category.TopRated).first()
         //Assert
-        Assert.assertEquals(0,movies.size)
+        assertEquals(0,movies.size)
 
         val crossList = crossDao.getList().filter { it.categoryKey == Category.TopRated.key }
-        Assert.assertEquals(0,crossList.size)
+        assertEquals(0,crossList.size)
     }
 }

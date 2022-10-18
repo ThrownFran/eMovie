@@ -6,6 +6,7 @@ import brillembourg.parser.emovie.domain.models.Category
 import brillembourg.parser.emovie.domain.models.Trailer
 import brillembourg.parser.emovie.core.Logger
 import brillembourg.parser.emovie.data.network_imp.responses.toData
+import brillembourg.parser.emovie.data.network_imp.responses.toDomain
 import javax.inject.Inject
 
 class RetrofitNetworkDataSource @Inject constructor(
@@ -29,13 +30,7 @@ class RetrofitNetworkDataSource @Inject constructor(
     override suspend fun getTrailers(movieId: Long): List<Trailer> {
         val response = movieApi.getTrailers(movieId, API_KEY)
         return response.results.map { trailerResponse ->
-            Trailer(
-                trailerResponse.id,
-                trailerResponse.key,
-                trailerResponse.name,
-                trailerResponse.site,
-                movieId
-            )
+            trailerResponse.toDomain(movieId)
         }
     }
 }

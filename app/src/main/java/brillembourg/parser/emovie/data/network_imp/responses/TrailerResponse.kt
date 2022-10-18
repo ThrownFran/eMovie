@@ -19,3 +19,13 @@ class TrailerResponse(
     val site: String,
 )
 
+fun TrailerResponse.toDomain(movieId: Long): Trailer {
+    return Trailer(
+        id,
+        key,
+        name,
+        site,
+        movieId
+    )
+}
+

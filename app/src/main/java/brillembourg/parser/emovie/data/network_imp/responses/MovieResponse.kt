@@ -8,9 +8,9 @@ class GetMoviesResponse {
     @SerializedName("results")
     var results : List<MovieResponse>? = null
     @SerializedName("page")
-    val currentPage = 0
+    var currentPage = 0
     @SerializedName("total_pages")
-    val lastPage = 0
+    var lastPage = 0
 }
 
 class MovieResponse(
