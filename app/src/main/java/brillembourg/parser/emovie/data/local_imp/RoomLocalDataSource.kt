@@ -31,7 +31,6 @@ class RoomLocalDataSource @Inject constructor(
     private val crossDao: CategoryMoviesCrossDao,
     private val categoryDao: CategoryDao,
     private val remoteKeyDao: RemoteKeyDao,
-    private val schedulers: Schedulers,
 ) : LocalDataSource {
 
     override suspend fun prepopulateCategories() {
@@ -67,10 +66,6 @@ class RoomLocalDataSource @Inject constructor(
                             movieId = it.id,
                             categoryKey = categoryWithMovies.category.name
                         )
-                        //TODO remove
-//                        it.name = remoteKey?.order.toString()
-                        //TODO remove
-
                         remoteKey?.order
                     } ?: emptyList()
             }
@@ -98,6 +93,7 @@ class RoomLocalDataSource @Inject constructor(
                 ))
             }
         }
+
 //        movieDao.deleteAll()
     }
 
@@ -108,35 +104,35 @@ class RoomLocalDataSource @Inject constructor(
     ) {
         appDatabase.withTransaction {
 
-//            val remoteKeys = moviePageResponse.movies.mapIndexed { i, movie ->
-//                RemoteKey(
-//                    movieId = movie.id,
-//                    currentPage = moviePageResponse.currentPage,
-//                    lastPage = moviePageResponse.lastPage,
-//                    order = nextOrder + i,
-//                    categoryKey = category.key
-//                )
-//            }
-//
-//            val categoryMoviesCrossList = moviePageResponse.movies.map { movie ->
-//                CategoryMovieCrossRef(category.key, movie.id)
-//            }
-//
-//            movieDao.saveMovies(moviePageResponse.movies.map { it.toTable() })
-//            crossDao.insertList(categoryMoviesCrossList)
-//            remoteKeyDao.saveRemoteKeys(remoteKeys)
-
-            moviePageResponse.movies.forEachIndexed { i, movieData ->
-                movieDao.saveMovie(movieData.toTable())
-                crossDao.create(CategoryMovieCrossRef(category.key, movieData.id))
-                remoteKeyDao.saveRemoteKey(RemoteKey(
-                    movieId = movieData.id,
+            val remoteKeys = moviePageResponse.movies.mapIndexed { i, movie ->
+                RemoteKey(
+                    movieId = movie.id,
                     currentPage = moviePageResponse.currentPage,
                     lastPage = moviePageResponse.lastPage,
                     order = nextOrder + i,
                     categoryKey = category.key
-                ))
+                )
             }
+
+            val categoryMoviesCrossList = moviePageResponse.movies.map { movie ->
+                CategoryMovieCrossRef(category.key, movie.id)
+            }
+
+            movieDao.saveMovies(moviePageResponse.movies.map { it.toTable() })
+            crossDao.insertList(categoryMoviesCrossList)
+            remoteKeyDao.saveRemoteKeys(remoteKeys)
+
+//            moviePageResponse.movies.forEachIndexed { i, movieData ->
+//                movieDao.saveMovie(movieData.toTable())
+//                crossDao.create(CategoryMovieCrossRef(category.key, movieData.id))
+//                remoteKeyDao.saveRemoteKey(RemoteKey(
+//                    movieId = movieData.id,
+//                    currentPage = moviePageResponse.currentPage,
+//                    lastPage = moviePageResponse.lastPage,
+//                    order = nextOrder + i,
+//                    categoryKey = category.key
+//                ))
+//            }
         }
     }
 }

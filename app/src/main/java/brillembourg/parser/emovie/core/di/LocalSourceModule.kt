@@ -63,7 +63,7 @@ class LocalSourceModule {
         remoteKeyDao: RemoteKeyDao,
         schedulers: Schedulers
     ): LocalDataSource =
-        RoomLocalDataSource(appDatabase, movieDao, trailerDao, crossDao, categoryDao,remoteKeyDao,schedulers)
+        RoomLocalDataSource(appDatabase, movieDao, trailerDao, crossDao, categoryDao,remoteKeyDao)
 
     @Singleton
     @Provides

@@ -15,6 +15,9 @@ interface CategoryMoviesCrossDao {
     @Delete
     suspend fun delete(noteCrossRef: CategoryMovieCrossRef)
 
+    @Query("SELECT * FROM category_movies_cross_ref")
+    suspend fun getList () : List<CategoryMovieCrossRef>
+
     @Transaction
     @Query("SELECT * FROM categorytable")
     fun getCategoriesWithMovies(): Flow<List<CategoryWithMovies>>

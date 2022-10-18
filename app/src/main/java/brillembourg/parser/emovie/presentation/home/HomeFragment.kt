@@ -13,11 +13,11 @@ import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import brillembourg.parser.emovie.domain.models.Category
 import brillembourg.parser.emovie.presentation.home.ui.HomeScreen
 import brillembourg.parser.emovie.presentation.models.MoviePresentationModel
 import brillembourg.parser.emovie.presentation.models.asString
 import brillembourg.parser.emovie.presentation.theme.eMovieTheme
-import brillembourg.parser.emovie.presentation.utils.setOriginSharedAxisTransition
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -27,33 +27,48 @@ class HomeFragment : Fragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
 
         return ComposeView(requireContext()).apply {
-//            isTransitionGroup = true
+            isTransitionGroup = true
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
                 eMovieTheme {
                     val uiState = viewModel.homeUiState.collectAsState()
+                    val recommendedMovies = viewModel.recommendedMovies.collectAsState()
                     HomeScreen(
                         upcomingMovies = uiState.value.upcomingMovies,
                         isLoadingMoreUpcomingMovies = uiState.value.isLoadingMoreUpcomingMovies,
-                        onEndReachedForUpcomingMovies = { viewModel.onEndOfUpcomingMoviesReached(it) },
-                        isLastUpcomingPageReached =  uiState.value.isLastUpcomingPageReached,
+                        onEndReachedForUpcomingMovies = { lastVisibleItem ->
+                            viewModel.onAction.invoke(HomeViewModel.UiAction.EndOfPageReached(
+                                Category.Upcoming,
+                                lastVisibleItem))
+                        },
+                        isLastUpcomingPageReached = uiState.value.isLastUpcomingPageReached,
 
                         topRatedMovies = uiState.value.topRatedMovies,
                         isLoadingMoreTopRatedMovies = uiState.value.isLoadingMoreTopRatedMovies,
-                        onEndReachedForTopRatedMovies = { viewModel.onEndOfTopRatedMoviesReached(it) },
+                        onEndReachedForTopRatedMovies = { lastVisibleItem ->
+                            viewModel.onAction.invoke(HomeViewModel.UiAction.EndOfPageReached(
+                                Category.TopRated,
+                                lastVisibleItem))
+                        },
                         isLastTopRatedPageReached = uiState.value.isLastTopRatedPageReached,
 
-                        recommendedMovies = uiState.value.recommendedMovies,
-                        onFilterYearChanged = viewModel::onYearFilterSelected,
-                        onFilterLanguageChanged = viewModel::onLanguageFilterSelected,
+                        recommendedMovies = recommendedMovies.value,
+                        onFilterYearChanged = {
+                            viewModel.onAction(HomeViewModel.UiAction.SelectYear(it))
+                        },
+                        onFilterLanguageChanged = {
+                            viewModel.onAction(HomeViewModel.UiAction.SelectLanguage(it))
+                        },
                         messageToShow = uiState.value.messageToShow?.asString(context),
                         onMessageShown = viewModel::onMessageShown,
                         isLoading = uiState.value.isLoading,
-                        onRefresh = viewModel::onRefresh,
+                        onRefresh = {
+                            viewModel.onAction(HomeViewModel.UiAction.Refresh)
+                        },
                         onMovieClick = {
                             handleNavigation(it)
                         }
@@ -66,7 +81,8 @@ class HomeFragment : Fragment() {
     private fun handleNavigation(navigateToThisMovie: MoviePresentationModel?) {
         navigateToThisMovie?.let {
 //            setOriginSharedAxisTransition()
-            val directions = HomeFragmentDirections.actionHomeFragmentToDetailFragment(navigateToThisMovie)
+            val directions =
+                HomeFragmentDirections.actionHomeFragmentToDetailFragment(navigateToThisMovie)
             findNavController().navigate(directions)
 //            viewModel.onNavigateToMovieCompleted()
         }

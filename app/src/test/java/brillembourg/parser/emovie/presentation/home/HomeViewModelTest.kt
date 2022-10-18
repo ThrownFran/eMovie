@@ -180,7 +180,7 @@ class HomeViewModelTest {
         buildSUT()
         //Act
         advanceUntilIdle()
-        SUT.onRefresh()
+        SUT.onAction(HomeViewModel.UiAction.Refresh)
         advanceUntilIdle()
         //Assert
         coVerify { refreshMoviesUseCase.invoke(ofType(Category.TopRated::class)) }
@@ -221,7 +221,8 @@ class HomeViewModelTest {
         buildSUT()
         //Act
         advanceUntilIdle()
-        SUT.onEndOfTopRatedMoviesReached(PAGE_SIZE - 1)
+        SUT.onAction(HomeViewModel.UiAction.EndOfPageReached(Category.TopRated, PAGE_SIZE -1))
+//        SUT.onEndOfTopRatedMoviesReached(PAGE_SIZE - 1)
         advanceUntilIdle()
         //Assert
         coVerify {
@@ -242,7 +243,8 @@ class HomeViewModelTest {
             buildSUT()
             //Act
             advanceUntilIdle()
-            SUT.onEndOfTopRatedMoviesReached(PAGE_SIZE - 1)
+            SUT.onAction(HomeViewModel.UiAction.EndOfPageReached(Category.TopRated, PAGE_SIZE -1))
+//            SUT.onEndOfTopRatedMoviesReached(PAGE_SIZE - 1)
             advanceTimeBy(100)
             Assert.assertEquals(true, SUT.homeUiState.value.isLoadingMoreTopRatedMovies)
             advanceTimeBy(500)
@@ -258,7 +260,8 @@ class HomeViewModelTest {
         buildSUT()
         //Act
         advanceUntilIdle()
-        SUT.onEndOfTopRatedMoviesReached(SUT.homeUiState.value.topRatedMovies.size - 1)
+        SUT.onAction(HomeViewModel.UiAction.EndOfPageReached(Category.TopRated, PAGE_SIZE -1))
+//        SUT.onEndOfTopRatedMoviesReached(SUT.homeUiState.value.topRatedMovies.size - 1)
         advanceUntilIdle()
         //Assert
         Assert.assertEquals(SUT.homeUiState.value.isLastTopRatedPageReached, true)
@@ -271,7 +274,8 @@ class HomeViewModelTest {
         buildSUT()
         //Act
         advanceUntilIdle()
-        SUT.onEndOfUpcomingMoviesReached(PAGE_SIZE - 1)
+//        SUT.onEndOfUpcomingMoviesReached(PAGE_SIZE - 1)
+        SUT.onAction(HomeViewModel.UiAction.EndOfPageReached(Category.Upcoming, PAGE_SIZE -1))
         advanceUntilIdle()
         //Assert
         coVerify {
@@ -292,7 +296,8 @@ class HomeViewModelTest {
             buildSUT()
             //Act
             advanceUntilIdle()
-            SUT.onEndOfUpcomingMoviesReached(PAGE_SIZE - 1)
+            SUT.onAction(HomeViewModel.UiAction.EndOfPageReached(Category.Upcoming, PAGE_SIZE -1))
+//            SUT.onEndOfUpcomingMoviesReached(PAGE_SIZE - 1)
             advanceTimeBy(100)
             Assert.assertEquals(true, SUT.homeUiState.value.isLoadingMoreUpcomingMovies)
             advanceTimeBy(500)
@@ -308,7 +313,8 @@ class HomeViewModelTest {
         buildSUT()
         //Act
         advanceUntilIdle()
-        SUT.onEndOfUpcomingMoviesReached(SUT.homeUiState.value.upcomingMovies.size - 1)
+        SUT.onAction(HomeViewModel.UiAction.EndOfPageReached(Category.Upcoming, SUT.homeUiState.value.upcomingMovies.size - 1))
+//        SUT.onEndOfUpcomingMoviesReached(SUT.homeUiState.value.upcomingMovies.size - 1)
         advanceUntilIdle()
         //Assert
         Assert.assertEquals(SUT.homeUiState.value.isLastUpcomingPageReached, true)
@@ -325,13 +331,17 @@ class HomeViewModelTest {
         buildSUT()
         //Act
         advanceUntilIdle()
-        SUT.onEndOfUpcomingMoviesReached(SUT.homeUiState.value.upcomingMovies.size - 1)
+        SUT.onAction(HomeViewModel.UiAction.EndOfPageReached(Category.Upcoming, SUT.homeUiState.value.upcomingMovies.size - 1))
+//        SUT.onEndOfUpcomingMoviesReached(SUT.homeUiState.value.upcomingMovies.size - 1)
         delay(10)
-        SUT.onEndOfUpcomingMoviesReached(SUT.homeUiState.value.upcomingMovies.size - 1)
+        SUT.onAction(HomeViewModel.UiAction.EndOfPageReached(Category.Upcoming, SUT.homeUiState.value.upcomingMovies.size - 1))
+//        SUT.onEndOfUpcomingMoviesReached(SUT.homeUiState.value.upcomingMovies.size - 1)
         delay(10)
-        SUT.onEndOfUpcomingMoviesReached(SUT.homeUiState.value.upcomingMovies.size - 1)
+        SUT.onAction(HomeViewModel.UiAction.EndOfPageReached(Category.Upcoming, SUT.homeUiState.value.upcomingMovies.size - 1))
+//        SUT.onEndOfUpcomingMoviesReached(SUT.homeUiState.value.upcomingMovies.size - 1)
         delay(10)
-        SUT.onEndOfUpcomingMoviesReached(SUT.homeUiState.value.upcomingMovies.size - 1)
+        SUT.onAction(HomeViewModel.UiAction.EndOfPageReached(Category.Upcoming, SUT.homeUiState.value.upcomingMovies.size - 1))
+//        SUT.onEndOfUpcomingMoviesReached(SUT.homeUiState.value.upcomingMovies.size - 1)
         advanceUntilIdle()
         //Assert
         coVerify(exactly = 1) { requestNextMoviePageUseCase.invoke(any(),any()) }
@@ -360,8 +370,8 @@ class HomeViewModelTest {
             //Act
             advanceUntilIdle()
             //Assert
-            Assert.assertNull(SUT.homeUiState.value.recommendedMovies.languageFilter.currentLanguage)
-            Assert.assertNull(SUT.homeUiState.value.recommendedMovies.yearFilter.currentYear)
+            Assert.assertNull(SUT.recommendedMovies.value.languageFilter.currentLanguage)
+            Assert.assertNull(SUT.recommendedMovies.value.yearFilter.currentYear)
         }
 
     @Test
@@ -375,7 +385,7 @@ class HomeViewModelTest {
             //Assert
             Assert.assertEquals(
                 listOf("en", "es").sorted(),
-                SUT.homeUiState.value.recommendedMovies.languageFilter.selectableLanguages.sorted()
+                SUT.recommendedMovies.value.languageFilter.selectableLanguages.sorted()
             )
         }
 
@@ -390,7 +400,7 @@ class HomeViewModelTest {
             //Assert
             Assert.assertEquals(
                 listOf(1993, 1995, 1996, 1997).sortedDescending(),
-                SUT.homeUiState.value.recommendedMovies.yearFilter.selectableYears
+                SUT.recommendedMovies.value.yearFilter.selectableYears
             )
         }
 
@@ -402,12 +412,15 @@ class HomeViewModelTest {
             mockGetMoviesForRecommendedTests(list)
             buildSUT()
             //Act
-            SUT.onSetNoYearFilter()
-            SUT.onSetNoLanguageFilter()
+            SUT.onAction(HomeViewModel.UiAction.SelectYear(null))
+            SUT.onAction(HomeViewModel.UiAction.SelectLanguage(null))
+//            SUT.onSetNoYearFilter()
+//            SUT.onSetNoLanguageFilter()
+            advanceUntilIdle()
             advanceUntilIdle()
             //Assert
             Assert.assertEquals(
-                list.map { it.toPresentation() }, SUT.homeUiState.value.recommendedMovies.movies
+                list.map { it.toPresentation() }, SUT.recommendedMovies.value.movies
             )
         }
 
@@ -427,7 +440,7 @@ class HomeViewModelTest {
             advanceUntilIdle()
             //Assert
             Assert.assertEquals(
-                6, SUT.homeUiState.value.recommendedMovies.movies.size
+                6, SUT.recommendedMovies.value.movies.size
             )
         }
 
@@ -448,13 +461,15 @@ class HomeViewModelTest {
         buildSUT()
         //Act
         advanceUntilIdle()
-        SUT.onYearFilterSelected(1993)
+        SUT.onAction(HomeViewModel.UiAction.SelectYear(1993))
+        advanceUntilIdle()
+//        SUT.onYearFilterSelected(1993)
         //Arrange
         Assert.assertEquals(movieToBeFiltered.toPresentation().getReleaseYear(),
-            SUT.homeUiState.value.recommendedMovies.yearFilter.currentYear)
+            SUT.recommendedMovies.value.yearFilter.currentYear)
         Assert.assertEquals(
             listOf(movieToBeFiltered.toPresentation()),
-            SUT.homeUiState.value.recommendedMovies.movies
+            SUT.recommendedMovies.value.movies
         )
     }
 
@@ -472,15 +487,17 @@ class HomeViewModelTest {
         buildSUT()
         //Act
         advanceUntilIdle()
-        SUT.onLanguageFilterSelected("es")
+        SUT.onAction(HomeViewModel.UiAction.SelectLanguage("es"))
+        advanceUntilIdle()
+//        SUT.onLanguageFilterSelected("es")
         //Arrange
         Assert.assertEquals(
             "es",
-            SUT.homeUiState.value.recommendedMovies.languageFilter.currentLanguage
+            SUT.recommendedMovies.value.languageFilter.currentLanguage
         )
         Assert.assertEquals(
             listOf(movieInSpanish.toPresentation()),
-            SUT.homeUiState.value.recommendedMovies.movies
+            SUT.recommendedMovies.value.movies
         )
     }
 
@@ -526,19 +543,22 @@ class HomeViewModelTest {
 
             //Act
             advanceUntilIdle()
-            SUT.onLanguageFilterSelected("ja")
-            SUT.onYearFilterSelected(1995)
+            SUT.onAction(HomeViewModel.UiAction.SelectLanguage("ja"))
+            SUT.onAction(HomeViewModel.UiAction.SelectYear(1995))
+            advanceUntilIdle()
+//            SUT.onLanguageFilterSelected("ja")
+//            SUT.onYearFilterSelected(1995)
 
             //Arrange
 
             //Check filter state
             Assert.assertEquals(
                 "ja",
-                SUT.homeUiState.value.recommendedMovies.languageFilter.currentLanguage
+                SUT.recommendedMovies.value.languageFilter.currentLanguage
             )
             Assert.assertEquals(
                 1995,
-                SUT.homeUiState.value.recommendedMovies.yearFilter.currentYear
+                SUT.recommendedMovies.value.yearFilter.currentYear
             )
 
             //Movies filtered
@@ -555,30 +575,34 @@ class HomeViewModelTest {
                         date = LocalDate.ofYearDay(1995, 1)
                     ).toDomain().toPresentation()
                 ),
-                SUT.homeUiState.value.recommendedMovies.movies
+                SUT.recommendedMovies.value.movies
             )
         }
 
     @Test
-    fun `given click in movie, then navigate to movie`() {
+    fun `given click in movie, then navigate to movie`() = runTest {
         //Arrange
         val movieClicked = movieDomainFakes[0].toPresentation()
         mockGetMoviesSuccess()
         buildSUT()
         //Act
-        SUT.onMovieClick(movieClicked)
+        advanceUntilIdle()
+        SUT.onAction(HomeViewModel.UiAction.MovieClicked(movieClicked))
+        advanceUntilIdle()
         //Assert
-        Assert.assertEquals(SUT.homeUiState.value.navigateToThisMovie, movieClicked)
+        Assert.assertEquals(movieClicked, SUT.homeUiState.value.navigateToThisMovie)
     }
 
     @Test
-    fun `given navigation completed, then update navigate state to null`() {
+    fun `given navigation completed, then update navigate state to null`() = runTest {
         //Arrange
         val movieClicked = movieDomainFakes[0].toPresentation()
         mockGetMoviesSuccess()
         buildSUT()
         //Act
-        SUT.onMovieClick(movieClicked)
+        SUT.onAction(HomeViewModel.UiAction.MovieClicked(movieClicked))
+        advanceUntilIdle()
+//        SUT.onMovieClick(movieClicked)
         SUT.onNavigateToMovieCompleted()
         //Assert
         Assert.assertNull(SUT.homeUiState.value.navigateToThisMovie)
