@@ -6,22 +6,16 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import brillembourg.parser.emovie.data.MoviePage
-import brillembourg.parser.emovie.data.local_imp.category_movie_cross.CategoryMovieCrossRef
 import brillembourg.parser.emovie.data.local_imp.movies.MovieTable
 import brillembourg.parser.emovie.data.local_imp.movies.toData
-import brillembourg.parser.emovie.data.local_imp.remote_keys.RemoteKey
 import brillembourg.parser.emovie.data.local_imp.trailers.toDomain
 import brillembourg.parser.emovie.domain.models.Category
-import brillembourg.parser.emovie.domain.models.Movie
 import brillembourg.parser.emovie.domain.models.Trailer
-import kotlinx.coroutines.*
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.test.currentTime
 import kotlinx.coroutines.test.runTest
 import org.junit.After
-import org.junit.Assert
 import org.junit.Assert.*
-
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
