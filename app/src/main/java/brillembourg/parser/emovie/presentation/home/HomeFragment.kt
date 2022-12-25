@@ -14,7 +14,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import brillembourg.parser.emovie.domain.models.Category
-import brillembourg.parser.emovie.presentation.home.ui.HomeScreen
+import brillembourg.parser.emovie.presentation.home.ui.HomeContent
 import brillembourg.parser.emovie.presentation.models.MoviePresentationModel
 import brillembourg.parser.emovie.presentation.models.asString
 import brillembourg.parser.emovie.presentation.theme.eMovieTheme
@@ -37,7 +37,7 @@ class HomeFragment : Fragment() {
                 eMovieTheme {
                     val uiState = viewModel.homeUiState.collectAsState()
                     val recommendedMovies = viewModel.recommendedMovies.collectAsState()
-                    HomeScreen(
+                    HomeContent(
                         upcomingMovies = uiState.value.upcomingMovies,
                         isLoadingMoreUpcomingMovies = uiState.value.isLoadingMoreUpcomingMovies,
                         onEndReachedForUpcomingMovies = { lastVisibleItem ->

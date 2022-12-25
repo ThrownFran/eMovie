@@ -10,8 +10,7 @@ import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-import brillembourg.parser.emovie.presentation.detail.ui.DetailScreen
-import brillembourg.parser.emovie.presentation.detail.ui.detailUiState
+import brillembourg.parser.emovie.presentation.detail.ui.DetailContent
 import brillembourg.parser.emovie.presentation.theme.eMovieTheme
 import brillembourg.parser.emovie.presentation.utils.*
 import dagger.hilt.android.AndroidEntryPoint
@@ -41,7 +40,7 @@ class DetailFragment : Fragment() {
             setContent {
                 eMovieTheme {
                     val uiState = viewModel.detailUiState.collectAsState()
-                    DetailScreen(
+                    DetailContent(
                         uiState = uiState.value,
                         lifecycleOwner = viewLifecycleOwner,
                         onClickBack = {

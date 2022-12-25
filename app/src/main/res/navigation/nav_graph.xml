@@ -15,6 +15,7 @@
             android:id="@+id/action_HomeFragment_to_DetailFragment"
             app:destination="@id/DetailFragment" />
     </fragment>
+
     <fragment
         android:id="@+id/DetailFragment"
         android:name="brillembourg.parser.emovie.presentation.detail.DetailFragment">

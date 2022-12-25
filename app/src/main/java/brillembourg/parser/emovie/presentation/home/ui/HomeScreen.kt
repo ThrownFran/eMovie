@@ -12,16 +12,23 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import brillembourg.parser.emovie.R
+import brillembourg.parser.emovie.domain.models.Category
+import brillembourg.parser.emovie.presentation.home.HomeViewModel
 import brillembourg.parser.emovie.presentation.home.LanguageFilter
 import brillembourg.parser.emovie.presentation.home.RecommendedMovies
 import brillembourg.parser.emovie.presentation.home.YearFilter
 import brillembourg.parser.emovie.presentation.models.MoviePresentationModel
+import brillembourg.parser.emovie.presentation.models.asString
 import brillembourg.parser.emovie.presentation.theme.eMovieTheme
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
@@ -38,6 +45,51 @@ val recommendedMovies = RecommendedMovies(
 
 @Composable
 fun HomeScreen(
+    viewModel: HomeViewModel = hiltViewModel(),
+    navigateToDetail: (MoviePresentationModel) -> Unit,
+) {
+    val uiState = viewModel.homeUiState.collectAsState()
+    val recommendedMovies = viewModel.recommendedMovies.collectAsState()
+    HomeContent(
+        upcomingMovies = uiState.value.upcomingMovies,
+        isLoadingMoreUpcomingMovies = uiState.value.isLoadingMoreUpcomingMovies,
+        onEndReachedForUpcomingMovies = { lastVisibleItem ->
+            viewModel.onAction.invoke(HomeViewModel.UiAction.EndOfPageReached(
+                Category.Upcoming,
+                lastVisibleItem))
+        },
+        isLastUpcomingPageReached = uiState.value.isLastUpcomingPageReached,
+
+        topRatedMovies = uiState.value.topRatedMovies,
+        isLoadingMoreTopRatedMovies = uiState.value.isLoadingMoreTopRatedMovies,
+        onEndReachedForTopRatedMovies = { lastVisibleItem ->
+            viewModel.onAction.invoke(HomeViewModel.UiAction.EndOfPageReached(
+                Category.TopRated,
+                lastVisibleItem))
+        },
+        isLastTopRatedPageReached = uiState.value.isLastTopRatedPageReached,
+
+        recommendedMovies = recommendedMovies.value,
+        onFilterYearChanged = {
+            viewModel.onAction(HomeViewModel.UiAction.SelectYear(it))
+        },
+        onFilterLanguageChanged = {
+            viewModel.onAction(HomeViewModel.UiAction.SelectLanguage(it))
+        },
+        messageToShow = uiState.value.messageToShow?.asString(LocalContext.current),
+        onMessageShown = viewModel::onMessageShown,
+        isLoading = uiState.value.isLoading,
+        onRefresh = {
+            viewModel.onAction(HomeViewModel.UiAction.Refresh)
+        },
+        onMovieClick = {
+            navigateToDetail.invoke(it)
+        }
+    )
+}
+
+@Composable
+fun HomeContent(
     upcomingMovies: List<MoviePresentationModel>,
     isLoadingMoreUpcomingMovies: Boolean = false,
     isLastUpcomingPageReached: Boolean = false,
@@ -55,7 +107,7 @@ fun HomeScreen(
     messageToShow: String?,
     onMessageShown: () -> Unit,
     isLoading: Boolean,
-    onRefresh: () -> Unit
+    onRefresh: () -> Unit,
 ) {
     SwipeRefresh(
         state = rememberSwipeRefreshState(isLoading),
@@ -142,7 +194,7 @@ private fun EmptyMoviesText(movies: List<MoviePresentationModel>) {
 private fun RecommendedMovieFilters(
     recommendedMovies: RecommendedMovies,
     onYearValueChanged: (Int?) -> Unit,
-    onLanguageValueChanged: (String?) -> Unit
+    onLanguageValueChanged: (String?) -> Unit,
 ) {
     Row(
         modifier = Modifier
@@ -193,7 +245,7 @@ private fun RecommendedMovieFilters(
 fun HomeScreenPreview() {
     val testEmptyMovies = false
     eMovieTheme {
-        HomeScreen(
+        HomeContent(
             upcomingMovies = if (testEmptyMovies) emptyList() else upcomingMovies,
             isLoadingMoreUpcomingMovies = true,
             topRatedMovies = if (testEmptyMovies) emptyList() else topRatedMovies,

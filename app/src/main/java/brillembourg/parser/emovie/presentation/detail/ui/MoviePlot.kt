@@ -31,26 +31,6 @@ val movieWithLargePlot =
 fun MoviePlot(modifier: Modifier = Modifier, movie: MoviePresentationModel) {
     Column(modifier = modifier.fillMaxSize()) {
 
-//        val annotatedString = buildAnnotatedString {
-//            appendInlineContent(id = "imageId")
-//            append("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAbbbbbb")
-//            append(" with a call iconwith a call iconwith a call iconwith a call iconwith a call iconwith a call iconwith a call iconwith a call iconwith a call iconwith a call icon")
-//        }
-//        val inlineContentMap = mapOf(
-//            "imageId" to InlineTextContent(
-//                Placeholder(80.sp, 80.sp, PlaceholderVerticalAlign.TextTop)
-//            ) {
-////                Image(
-////                    painter = painterResource(id = R.drawable.movie_placeholder),
-////                    contentDescription = null
-////                )
-//                MovieItem(
-////                    modifier = Modifier.padding(8.dp),
-//                    movie = movie
-//                )
-//            }
-//        )
-
         Text(
             modifier = Modifier.fillMaxWidth(),
             text = stringResource(id = R.string.movie_plot),
@@ -59,19 +39,11 @@ fun MoviePlot(modifier: Modifier = Modifier, movie: MoviePresentationModel) {
 
         Spacer(modifier = Modifier.height(8.dp))
 
-
         Row {
             MovieItem(movie = movie)
             Spacer(modifier = Modifier.width(8.dp))
             Text(text = movie.plot)
         }
-
-//        Text(
-//            color = Color.White,
-//            style = MaterialTheme.typography.bodyLarge,
-//            inlineContent = inlineContentMap,
-//            text = annotatedString
-//        )
 
 
     }

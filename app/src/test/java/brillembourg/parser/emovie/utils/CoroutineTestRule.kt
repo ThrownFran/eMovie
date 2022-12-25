@@ -18,6 +18,6 @@ class CoroutineTestRule(val testDispatcher: CoroutineDispatcher = UnconfinedTest
 
     override fun finished(description: Description) {
         super.finished(description)
-        Dispatchers.setMain(testDispatcher)
+        Dispatchers.resetMain()
     }
 }

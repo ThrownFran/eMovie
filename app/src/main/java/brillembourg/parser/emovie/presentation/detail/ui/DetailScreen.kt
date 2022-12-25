@@ -8,16 +8,19 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.LifecycleOwner
-import brillembourg.parser.emovie.domain.models.MovieDetail
+import androidx.lifecycle.ViewModel
 import brillembourg.parser.emovie.domain.models.Trailer
 import brillembourg.parser.emovie.presentation.detail.DetailFragment
 import brillembourg.parser.emovie.presentation.detail.DetailUiState
+import brillembourg.parser.emovie.presentation.detail.DetailViewModel
 import brillembourg.parser.emovie.presentation.home.ui.MainSnackBar
 import brillembourg.parser.emovie.presentation.home.ui.movieListFake
 import brillembourg.parser.emovie.presentation.models.MoviePresentationModel
@@ -34,13 +37,22 @@ val detailUiState = DetailUiState(movie = movieWithLargePlot, trailers = (1..10)
 })
 
 @Composable
-fun DetailScreen(
+fun DetailScreen(viewModel: DetailViewModel = androidx.lifecycle.viewmodel.compose.viewModel()) {
+    DetailContent(lifecycleOwner = LocalLifecycleOwner.current,
+        uiState = viewModel.detailUiState.collectAsState().value,
+        onClickBack = { },
+        onRefresh = { viewModel.onRefresh() },
+        onMessageShown = { viewModel.onMessageShown() })
+}
+
+@Composable
+fun DetailContent(
     modifier: Modifier = Modifier,
     lifecycleOwner: LifecycleOwner,
     uiState: DetailUiState,
     onClickBack: () -> Unit,
     onRefresh: () -> Unit,
-    onMessageShown: () -> Unit
+    onMessageShown: () -> Unit,
 ) {
 
     SwipeRefresh(
@@ -116,7 +128,7 @@ private fun MovieChipRow(modifier: Modifier, movie: MoviePresentationModel) {
 @Composable
 fun DetailScreenPreview() {
     eMovieTheme {
-        DetailScreen(
+        DetailContent(
             lifecycleOwner = DetailFragment(),
             uiState = detailUiState,
             onClickBack = {},
