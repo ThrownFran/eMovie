@@ -15,6 +15,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import brillembourg.parser.emovie.domain.models.Trailer
@@ -37,10 +38,14 @@ val detailUiState = DetailUiState(movie = movieWithLargePlot, trailers = (1..10)
 })
 
 @Composable
-fun DetailScreen(viewModel: DetailViewModel = androidx.lifecycle.viewmodel.compose.viewModel()) {
+fun DetailScreen(
+    viewModel: DetailViewModel = hiltViewModel(),
+    onClickBack: () -> Unit,
+) {
+    val uiState = viewModel.detailUiState.collectAsState().value
     DetailContent(lifecycleOwner = LocalLifecycleOwner.current,
-        uiState = viewModel.detailUiState.collectAsState().value,
-        onClickBack = { },
+        uiState = uiState,
+        onClickBack = onClickBack,
         onRefresh = { viewModel.onRefresh() },
         onMessageShown = { viewModel.onMessageShown() })
 }
@@ -54,6 +59,8 @@ fun DetailContent(
     onRefresh: () -> Unit,
     onMessageShown: () -> Unit,
 ) {
+
+    if (uiState.movie == null) return
 
     SwipeRefresh(
         state = rememberSwipeRefreshState(isRefreshing = uiState.isLoading),

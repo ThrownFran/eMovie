@@ -6,7 +6,7 @@ import brillembourg.parser.emovie.presentation.models.UiText
 
 
 data class DetailUiState(
-    val movie: MoviePresentationModel,
+    val movie: MoviePresentationModel? = null,
     val trailers: List<Trailer> = emptyList(),
     val messageToShow: UiText? = null,
     val isLoading: Boolean = false

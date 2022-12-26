@@ -8,6 +8,7 @@ import brillembourg.parser.emovie.domain.use_cases.RefreshMovieDetailUseCase
 import brillembourg.parser.emovie.presentation.models.MoviePresentationModel
 import brillembourg.parser.emovie.presentation.models.toPresentation
 import brillembourg.parser.emovie.core.Logger
+import brillembourg.parser.emovie.presentation.utils.NavArg
 import brillembourg.parser.emovie.presentation.utils.getMessageFromException
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -19,17 +20,16 @@ import javax.inject.Inject
 class DetailViewModel @Inject constructor(
     val savedStateHandle: SavedStateHandle,
     private val getMovieDetailUseCase: GetMovieDetailUseCase,
-    private val refreshMovieDetailUseCase: RefreshMovieDetailUseCase
+    private val refreshMovieDetailUseCase: RefreshMovieDetailUseCase,
 ) : ViewModel() {
 
-    private val _detailUiState = MutableStateFlow(
-        value = DetailUiState(
-            movie = savedStateHandle.get<MoviePresentationModel>("movie")
-                ?: throw IllegalArgumentException("Movie not provided to detail")
-        ).also { state ->
-            observeMovie(state.movie.id)
-        })
+    val movieId = savedStateHandle.get<Long>(NavArg.ItemId.key)
+        ?: throw IllegalArgumentException("Movie id not provided to detail")
 
+    private val _detailUiState = MutableStateFlow(
+        value = DetailUiState().also { state ->
+            observeMovie(id = movieId)
+        })
     val detailUiState = _detailUiState.asStateFlow()
 
     private val coroutineExceptionHandler = CoroutineExceptionHandler { context, throwable ->
@@ -64,7 +64,7 @@ class DetailViewModel @Inject constructor(
     private fun refreshMovieDetail() {
         viewModelScope.launch(coroutineExceptionHandler) {
             showLoading()
-            refreshMovieDetailUseCase.invoke(detailUiState.value.movie.id)
+            refreshMovieDetailUseCase.invoke(detailUiState.value.movie?.id?:movieId)
             hideLoading()
         }
     }
