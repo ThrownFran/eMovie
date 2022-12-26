@@ -21,7 +21,6 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         WindowCompat.setDecorFitsSystemWindows(window, false)
         super.onCreate(savedInstanceState)
@@ -29,30 +28,6 @@ class MainActivity : AppCompatActivity() {
             eMovieTheme {
                 EMovieApp()
             }
-        }
-    }
-
-    @Composable
-    fun EMovieApp() {
-        val navController = rememberNavController()
-        NavHost(navController = navController, startDestination = NavCommand.ContentType(Feature.Home).route) {
-
-            composable(NavCommand.ContentType(Feature.Home)) {
-                HomeScreen {
-                    navController.navigate(NavCommand.ContentTypeDetail(Feature.Detail).createRoute(it.id)) {
-                        popUpTo(NavCommand.ContentType(Feature.Home).route)
-                    }
-                }
-            }
-
-            composable(
-               NavCommand.ContentTypeDetail(Feature.Detail)
-            ) {
-                DetailScreen {
-                    navController.navigateUp()
-                }
-            }
-
         }
     }
 
